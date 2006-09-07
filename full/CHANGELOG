@@ -2,7 +2,7 @@
 CHANGELOG for full install of Anomaly Jobs
 
 
-Full Install. (See below for Patch changes)
+Full Install. 
 
 Version 5.1
-
+- Removed '@@trigger %vb/TRIG_APPROVE=%0,%#,%1,[get(%q0/TITLE)]' from the +job/approve command. This is deprecated code left over from the Jobs 4 days. TRIG_ADD handles the TRIG_APR hook now.

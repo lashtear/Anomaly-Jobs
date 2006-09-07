@@ -2,6 +2,6 @@
 CHANGELOG for patch install of Anomaly Jobs
 
 Verion 5.1
-
-Emptied out the install file to a clean slate for upcoming 5.1 changes.
-Renamed file to jobs_5.1-patch.txt
+- Emptied out the install file to a clean slate for upcoming 5.1 changes.
+- Renamed file to jobs_5.1-patch.txt
+- Added updated +job/approve command. This removed '@@trigger %vb/TRIG_APPROVE=%0,%#,%1,[get(%q0/TITLE)]' which is deprecated code leftover from Jobs 4.x.

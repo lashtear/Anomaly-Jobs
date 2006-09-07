@@ -39,3 +39,6 @@
 @@
 @@ ===============================================================================
 @@
+
+
+&CMD_JOB/APPROVE Job Global Object <JGO>=$+job/approve *=*:@switch [setq(0,locate(%va,Job %0,i))][isdbref(%q0)][u(%va/HAS_ACCESS,%#)][u(%va/APPROVE_ACCESS,%#)][not(u(%va/IS_LOCKED,%q0))]=0*,{@pemit %#=There is no job by that number.},10*,{@pemit %#=Permission denied.},110*,{@pemit %#=Permission denied.},1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@pemit %#=[u(%va/FN_ADDSTAT_ART,parent(%q0),%q0)][u(%va/FN_ADDSTAT_ART,%vc,%q0)]You have approved job #%0, adding the comments: %1;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 has been approved by %n.;@trigger %va/TRIG_ADD=%q0,[strtrunc(%1,get(%va/BUFFER))],%#,APR;@trigger [parent(%q0)]/HOOK_APPROVE=%q0,%#;@wait .1={@parent %q0;@nuke %q0}}
