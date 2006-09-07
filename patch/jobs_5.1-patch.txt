@@ -1,0 +1,41 @@
+@pemit %#=[ansi(hc,ANOMALY JOBS:)] Working. Please wait.
+@@ ===============================================================================
+@@ 
+@@ Anomaly Jobs
+@@ Superior Task Tracking Technology
+@@ Version 5.1 PATCH from Version 5.0 7 Sep 2006
+@@
+@@   Written by: Starfleet @ Anomaly (eye1movies@aol.com)
+@@ Contributors: Firestorm @ Ephemera (+myjobs, /tags)
+@@               Grey @ Anomaly (Summaries)
+@@               Ian @ MUX (Pies)
+@@
+@@ Platforms supported: MUX 2.x, MUSH 3
+@@ Requirements: Myrddin's BBS, @mail system, Jobs 4.4
+@@
+@@ This code is provided as-is and expresses no guarantee or warranty. Use it
+@@ entirely at your own risk. Author is not liable for any damages, real or
+@@ implied. It is available free to benefit the online text game community at
+@@ large.
+@@
+@@ ===============================================================================
+@@ Installation instructions
+@@
+@@ DO NOT run this script if you have renamed any of the Job objects. It won't
+@@ work. The default object names are:
+@@
+@@             Job Database <JD>
+@@             Job Global Object <JGO>
+@@             Job Parent Object <JPO>
+@@             Job Tracker
+@@ 
+@@ BE SURE TO READ ALL OF THIS DOCUMENT, as there are configuration options that
+@@ you may want to alter.
+@@
+@@ This installation file requires no unformatting or alteration of any kind. 
+@@ Simply quote it into your favorite client, and it will tidy everything up on 
+@@ its own.
+@@
+@@
+@@ ===============================================================================
+@@
