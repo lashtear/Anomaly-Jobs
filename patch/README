@@ -2,17 +2,21 @@
 
 Anomaly Jobs 5
 
-1. Installing Anomaly Jobs 5
+1. Installing the Anomaly Jobs 5.1 Patch
 2. Post Install Configuartion
 3. Getting Help
 
 
-1. Installing Anomaly Jobs 5
+1. Installing the Anomaly Jobs 5.1 Patch
 
-Installing Jobs 5 is fairly straight forward. You quote the install file to
-your game and the install is automated. However, before you install it read
-the README.<dist> file for your server for any notes, and read the install file
-notes.
+Installing the Anomaly Jobs 5.1 patch is fairly straight forward. You quote 
+the patch install file to your game and the install is automated. 
+
+Manual changes required:
+Jobs 5.0 did not setup the default delete board. In most cases this is not
+required, but in some cases why doing custom pletter_del setups, this is 
+needed. Do '&POST_DELETE Job Parent Object <JPO>=<#>' where the # is the 
+Staff Job Tracker board or the default board you want to use.
 
 
 2. Post Install Configuration
