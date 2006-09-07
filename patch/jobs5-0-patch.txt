@@ -1,0 +1,809 @@
+@pemit %#=[ansi(hc,ANOMALY JOBS:)] Working. Please wait.
+@@ ===============================================================================
+@@ 
+@@ Anomaly Jobs
+@@ Superior Task Tracking Technology
+@@ Version 5.0 PATCH from Version 4.4 31Jan2006
+@@
+@@   Written by: Starfleet @ Anomaly (eye1movies@aol.com)
+@@ Contributors: Firestorm @ Ephemera (+myjobs, /tags)
+@@               Grey @ Anomaly (Summaries)
+@@               Ian @ MUX (Pies)
+@@
+@@ Platforms supported: MUX 2.x, MUSH 3
+@@ Requirements: Myrddin's BBS, @mail system, Jobs 4.4
+@@
+@@ This code is provided as-is and expresses no guarantee or warranty. Use it
+@@ entirely at your own risk. Author is not liable for any damages, real or
+@@ implied. It is available free to benefit the online text game community at
+@@ large.
+@@
+@@ ===============================================================================
+@@ Installation instructions
+@@
+@@ DO NOT run this script if you have renamed any of the Job objects. It won't
+@@ work. The default object names are:
+@@
+@@             Job Database <JD>
+@@             Job Global Object <JGO>
+@@             Job Tracker
+@@ 
+@@ BE SURE TO READ ALL OF THIS DOCUMENT, as there are configuration options that
+@@ you may want to alter.
+@@
+@@ Calling this a patch is a misnomer. It is actually a format and reconstruct.
+@@ As such, if you have customized your jobs system, then those changes will be 
+@@ LOST. It is suggested under those circumstances that you do the following: 
+@@ @clone the old system. Rename the Clones to 'Old Jobs', and only then apply 
+@@ the patch - this will allow you to refer to your previous changes.
+@@
+@@ This installation file requires no unformatting or alteration of any kind. 
+@@ Simply quote it into your favorite client, and it will tidy everything up on 
+@@ its own.
+@@
+@@ Note that there are new commands. Please make sure you are using the most
+@@ recent version of the help file, found in the zip file.
+@@
+@@ What's new?
+@@ 
+@@ The core code has been totally rewritten for power and flexibility.
+@@ Bucket handling - buckets are now objects, jobs are parented to them.
+@@ +jobs/reports - over 40 different reports (including average resolution times).
+@@ Skins - give your system a completely new look.
+@@ Summaries - Jobs can have user-created/customizable headers.
+@@ Action Hooks - All actions now have hook triggers.
+@@ Post/Mail Hooks - Posting and Mailing 
+@@ Automation - Automate tasks using a @daily process or Cron trigger.
+@@ '+jobs/<bucket>' has changed to '+jobs/list <bucket>', eliminating a kludge.
+@@ Two different styles of viewing new jobs (BBS style and Old Style)
+@@ +jhelp
+@@ Minor bug fixes.
+@@
+@@ ===============================================================================
+@@
+@set me=quiet
+@fo me={@tel [search(object=Job Global Object <JGO>)]}
+@pemit %#=[repeat(=,79)]%r%r[center(ansi(hc,Patching Anomaly Jobs to 5.0),79)]%r%r[repeat(=,79)]
+@@ -------------------------------------------------------------------
+@@ Bucket Conversion
+@@ -------------------------------------------------------------------
+@@
+@pemit %#=[ansi(hc,ANOMALY JOBS:)] Converting old buckets.
+@@
+@create Job Parent Object <JPO>
+@fo me={&JOBS_VA me=[num(Job Database <JD>)]}
+@fo me={&JOBS_VB me=[num(Job Tracker)]}
+@fo me={&JOBS_VC me=[num(Job Parent Object <JPO>)]}
+@@
+@dolist ucstr(u(setr(a,v(JOBS_VA))/buckets))={think [setq(0,create(##,10,t))];@tel %q0=v(JOBS_VC);@chown %q0=[owner(%qa)];@set %q0=!halted;@parent %q0=JPO;&HIDDEN %q0=[u(%qa/HIDDEN_##)];&PUBLIC %q0=[u(%qa/PUBLIC_##)];@desc %q0=[u(%qa/BUCKET_##)];@cpattr %qa/HOOK_APPROVE_##=%q0/HOOK_APR;@cpattr %qa/HOOK_DENY_##=%q0/HOOK_DNY;@cpattr %qa/HOOK_COMPLETE_##=%q0/HOOK_COM;@cpattr %qa/HOOK_DELETE_##=%q0/HOOK_DEL;@cpattr %qa/ACCESS_##=%q0/ACCESS;@lock/speech %q0=ACCESS/1;@edit %q0/ACCESS=%%0,%%#;&PRIORITY %qo=1;&POST_COMPLETE %q0=[u(%qa/POSTTO_##)];&PUBLIC %q0=[u(%qa/PUBLIC_##)];@set %q0=!halted inherit !no_command}
+@@
+@dolist lcon(v(JOBS_VA))={@parent ##=[locate(Job Parent Object <JPO>,[u(##/BUCKET)],i)]}
+@@
+@dolist lcon(Job Parent Object <JPO>)={@lock/speech ##=ACCESS/1}
+@@ -------------------------------------------------------------------
+@@ Job Parent Object <JPO>: Please do not rename this object.
+@@ -------------------------------------------------------------------
+@@
+@pemit %#=[ansi(hc,ANOMALY JOBS:)] Setting up Job Parent Object.
+@@
+@Desc Job Parent Object <JPO>=%r[columns(sort(lattr(me/*)),18)]%r%r[center(Please do not rename this object.,79)]
+@Daily Job Parent Object <JPO>=@dolist lcon(me)={@switch [hasattr(##,HOOK_AUT)]=1,{@trigger ##/HOOK_AUT=[trim(## [children(##)],b)],[owner(%va)]}}
+@@
+&ACCESS Job Parent Object <JPO>=[u(%va/FN_STAFFALL,%#)]
+&ACCESS_DESC Job Parent Object <JPO>=[u(%va/FN_STAFFALL,%0)]
+&ACCESS_HELP Job Parent Object <JPO>=[u(%va/FN_STAFFALL,%0)]
+&ACCESS_HIDDEN Job Parent Object <JPO>=[u(%va/FN_WIZONLY,%0)]
+&ACCESS_LOCKED Job Parent Object <JPO>=[u(%va/FN_WIZONLY,%0)]
+&ACCESS_LOGFILE Job Parent Object <JPO>=[u(%va/FN_WIZONLY,%0)]
+&ACCESS_MYJOBS Job Parent Object <JPO>=[u(%va/FN_WIZONLY,%0)]
+&ACCESS_POST_APPROVE Job Parent Object <JPO>=[u(%va/FN_WIZONLY,%0)]
+&ACCESS_POST_COMPLETE Job Parent Object <JPO>=[u(%va/FN_WIZONLY,%0)]
+&ACCESS_POST_DENY Job Parent Object <JPO>=[u(%va/FN_WIZONLY,%0)]
+&ACCESS_TURNAROUND Job Parent Object <JPO>=[u(%va/FN_WIZONLY,%0)]
+&ERROR_HIDDEN Job Parent Object <JPO>=Valid options for the HIDDEN parameter are 'yes' and 'no'.
+&ERROR_LOCKED Job Parent Object <JPO>=Valid settings for the LOCKED parameter are 'yes' and 'no'.
+&ERROR_MYJOBS Job Parent Object <JPO>=Valid settings for the MYJOBS parameter are 'yes' and 'no'.
+&ERROR_POST_APPROVE Job Parent Object <JPO>=The setting for the POST_APPROVE parameter must be a positive integer.
+&ERROR_POST_COMPLETE Job Parent Object <JPO>=The setting for the POST_COMPLETE parameter must be a positive integer.
+&ERROR_POST_DENY Job Parent Object <JPO>=The setting for the POST_DENY parameter must be a positive integer.
+&ERROR_TURNAROUND Job Parent Object <JPO>=You must provide a turnaround time in hours.
+&HELP Job Parent Object <JPO>=%rThere is no help available for that bucket. To set help information for the [name(me)] bucket, use:%r%r[space(5)]+bucket/set [lcstr(name(me))]/help=<information>%r
+&HOOK_MAI Job Parent Object <JPO>=@set %0/[last(lattr(%0/COMMENT_*))]=no_inherit
+&LOGFILE Job Parent Object <JPO>=joblog
+&MLETTER_APR Job Parent Object <JPO>=[name(%0)] has been approved:%r%r[last(get(%0/COMMENT_1),|)]%r[repeat(-,75)]%r[ansi(h,Comments added by [name(%2)]:)] %3
+&MLETTER_DNY Job Parent Object <JPO>=[name(%0)] has been denied:%r%r[last(get(%0/COMMENT_1),|)]%r[repeat(-,75)]%r[ansi(h,Comments added by [name(%2)]:)] %3
+&MLETTER_MAI Job Parent Object <JPO>=[name(%2)] is mailing you regarding [name(%0)]:%r%r%3%r[repeat(-,75)]%rUnless this letter indicates otherwise%, you should respond with the following command:%r%r[space(5)]%xh+myjob/add [last(name(%0))]=<your comments>%xn
+&PLETTER_APR Job Parent Object <JPO>=[space(10)]%xhJob:%xn #[last(name(%0))]%r[space(8)]%xhTitle:%xn [get(%0/TITLE)]%r[space(4)]%xhOpened By:%xn [u(%va/FN_PLAYERLIST,%0)]%r[space(4)]%xhOpened On:%xn [convsecs(get(%0/OPENED_ON))]%r%b%xhCompleted By:%xn [name(%2)]%r%b%xhCompleted On:%xn [time()]%r%r[last(get(%0/COMMENT_1),|)]%r[repeat(-,78)]%r[ansi(h,Comments from [name(%2)]:)] %3%r%rThis job was approved.
+&PLETTER_COM Job Parent Object <JPO>=Job [last(name(%0))] has been completed by [name(%2)]:%r%r[last(get(%0/COMMENT_1),|)]%r[repeat(-,78)]%r[ansi(h,Comments from [name(%2)]:)] %3
+&PLETTER_DNY Job Parent Object <JPO>=[space(10)]%xhJob:%xn #[last(name(%0))]%r[space(8)]%xhTitle:%xn [get(%0/TITLE)]%r[space(4)]%xhOpened By:%xn [u(%va/FN_PLAYERLIST,%0)]%r[space(4)]%xhOpened On:%xn [convsecs(get(%0/OPENED_ON))]%r%b%xhCompleted By:%xn [name(%2)]%r%b%xhCompleted On:%xn [time()]%r%r[last(get(%0/COMMENT_1),|)]%r[repeat(-,78)]%r[ansi(h,Comments from [name(%2)]:)] %3%r%rThis job was denied.
+&PROCESS_DESC Job Parent Object <JPO>=[setq(3,DESC)][setq(1,%0)]1
+&PROCESS_HELP Job Parent Object <JPO>=[setq(3,HELP)][setq(1,%0)]1
+&PROCESS_HIDDEN Job Parent Object <JPO>=[setq(3,HIDDEN)][setq(1,switch(lcstr(%0),yes,1,no,,0))][switch(%q1,,1,%q1)]
+&PROCESS_LOCKED Job Parent Object <JPO>=[setq(3,LOCKED)][setq(1,switch(lcstr(%0),yes,1,no,,0))][switch(%q1,,1,%q1)]
+&PROCESS_LOGFILE Job Parent Object <JPO>=[setq(3,LOGFILE)][setq(1,%0)]1
+&PROCESS_MYJOBS Job Parent Object <JPO>=[setq(3,PUBLIC)][setq(1,switch(lcstr(%0),yes,1,no,,0))][switch(%q1,,1,%q1)]
+&PROCESS_POST_APPROVE Job Parent Object <JPO>=[setq(3,POST_APPROVE)][setq(1,%0)][gt(%0,0)]
+&PROCESS_POST_COMPLETE Job Parent Object <JPO>=[setq(3,POST_COMPLETE)][setq(1,%0)][gt(%0,0)]
+&PROCESS_POST_DENY Job Parent Object <JPO>=[setq(3,POST_DENY)][setq(1,%0)][gt(%0,0)]
+&PROCESS_TURNAROUND Job Parent Object <JPO>=[setq(3,TURNAROUND)][setq(1,%0)][isnum(%0)]
+&VERSION Job Parent Object <JPO>=v5.0
+@@
+@cpattr Job Tracker/VA=Job Parent Object <JPO>/POST_COMPLETE
+@cpattr Job Tracker/VB=Job Parent Object <JPO>/POST_APPROVE
+@cpattr Job Tracker/VB=Job Parent Object <JPO>/POST_DENY
+@set Job Parent Object <JPO>=INHERIT
+@set Job Parent Object <JPO>=COMMANDS
+@set Job Parent Object <JPO>=!HALTED
+@switch [hasattr(Job Parent Object <JPO>,POST_DENY)]=0,{@pemit %#=[ansi(hr,ERROR:)] Job Parent Object does not have a POST_DENY attribute. To fix this, you must:%r%r[space(10)]&POST_DENY [num(Job Parent Object <JPO>)]=<bboard #>%r%rThis will set the default board that the system posts to upon job denial. You should do this upon completion of the script.}
+@switch [hasattr(Job Parent Object <JPO>,POST_APPROVE)]=0,{@pemit %#=[ansi(hr,ERROR:)] Job Parent Object does not have a POST_APPROVE attribute. To fix this, you must:%r%r[space(10)]&POST_APPROVE [num(Job Parent Object <JPO>)]=<bboard #>%r%rThis will set the default board that the system posts to upon job approval. You should do this upon completion of the script.}
+@switch [hasattr(Job Parent Object <JPO>,POST_COMPLETE)]=0,{@pemit %#=[ansi(hr,ERROR:)] Job Parent Object does not have a POST_COMPLETE attribute. To fix this, you must:%r%r[space(10)]&POST_COMPLETE [num(Job Parent Object <JPO>)]=<bboard #>%r%rThis will set the default board that the system posts to upon job completion. You should do this upon completion of the script.}
+@@
+@@ -------------------------------------------------------------------
+@@ Job Global Object <JGO>: Please do not rename this object.
+@@ -------------------------------------------------------------------
+@@
+@wipe here/*
+@@
+@pemit %#=[ansi(hc,ANOMALY JOBS:)] Setting up commands.
+@@
+@Desc here=%r[columns(sort(lattr(me/*)),18)]%r%r[center(Please do not rename this object.,79)]
+@Startup here=@drain me;@notify me
+@Adisconnect here=@pemit me=[ifelse(u(%va/HAS_ACCESS,%#),set(%#,LAST_CONN:[secs()]),)]
+@Aconnect here=@fo %#={+jobs/new}
+@@
+&CMD_BUCKET/ACCESS here=$+bucket/access *=*:@switch [u(%va/GIVE_ACCESS,%#)][setq(0,num(*%0))][setq(1,locate(%vc,%1,i))][isdbref(%q0)][isdbref(%q1)][u(%va/FN_ACCESSCHECK,%q1,%q0)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no player by that name.},110*,{@pemit %#=There is no bucket by that name.},1110*,{@pemit %#=You have given [name(%q0)] access to the [name(%q1)] bucket.;&JOBSB %q0=[ifelse(member(get(%q0/JOBSB),%q1),remove(get(%q0/JOBSB),%q1),setunion(get(%q0/JOBSB),%q1))]},{@pemit %#=You have removed [name(%q0)]'s access to the [name(%q1)] bucket.;&JOBSB %q0=[ifelse(member(get(%q0/JOBSB),%q1),remove(get(%q0/JOBSB),%q1),setunion(get(%q0/JOBSB),%q1))]}
+&CMD_BUCKET/CREATE here=$+bucket/create *=*:@switch [setq(0,locate(%vc,%0,i))][u(%va/FN_WIZONLY,%#)][not(isdbref(%q0))][not(gt(strlen(%0),5))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is already a bucket by that name.},110*,{@pemit %#=The name of a bucket is limited to five letters.},{@pemit %#=You have created a bucket named [ucstr(%0)].[setq(0,create(ucstr(%0),10,t))] Be sure to change %q0/ACCESS to establish who can access the bucket. Presently, it is set to 1, which means that anyone who can access +jobs can access the bucket.;@tel %q0=%vc;@parent %q0=%vc;@desc %q0=[secure(%1)];@set %q0=inherit !safe !halted !no_command;&ACCESS %q0=1;@lock/speech %q0=ACCESS/1}
+&CMD_BUCKET/DELETE here=$+bucket/delete *:@switch [u(%va/FN_WIZONLY,%#)][setq(0,locate(%vc,%0,i))][isdbref(%q0)][eq(words(children(%q0)),0)][not(hasflag(%q0,SAFE))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no bucket by that name.},110*,{@pemit %#=The bucket is not empty, and cannot be deleted.},1110*,{@pemit %#=That bucket is required for the system to operate properly.},{@pemit %#=You have deleted the bucket named [ucstr(%0)].;@destroy/instant %q0;@dolist search(type=player)={&JOBSH ##=[remove(get(##/JOBSH),%q0)];&JOBSB ##=[remove(get(##/JOBSB),%q0)]}}
+&CMD_BUCKET/HELP here=$+bucket/help *:@switch [setq(0,locate(%vc,%0,i))][u(%va/FN_ACCESSCHECK,%q0,%#)][isdbref(%q0)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That is not a valid bucket. Type '[ansi(h,+buckets)]' for a list of valid buckets.},{@pemit %#=[u(%va/FN_HEADER,Bucket Help For [name(%q0)])];@pemit %#=[u(%q0/HELP)];@pemit %#=[u(%va/FN_FOOTER)]}
+&CMD_BUCKET/INFO here=$+bucket/info *:@switch [u(%va/FN_STAFFALL,%#)][setq(0,locate(%vc,%0,i))][isdbref(%q0)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no bucket by that name.},{@pemit %#=[u(%va/FN_HEADER,Bucket Information For [name(%q0)])]%r[u(%va/DISPLAY_BUCKET)];@pemit %#=[u(%va/DISPLAY_BUCKET2)];@pemit %#=[u(%va/FN_FOOTER)]}
+&CMD_BUCKET/MONITOR here=$+bucket/monitor *:@switch [u(%va/HAS_ACCESS,%#)][setq(0,locate(%vc,%0,i))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,%q0,%#)][u(%va/FN_MONITORCHECK,%q0,%#)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no bucket by that name.},110*,{@pemit %#=You do not have access to that bucket.},1110*,{@pemit %#=You have added bucket [name(%q0)] to your monitored list.;&JOBSH %#=[ifelse(hasattr(%q0,HIDDEN),setunion(get(%#/JOBSH),%q0),remove(get(%#/JOBSH),%q0))]},{@pemit %#=You have removed bucket [name(%q0)] from your monitored list.;&JOBSH %#=[ifelse(hasattr(%q0,HIDDEN),remove(get(%#/JOBSH),%q0),setunion(get(%#/JOBSH),%q0))]}
+&CMD_BUCKET/SET here=$+bucket/set */*=*:@switch [setq(5,0)][setq(0,locate(%vc,%0,i))][and(u(%va/HAS_ACCESS,%#),u(%va/CONFIG_ACCESS,%#),u(%q0/ACCESS_%1,%#))][isdbref(%q0)][hasattrp(%q0,ACCESS_%1)][u(%q0/PROCESS_%1,%2,%q0,%#)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no bucket by that name. See '[ansi(h,+buckets)]' for a list of valid buckets.},110*,{@pemit %#='%1' is not a valid parameter. Valid parameters for [name(%q0)] are [u(%va/FN_PRETTY,map(%va/MAP_PARAMS,lattr(%vc/PROCESS_*)))].},1110*,{@pemit %#=[u(%q0/ERROR_%1%q2)]},{@pemit %#=[name(%q0)]'s [ucstr(%1)] successfully updated to: '%2'.;&%q3 %q0=%q1}
+&CMD_BUCKETS here=$+buckets:@switch [u(%va/HAS_ACCESS,%#)]=0*,{@pemit %#=Permission denied.},{@pemit %#=[u(%va/FN_BUCKETHEADER)];think [setq(x,sortby(%va/SORTBY_NAME,lcon(%vc)))];@pemit %#=[list(filter(%va/FIL_ACCESS,%qx),u(%va/FN_BUCKETLIST,##))];@pemit %#=[u(%va/FN_FOOTER,[ifelse(u(%va/FN_STAFFALL,%#),ansi(hy,V=Viewing H=Hidden P=Published M=Myjobs L=Locked S=Summary),)])]}
+&CMD_BUG here=$+bug *=*:@switch [not(haspower(%#,guest))]=0*,{@pemit %#=Permission Denied.},{@pemit %#=You have notified production staff of the [secure(strtrunc(%0,30))] bug, with the details '[secure(strtrunc(%1,get(%va/BUFFER)))]';@trigger %va/TRIG_CREATE=%#,locate(%vc,CODE,i),3,BUG: [strtrunc(%0,30)],[strtrunc(%1,get(%va/BUFFER))],,,5}
+&CMD_JOB/ACT here=$+job/act *:@switch [u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %0,i))][isdbref(%q0)][or(u(%va/FN_STAFFALL,%#),u(%q0/ACCESS,%#))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no job by that name. Please type '+jobs/all' for all jobs or '+jobs/<type>' to list by type.},110*,{@pemit %#=You do not have access to that job.},{@pemit %#=[u(%va/FN_HEADER,View Job Number %0)]%r[ulocal(%va/FN_BANNER,%q0)]%r[u(%va/FN_BREAK)];@dolist lattr(%q0/COMMENT_*)={@pemit %#=[rest(convsecs(extract(get(%q0/##),2,1,|)))] [first(get(%q0/##),|)] [ljust(strtrunc(extract(get(%q0/##),4,1,|),15),15)] [ljust(strtrunc(trim(edit(edit(edit(last(get(%q0/##),|),@@PIPE@@,|),%r,%b),%t,%b),b),35),35)]};@wait me={@pemit %#=[u(%va/FN_FOOTER)]};@notify me}
+&CMD_JOB/ADD here=$+job/add *=*:@switch [u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %0,i))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)][not(u(%va/IS_LOCKED,%q0))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That is an invalid job number.},110*,{@pemit %#=You do not have access to that job.},1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@pemit %#=Comments to job number %0 added.;&tagged_for %q0=[setdiff(get(%q0/tagged_for),%#)];@trigger %va/TRIG_ADD=%q0,%1,%#,ADD;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Comments added to job %0 by %n.}
+&CMD_JOB/ALL here=$+job/all *:@switch [u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %0,i))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no job by that name. Please type '[ansi(h,+jobs/all)]' for all jobs or '[ansi(h,+jobs/list <bucket>)]' to list by bucket.},110*,{@pemit %#=You do not have access to that job.},{@pemit %#=[u(%va/FN_READERS,%q0,%#)][u(%va/FN_HEADER,View [name(%q0)])]%r[ulocal(%va/FN_BANNER,%q0,%#)][ifelse(hasattrp(%q0,SUMMARY),[ulocal(%va/FN_SUMMARY,%q0,%#)],)];@dolist [lattr(%q0/COMMENT_*)]={@pemit %#=[u(%va/FN_READJOB,##,%q0)]};@wait me={@pemit %#=[u(%va/FN_FOOTER,u(%va/FN_FLAGS,%q0))]};@notify me}
+&CMD_JOB/APPROVE here=$+job/approve *=*:@switch [setq(0,locate(%va,Job %0,i))][isdbref(%q0)][u(%va/HAS_ACCESS,%#)][u(%va/APPROVE_ACCESS,%#)][not(u(%va/IS_LOCKED,%q0))]=0*,{@pemit %#=There is no job by that number.},10*,{@pemit %#=Permission denied.},110*,{@pemit %#=Permission denied.},1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@pemit %#=[u(%va/FN_ADDSTAT_ART,parent(%q0),%q0)][u(%va/FN_ADDSTAT_ART,%vc,%q0)]You have approved job #%0, adding the comments: %1;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 has been approved by %n.;@trigger %va/TRIG_ADD=%q0,[strtrunc(%1,get(%va/BUFFER))],%#,APR;@trigger [parent(%q0)]/HOOK_APPROVE=%q0,%#;@@trigger %vb/TRIG_APPROVE=%0,%#,%1,[get(%q0/TITLE)];@wait .1={@parent %q0;@nuke %q0}}
+&CMD_JOB/ASSIGN here=$+job/assign *=*:@switch [u(%va/HAS_ACCESS,%#)][setq(1,num(*%1))][setq(2,switch(ucstr(%1),NONE,1,0))][or(isdbref(%q1),%q2)][setq(0,locate(%va,Job %0,i))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)][not(u(%va/IS_LOCKED,%q0))][ifelse(%q2,1,u(%va/FN_ACCESSCHECK,parent(%q0),%q1))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no player by that name.},110*,{@pemit %#=That is not a valid job number.},1110*,{@pemit %#=You do not have access to that job.},11110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},111110*,{@pemit %#=[name(%q1)] does not have access to that bucket.},{@pemit %#=You have assigned Job number %0 to [ifelse(isdbref(%q1),name(%q1),nobody)].;&ASSIGNED_TO %q0=[ifelse(%q2,,%q1)];@trigger %va/TRIG_ADD=%q0,[ifelse(%q2,Assignment removed.,Assigned to [name(%q1)])].,%#,ASN,%q1;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 has been assigned to [ifelse(%q2,nobody,name(%q1))] by %n.}
+&CMD_JOB/CLONE here=$+job/clone *:@switch [u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %0,i))][u(%va/FN_ACCESSCHECK,parent(%q0),%#)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no job by that number.},110*,{@pemit %#=You do not have access to that job.},{@pemit [setq(1,inc(get(%va/JOBS_NUM)))]%#=Job copied as Job %q1.;&JOBS_NUM %va=%q1;@clone %q0=Job %q1;@pemit me=[setq(2,num(Job %q1))];@tel %q2=%va;@trigger %va/TRIG_ADD=%q2,Cloned job.,%#,CLN,%q0;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 Cloned by %n. New job is %q1.}
+&CMD_JOB/COMPLETE here=$+job/complete *=*:@switch [u(%va/COMPLETE_ACCESS,%#)][setq(0,locate(%va,Job %0,i))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)][not(u(%va/IS_LOCKED,%q0))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That is not a valid job #. See '+jobs/all' for valid jobs.},110*,{@pemit %#=Permission denied.},1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@pemit %#=[u(%va/FN_ADDSTAT_ART,parent(%q0),%q0)][u(%va/FN_ADDSTAT_ART,%vc,%q0)]You have completed job # %0.;@trigger %va/TRIG_ADD=%q0,[strtrunc(%1,get(%va/BUFFER))],%#,COM;@trigger %q0/HOOK_COMPLETE=%q0,%#;@trigger %vb/TRIG_COMPLETE=%0,%#,%1,[parent(%q0)];@wait .1={@parent %q0;@nuke %q0}}
+&CMD_JOB/CREATE here=$+job/create */*=*:@switch [u(%va/CREATE_ACCESS,%#)][setq(0,locate(%vc,ucstr(%0),i))][u(%va/FN_ACCESSCHECK,%q0,%#)][isdbref(locate(%vc,%0,i))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=You cannot access that bucket.},110*,{@pemit %#=There is no bucket by that name. Type '[ansi(h,+buckets)]' to get a list of buckets.},{@pemit [setq(1,inc(get(%va/JOBS_NUM)))]%#=You have created job number %q1 entitled '[strtrunc(%1,30)]'.;@trigger %va/TRIG_CREATE=%#,%q0,1,[strtrunc(%1,30)],[strtrunc(%2,u(%va/BUFFER))],,,1}
+&CMD_JOB/DELETE here=$+job/delete *:@switch [or(u(%va/DELETE_ACCESS,%#),u(%va/FN_WIZONLY,%#),switch(%#,%va,1,0))][setq(0,locate(%va,Job %0,i))][isdbref(%q0)][not(u(%va/IS_LOCKED,%q0))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That is not a valid job number.},110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@pemit %#=[u(%va/FN_ADDSTAT_ART,parent(%q0),%q0)][u(%va/FN_ADDSTAT_ART,%vc,%q0)]You have deleted job # %0.;@trigger %va/TRIG_ADD=%q0,Job %0 Deleted,%#,DEL;@trigger [parent(%q0)]/HOOK_DELETE=%q0,%#;@wait .5={@parent %q0;@nuke %q0}}
+&CMD_JOB/DENY here=$+job/deny *=*:@switch [or(u(%va/DENY_ACCESS,%#),u(%va/FN_STAFFALL,%#))][setq(0,locate(%va,Job %0,i))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)][not(u(%va/IS_LOCKED,%q0))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no job by that number.},110*,{@pemit %#=You cannot access that job.},1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@pemit %#=[u(%va/FN_ADDSTAT_ART,parent(%q0),%q0)][u(%va/FN_ADDSTAT_ART,%vc,%q0)]You have denied job #%0.;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 has been denied by %n.;@trigger %va/TRIG_ADD=%q0,[strtrunc(%1,get(%va/BUFFER))],%#,DNY;@trigger [parent(%q0)]/HOOK_DENY=%q0,%#;@trigger %vb/TRIG_DENY=%0,%#,%1,[get(%q0/TITLE)];@wait .1={@parent %q0;@nuke %q0}}
+&CMD_JOB/DUE here=$+job/due *=*:@switch [not(eq(words(%1,/),3))][u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %0,i))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)][switch(lcstr(%1),none,2,switch(ifelse(eq(words(%1),4),convtime(XXX %1),convtime(%1)),-1,0,1))]=0*,{@@},10*,{@pemit %#=Permission denied.},110*,{@pemit %#=That is not a valid job number.},1110*,{@pemit %#=You do not have access to that job.},11110*,{@pemit %#=Invalid date. Use date formatting as '[rest(time())]'.},11112*,{@pemit %#=You have cleared Job Number %0's date.;&DUE_ON %q0=;@trigger %va/TRIG_ADD=%q0,Due date cleared.,%#,DUE;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Due date cleared by %n for job [secure(%0)].},{@pemit %#=You have set Job Number %0's date to %1.;&DUE_ON %q0=[ifelse(eq(words(%1),4),convtime(XXX %1),convtime(%1))];@trigger %va/TRIG_ADD=%q0,Due on [secure(%1)].,%#,DUE,[secure(%1)];@trigger %va/TRIG_BROADCAST=[parent(%q0)],Due date for job %0 set by %n.}
+&CMD_JOB/DUE2 here=$+job/due *=*/*/*:@switch [u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %0,i))][setq(1,convtime(XXX [switch([rjust(%1,2,0)],01,Jan,02,Feb,03,Mar,04,Apr,05,May,06,Jun,07,Jul,08,Aug,09,Sep,10,Oct,11,Nov,12,Dec)] [rjust(%2,2,0)] 23:59:00 [switch(strlen(%3),2,20[rjust(%3,2,0)],%3)]))][isdbref(%q0)][gt(%q1,0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That is not a valid job number.},10*,{@pemit %#=Invalid date. Use date formatting as 'MM/DD/YY', '[rest(time())]', 'none' to clear.},{@pemit %#=You have set Job Number %0's date to [convsecs(%q1)].;&DUE_ON %q0=%q1;@trigger %va/TRIG_ADD=%q0,Due on [convsecs(%q1)].,%#,DUE;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Due date for job %0 set by %n.}
+&CMD_JOB/EDIT here=$+job/edit */*=*/*:@switch [u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %0,i))][u(%va/EDIT_ACCESS,%#)][isdbref(%q0)][setq(1,get(%q0/COMMENT_%1))][switch(first(%q1,|),ADD,1,CRE,1,0)][not(u(%va/IS_LOCKED,%q0))][switch(extract(%q1,3,1,|),%#,1,u(%va/FN_WIZONLY,%#))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=Permission denied.},110*,{@pemit %#=That is an invalid job number.},1110*,{@pemit %#=You cannot modify that entry.},11110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},111110*,{@pemit %#=You can only edit entries that belong to you.},{&COMMENT_%1 %q0=[extract(%q1,1,4,|)]|[edit(last(%q1,|),edit(%2,|,@@PIPE@@),edit(%3,|,@@PIPE@@))];@pemit %#=Edited: [last(u(%q0/COMMENT_%1),|)];@trigger %va/TRIG_ADD=%q0,Comment %1 edited by %n.,%#,EDT,[secure(%1)];@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 edited by %n.}
+&CMD_JOB/ERROR here=$+job:@switch [u(%va/HAS_ACCESS,%#)]=0*,{@pemit %#=Permission denied.},{@pemit %#=Type '+jobs' for a list of jobs, or '+job <#>' to view a specific job.}
+&CMD_JOB/ESC here=$+job/esc *=*:@switch [u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %0,i))][setq(1,match(green yellow red,%1*))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)][gt(%q1,0)][not(u(%va/IS_LOCKED,%q0))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That is not a valid job number.},110*,{@pemit %#=You do not have access to that job.},1110*,{@pemit %#=That is not a valid escalation code. Valid codes are red, yellow, and green.},11110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@pemit %#=You have escalated job # %0 to [ucstr(%1)] status.;&PRIORITY %q0=%q1;@trigger %va/TRIG_ADD=%q0,Priority To [ucstr(%1)].,%#,ESC,ucstr(secure(%1));@trigger %va/TRIG_BROADCAST=[parent(%q0)],[name(%q0)] set to [ucstr(%1)] priority by %n.}
+&CMD_JOB/LAST here=$+job/last *=*:@switch [u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %0,i))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no job by that name. Please type '+jobs/all' for all jobs or '+jobs/<type>' to list by type.},110*,{@pemit %#=You do not have access to that job.},{@pemit %#=[u(%va/FN_HEADER,View [name(%q0)])]%r[ulocal(%va/FN_BANNER,%q0)];@dolist [extract(setr(1,filter(%va/FIL_COMMENTS,lattr(%q0/COMMENT_*))),ifelse(lt(sub(words(%q1),%1),1),1,inc(sub(words(%q1),%1))),inc(%1))]={@pemit %#=[u(%va/FN_READJOB,##,%q0)]};@wait me={@pemit %#=[u(%va/FN_FOOTER,u(%va/FN_FLAGS,%q0))]};@notify me}
+&CMD_JOB/LOCK here=$+job/lock *:@switch [u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %0,i))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)][not(hasattr(%q0,LOCKED))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That is an invalid job number.},110*,{@pemit %#=You do not have access to that job.},1110*,{@pemit %#=That job is already locked.},{@pemit %#=You have locked job %0. No further modifications can be made to this job until it is unlocked.;&LOCKED_BY %q0=%#;&LOCKED %q0=1;@trigger %va/TRIG_ADD=%q0,Locked by %n.,%#,LOK;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 locked by %n.}
+&CMD_JOB/LOG here=$+job/log *:@switch [and(u(%va/HAS_ACCESS,%#),u(%va/LOG_ACCESS,%#))][setq(0,locate(%va,Job %0,i))][isdbref(%q0)][or(u(%va/FN_STAFFALL,%#),u(%va/ACCESS_[parent(%q0)],%#))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no job by that name. Please type '+jobs/all' for all jobs or '+jobs/<type>' to list by type.},110*,{@pemit %#=You do not have access to that job.},{@pemit %#=Logging Job %0 to game/logs/M-[get(%q0/LOGFILE)].log%rNote that if the log file does not exist, then it did not get logged.;@trigger %va/TRIG_LOG=%q0,%#}
+&CMD_JOB/MAIL here=$+job/mail *=*:@switch [setq(0,locate(%va,Job %0,i))][isdbref(%q0)][u(%va/HAS_ACCESS,%#)][u(%va/MAIL_ACCESS,%#)][not(u(%va/IS_LOCKED,%q0))]=0*,{@pemit %#=There is no job by that number.},10*,{@pemit %#=Permission denied.},110*,{@pemit %#=Permission denied.},1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@pemit %#=You have mailed [u(%va/FN_PLAYERLIST,%q0)] about job #%0, with the comments: %1;@trigger %va/TRIG_ADD=%q0,[strtrunc(ansi(h,Mail sent to [u(%va/FN_PLAYERLIST,%q0)]:)%r%r%1,get(%va/BUFFER))],%#,MAI;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Mail sent about job #%0 by %n.}
+&CMD_JOB/MERGE here=$+job/merge *=*:@switch [u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %1,i))][setq(1,locate(%va,Job %0,i))][isdbref(%q1)][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)][u(%va/FN_ACCESSCHECK,parent(%q1),%#)][setq(2,u(%q0/NUM_COMMENT))][setq(3,u(%q1/NUM_COMMENT))][and(not(u(%va/IS_LOCKED,%q0)),not(hasattrp(%q1,LOCKED)))][not(eq(%0,%1))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no job number %0.},110*,{@pemit %#=There is no job number %1.},1110*,{@pemit %#=You do not have access to [name(%q0)].},11110*,{@pemit %#=You do not have access to [name(%q1)].},111110*,{@pemit %#=One of the jobs is locked. It must be unlocked before modifications can be made.},1111110*,{@pemit %#=Sort of like a Klein bottle, eh?},{@trigger %va/TRIG_ADD=%q0,Job [secure(%0)] merged into this one.,%#,MRG;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 has been merged into Job %1 by %n;@wait me={@dolist [lattr(%q1/COMMENT_*)]={@cpattr %q1/##=%q0/COMMENT_[get(%q0/NUM_COMMENT)];&NUM_COMMENT %q0=[inc(get(%q0/NUM_COMMENT))]};@parent %q1;@nuke %q1;&BUCKET %q1=GOING}};@notify me
+&CMD_JOB/NAME here=$+job/name *=*:@switch [u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %0,i))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)][not(u(%va/IS_LOCKED,%q0))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no job by that name.},110*,{@pemit %#=You do not have access to that job.},1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@pemit %#=You have changed the name of Job %0 to %1.;&TITLE %q0=[secure(%1)];@trigger %va/TRIG_ADD=%q0,Renamed to '[secure(%1)]'.,%#,NAM;@trigger %va/TRIG_BROADCAST=[parent(%q0)],%n has renamed job %0.}
+&CMD_JOB/NEW here=$+job/new *:@switch [u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %0,i))][setq(1,default(%#/LAST_CONN,0))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no job by that name. Please type '+jobs/all' for all jobs or '+jobs/<type>' to list jobs by type.},110*,{@pemit %#=You do not have access to that job.},{@pemit %#=[u(%va/FN_HEADER,View Job Number %0)]%r[ulocal(%va/FN_BANNER,%q0)][ifelse(hasattrp(%q0,SUMMARY),[ulocal(%va/FN_SUMMARY,%q0)],)];@dolist [filter(%va/FIL_NEWCOMMENTS[default(%#/JOBSN,0)],lattr(%q0/COMMENT_*))]={@pemit %#=[u(%va/FN_READJOB,##,%q0)]};@wait me={@pemit %#=[ifelse(u(%va/IS_LOCKED,%q0),u(%va/FN_FOOTER,u(%va/FN_FLAGS,%q0)),[u(%va/FN_FOOTER,New Activity on Job %0 since [convsecs(%q1)])])][u(%va/FN_READERS,%q0,%#)]};@notify me}
+&CMD_JOB/PUBLISH here=$+job/publish *:@switch [eq(words(%0,=),1)][setq(0,locate(%va,Job %0,i))][u(%va/HAS_ACCESS,%#)][isdbref(%q0)][u(%q0/ACCESS,%#)][hasattrp(%q0,PUBLIC)][not(u(%q0/LOCKED))][eq(u(%q0/PUBLISH),1)]=0*,@@,10*,{@pemit %#=Permission denied.},110*,{@pemit %#=There is no job by that number.},1110*,{@pemit %#=You do not have access to that job.},11110*,{@pemit %#=That job is not in a bucket that is accessible to +myjobs, so publication is moot.},111110*,{@pemit %#=That job must be unlocked before it can be modified.},1111110*,{@pemit %#=You have published Job %0.;&PUBLISH %q0=1;@trigger %va/TRIG_ADD=%q0,Published by %n.,%#,PUB;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 published by %n.},{@pemit %#=Job %0 will now no longer be published.;&PUBLISH %q0=0;@trigger %va/TRIG_ADD=%q0,Unpublished by %n.,%#,UNP;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 unpublished by %n.}
+&CMD_JOB/PUBLISH2 here=$+job/publish *=*:@switch [setq(0,locate(%va,Job %0,i))][and(u(%va/HAS_ACCESS,%#),u(%va/EDIT_ACCESS,%#))][isdbref(%q0)][u(%q0/ACCESS,%#)][not(u(%va/IS_LOCKED,%q0))][u(%va/IS_PUBLIC,%q0)][hasattrp(%q0,COMMENT_%1)][hasflag(%q0/COMMENT_%1,no_inherit)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no job by that number.},110*,{@pemit %#=You do not have access to that job.},1110*,{@pemit %#=That job must be unlocked before modifications can be made.},11110*,{@pemit %#=That job is not in a bucket that is accessible to +myjobs, so publication is moot.},111110*,{@pemit %#=That is not a valid comment number.},1111110*,{@pemit %#=You have published Comment %1 on Job %0.;@set %q0/COMMENT_%1=no_inherit;@trigger %va/TRIG_ADD=%q0,Comment [secure(%1)] published by %n.,%#,PUB;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job [secure(%0)]/Comment [secure(%1)] published by %n.},{@pemit %#=Job %0/Comment %1 will no longer be published.;@set %q0/COMMENT_%1=!no_inherit;@trigger %va/TRIG_ADD=%q0,Comment [secure(%1)] Unpublished by %n.,%#,UNP;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job [secure(%0)]/Comment [secure(%1)] unpublished by %n.}
+&CMD_JOB/QUERY here=$+job/query */*=*:@switch [and(u(%va/HAS_ACCESS,%#),u(%va/MAIL_ACCESS,%#))]=0*,{@pemit %#=Permission denied.},{@switch [map(%va/MAP_ISPLAYER,%0)]=*0*,{@pemit %#=There is a problem with the player list.},{@pemit %#=[setq(a,map(%va/MAP_PMATCH,%0,%b,|))]You have sent a query to '%0' regarding '%1'.;@trigger %va/TRIG_CREATE=%#,locate(%vc,QUERY,i),2,[strtrunc(secure(%1),30)],Queried [u(%va/FN_PRETTY,map(%va/MAP_NAME,%qa,|,|),|)]:%r%r[strtrunc(%2,get(%va/BUFFER))],[edit(%qa,|,%b)],,0}}
+&CMD_JOB/SET here=$+job/set *=*:@switch [u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %0,i))][setq(2,dec(member(setr(a,HOLD NEW UNDERWAY 25 50 75 100),ucstr(%1))))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)][and(isnum(%q2),gt(%q2,-1),lt(%q2,7))][not(u(%va/IS_LOCKED,%q0))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That is not a valid job.},110*,{@pemit %#=You do not have access to that job.},1110*,{@pemit %#=That is an invalid setting. Valid job settings are:%r[itemize(lcstr(%qa))].},11110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@pemit %#=You set Job Number [secure(%0)] to [setq(1,switch(%q2,0,ON HOLD,1,NEW,2,UNDERWAY,3,1/4 COMPLETE,4,1/2 COMPLETE,5,3/4 COMPLETE,COMPLETE))]%q1 status.;&STATUS %q0=%q2;@trigger %va/TRIG_ADD=%q0,Set to %q1.,%#,STA;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Status set to %q1 on Job %0.}
+&CMD_JOB/SOURCE here=$+job/source *=*:@switch [setq(0,locate(%va,Job %0,i))][isdbref(%q0)][u(%va/HAS_ACCESS,%#)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)][not(u(%va/IS_LOCKED,%q0))][setq(1,map(%va/MAP_SOURCE,secure(%1)))][setq(2,member(%q1,#-1))][ifelse(gt(%q2,0),0,1)]=0*,{@pemit %#=There is no job by that number.},10*,{@pemit %#=Permission denied.},110*,{@pemit %#=Permission denied.},1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},11110*,{@pemit %#='[extract(secure(%1),%q2,1)]' is not a valid player.},{&opened_by %q0=%q1;@pemit %#=You have set job #%0 to have a source of [u(%va/FN_PLAYERLIST,%q0)].;@trigger %va/TRIG_ADD=%q0,Source changed to [u(%va/FN_PLAYERLIST,%q0)].,%#,SRC;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 source changed by %n.}
+&CMD_JOB/SUMMARY here=$+job/summary *:@switch [u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %0,i))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no job by that name. Please type '[ansi(h,+jobs/all)]' for all jobs or '[ansi(h,+jobs/list <bucket>)]' to list by bucket.},110*,{@pemit %#=You do not have access to that job.},{@pemit %#=[u(%va/FN_HEADER,View [name(%q0)])]%r[ulocal(%va/FN_BANNER,%q0)][ifelse(hasattrp(%q0,SUMMARY),[ulocal(%va/FN_SUMMARY,%q0)],)][ifelse(u(%va/FN_WIZONLY,%#),[ulocal(%va/FN_STAFFSUM,%q0)],)];@wait me={@pemit %#=[u(%va/FN_FOOTER,u(%va/FN_FLAGS,%q0))]};@notify me}
+&CMD_JOB/SUMSET here=$+job/sumset */*=*:@switch [setq(5,0)][setq(0,locate(%va,Job %0,i))][and(u(%va/HAS_ACCESS,%#),u(%va/CONFIG_ACCESS,%#),u(%q0/ACCESS_%1,%#))][isdbref(%q0)][not(u(%va/IS_LOCKED,%q0))][hasattrp(%q0,ACCESS_%1)][u(%q0/PROCESS_%1,%2,%q0,%#)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no bucket by that name. See '[ansi(h,+buckets)]' for a list of valid buckets.},110*,{@pemit %#='%1' is not a valid parameter. Valid parameters for [name(%q0)] are [u(%va/FN_PRETTY,map(%va/MAP_PARAMS,lattr(%q0/PROCESS_*)))].},1110*,{@pemit %#=That job is locked. It cannot be modified until it is unlocked.},11110*,{@pemit %#=[u(%q0/ERROR_%1%q2)]},{@trigger %va/TRIG_BROADCAST=[parent(%q0)],[name(%q0)]'s [ucstr(%1)] parameter updated by %n.;&%q3 %q0=%q1;@trigger %va/TRIG_ADD=%q0,[ucstr(%1)] parameter updated to '%2',%#,SUM}
+&CMD_JOB/TAG here=$+job/tag *:@switch [switch(strmatch(%0,*=*),1,[setq(8,secure(first(%0,=)))][setq(9,secure(rest(%0,=)))],[setq(8,secure(%0))][setq(9,%#)])][setq(7,iter(%q9,pmatch(##)))][setq(6,trim(squish(iter(%q9,if(not(isdbref(pmatch(##))),I don't recognize '##' as a player.)))))][u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %q8,i))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)][not(u(%va/IS_LOCKED,%q0))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That is an invalid job number.},110*,{@pemit %#=You do not have access to that job.},1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@switch gt(strlen(%q6),0)=1,@pemit %#=%q6,{@switch [strlen(setdiff(%q7,get(%q0/tagged_for)))]=0,{@pemit %#={[name(%q0)] is already tagged for the named player(s): [iter(%q7,name(##))]}},{&tagged_for %q0=[setunion(get(%q0/tagged_for),%q7)];@trigger %va/TRIG_ADD=%q0,Added tags for [setr(5,iter(%q7,name(##)))],%#,TAG,%q7;@trigger %va/TRIG_BROADCAST=[parent(%q0)],[name(%q0)] updated - tagged by %n for %q5.;@pemit %#={Job %q8 updated - tags added. Now tagged for: [iter(get(%q0/tagged_for),name(##))]}}}}
+&CMD_JOB/TRANS here=$+job/trans *=*:@switch [u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %0,i))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)][isdbref(setr(1,locate(%vc,%1,i)))][not(u(%va/IS_LOCKED,%q0))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no job by that number.},110*,{@pemit %#=You do not have access to that job.},1110*,{@pemit %#=There is no bucket by that name. Type '[ansi(h,+buckets)]' for a list of valid buckets.},11110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@pemit %#=You have transferred the job from [u(%va/FN_BUCKETNAME,%q0)] to [name(%q1)].;@set %q0=!going;@parent %q0=%q1;@trigger %va/TRIG_ADD=%q0,Transferred to [name(%q1)].,%#,TRN;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 transferred to [name(%q1)] by [name(%#)].}
+&CMD_JOB/UNLOCK here=$+job/unlock *:@switch [u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %0,i))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)][u(%va/IS_LOCKED,%q0)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That is an invalid job number.},110*,{@pemit %#=You do not have access to that job.},1110*,{@pemit %#=That job is not locked.},{@pemit %#=You have unlocked job %0.;&LOCKED %q0=;&LOCKED_BY %q0=;@trigger %va/TRIG_ADD=%q0,Unlocked by %n.,%#,UNL;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 unlocked by %n.}
+&CMD_JOB/UNTAG here=$+job/untag *:@switch [switch(strmatch(%0,*=*),1,[setq(8,secure(first(%0,=)))][setq(9,secure(rest(%0,=)))],[setq(8,secure(%0))][setq(9,%#)])][setq(7,iter(%q9,pmatch(##)))][setq(6,trim(squish(iter(%q9,if(not(isdbref(pmatch(##))),I don't recognize '##' as a player.)))))][u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %q8,i))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)][not(u(%va/FN_ISLOCKED,%q0))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That is an invalid job number.},110*,{@pemit %#=You do not have access to that job.},1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@switch gt(strlen(%q6),0)=1,@pemit %#=%q6,{@switch [strlen(setinter(%q7,get(%q0/tagged_for)))]=0,{@pemit %#={[name(%q0)] is not tagged for any of the named player(s): [iter(%q7,name(##))]}},{&tagged_for %q0=[setdiff(get(%q0/tagged_for),%q7)];@trigger %va/TRIG_ADD=%q0,Removed tags for [setr(5,iter(%q7,name(##)))],%#,TAG;@trigger %va/TRIG_BROADCAST=[parent(%q0)],[name(%q0)] updated - untagged by %n for %q5.;@pemit %#={Job %q8 updated - tags removed. Now tagged for: [iter(get(%q0/tagged_for),name(##))]}}}}
+&CMD_JOB/VIEW here=$+job *:@switch [u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %0,i))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no job by that name. Please type '[ansi(h,+jobs/all)]' for all jobs or '[ansi(h,+jobs/list <bucket>)]' to list by bucket.},110*,{@pemit %#=You do not have access to that job.},{@pemit %#=[u(%va/FN_READERS,%q0,%#)][u(%va/FN_HEADER,View [name(%q0)])]%r[ulocal(%va/FN_BANNER,%q0,%#)][ifelse(hasattrp(%q0,SUMMARY),[ulocal(%va/FN_SUMMARY,%q0,%#)],)];@dolist [filter(%va/FIL_COMMENTS,lattr(%q0/COMMENT_*))]={@pemit %#=[u(%va/FN_READJOB,##,%q0)]};@wait me={@pemit %#=[u(%va/FN_FOOTER,u(%va/FN_FLAGS,%q0))]};@notify me}
+&CMD_JOBS here=$+jobs:@switch [u(%va/HAS_ACCESS,%#)]=0*,{@pemit %#=Permission denied.},{@pemit %#=[u(%va/FN_JOBSHEADER,%#)];@dolist revwords(lcon(%va))={@pemit %#=[ifelse(u(%va/FN_MONITORCHECK,parent(##),%#),[u(%va/FN_JOBLIST,##,%#)],)]};@wait me={@pemit %#=[u(%va/FN_FOOTER,[ansi(hr,*)] [ansi(hy,Denotes New Activity)])]};@notify me}
+&CMD_JOBS/ALL here=$+jobs/all:@switch [u(%va/HAS_ACCESS,%#)][ucstr(secure(first(%0)))]=0*,{@pemit %#=Permission denied.},{@pemit %#=[u(%va/FN_JOBSHEADER,%#)];@dolist filter(%va/FIL_GOING,revwords(lcon(%va)))=@pemit %#=[ifelse(u(%va/FN_ACCESSCHECK,[parent(##)],%#),u(%va/FN_JOBLIST,##,%#),)];@wait me={@pemit %#=[u(%va/FN_FOOTER)]};@wait 0=@notify me}
+&CMD_JOBS/COMPRESS here=$+jobs/compress:@switch [u(%va/FN_WIZONLY,%#)]=0*,{@pemit %#=Permission denied.},{@dolist lnum(1,words(lcon(%va)))={@name [extract(revwords(lcon(%va)),##,1)]=Job ##};&JOBS_NUM %va=[words(lcon(%va))];@pemit %#=Compressed. The next job number will be [inc(get(%va/JOBS_NUM))].}
+&CMD_JOBS/CREDITS here=$+jobs/credits:@pemit %#=[u(%va/FN_HEADER,Anomaly Jobs)]%r%rVersion: [u(%va/VERSION)][space(5)]Release: [u(%va/RELEASE)]%r%rAuthor: [u(%va/CREDITS)]%r%r[u(%va/LICENSE)]%r%r[u(%va/FN_FOOTER)]
+&CMD_JOBS/DATE here=$+jobs/date:@wait me=@switch [u(%va/HAS_ACCESS,%#)]=0*,{@pemit %#=Permission denied.;@wait 0=@notify me},{@pemit %#=[u(%va/FN_JOBSHEADER,%#)];@dolist sortby(%va/SORTBY_DATE,lcon(%va))={@pemit %#=[ifelse(u(%va/FN_MONITORCHECK,parent(##),%#),[u(%va/FN_JOBLIST,##,%#)],)]};@wait .1=@pemit %#=[u(%va/FN_FOOTER,* Denotes New Activity)];@wait 0=@notify me}
+&CMD_JOBS/LIST here=$+jobs/list *:@switch [setq(0,locate(%vc,%0,i))][u(%va/FN_ACCESSCHECK,%q0,%#)][isdbref(%q0)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That is not a valid bucket. Type '[ansi(h,+buckets)]' for a list of valid buckets.},{@pemit %#=[u(%va/FN_JOBSHEADER,%#)];@dolist [munge(%va/SORTBY_JOB,iter(children(%q0),rest(name(##))),children(%q0))]={@pemit %#=[u(%va/FN_JOBLIST,##,%#)]};@wait me={@pemit %#=[u(%va/FN_FOOTER)]};@wait 0=@notify me}
+&CMD_JOBS/MINE here=$+jobs/mine:@switch [u(%va/HAS_ACCESS,%#)]=0*,{@pemit %#=Permission denied.},{@pemit %#=[u(%va/FN_JOBSHEADER,%#)];@dolist filter(%va/FIL_MINE,revwords(lcon(%va)))={@pemit %#=[u(%va/FN_JOBLIST,##,%#)]};@wait me={@pemit %#=[u(%va/FN_FOOTER,* Denotes New Activity)]};@wait 0=@notify me}
+&CMD_JOBS/NEW here=$+jobs/new:@switch [setq(0,%#)][u(%va/HAS_ACCESS,%#)]=0*,{@pemit %#=Permission denied.},{@pemit %#=[u(%va/FN_JOBSHEADER,%#)];@dolist filter(%va/FIL_NEW[default(%#/JOBSN,0)],revwords(lcon(%va)))={@pemit %#=[ifelse(u(%va/FN_ACCESSCHECK,parent(##),%#),u(%va/FN_JOBLIST,##,%#),)]};@wait me={@pemit %#=[u(%va/FN_FOOTER,[ansi(hr,*)] [ansi(hy,Denotes New Activity)])]};@wait 0=@notify me}
+&CMD_JOBS/OVERDUE here=$+jobs/overdue:@wait me=@switch [u(%va/HAS_ACCESS,%#)]=0*,{@pemit %#=Permission denied.;@wait 0=@notify me},{@pemit %#=[u(%va/FN_JOBSHEADER,%#)];@dolist filter(%va/FIL_OVERDUE,revwords(lcon(%va)))={@pemit %#=[ifelse(u(%va/FN_MONITORCHECK,parent(##),%#),[u(%va/FN_JOBLIST,##,%#)],)]};@wait .1=@pemit %#=[u(%va/FN_FOOTER,* Denotes New Activity)];@wait 0=@notify me}
+&CMD_JOBS/PRI here=$+jobs/pri:@switch [u(%va/HAS_ACCESS,%#)]=0*,{@pemit %#=Permission denied.},{&JOBS_PRI %va=[sortby(%va/SORTBY_PRI,lcon(%va))];@pemit %#=[u(%va/FN_JOBSHEADER,%#)];@dolist revwords(get(%va/JOBS_PRI))={@pemit %#=[ifelse(and(u(%va/FN_ACCESSCHECK,[parent(##)],%#),u(%va/FN_MONITORCHECK,parent(##),%#)),u(%va/FN_JOBLIST,##,%#),)]};@wait me={@pemit %#=[u(%va/FN_FOOTER)]};@wait 0=@notify me}
+&CMD_JOBS/REPORTS here=$+jobs/reports *:@switch [and(u(%va/HAS_ACCESS,%#),u(%va/STATS_ACCESS,%#))][hasattr(%va,REPORT_[first(%0,=)])][eq(words(%0,=),2)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no report by that name. See '[ansi(h,+jobs/reports)]' for a list of valid reports.},110*,{@pemit %#=[u(%va/FN_HEADER,[secure(first(ucstr(%0),=))] Report)]%r;@pemit %#=[u(%va/REPORT_[secure(%0)])];@pemit %#=[u(%va/FN_FOOTER)]},{@pemit %#=[setq(0,first(secure(%0),=))][setq(1,last(secure(%0),=))][u(%va/FN_HEADER,[secure(first(ucstr(%0),=))] Report)]%r;@pemit %#=[u(%va/REPORT_%q0,%q1)];@pemit %#=[u(%va/FN_FOOTER)]}
+&CMD_JOBS/REPORTS2 here=$+jobs/reports:@switch [and(u(%va/HAS_ACCESS,%#),u(%va/STATS_ACCESS,%#))]=0*,{@pemit %#=Permission denied.},{@pemit %#=[u(%va/FN_HEADER,Available Reports)]%r[ansi(hc,[ljust(Name,10)][ljust(Description,59)][rjust(Type,10)])]%r[u(%va/FN_BREAK)];@pemit %#=[list(sort(ucstr(map(%va/MAP_REPORTS,lattr(%va/REPORT_*)))),[ljust(##,10)][ljust(rest(get(%va/RTITLE_##),|),59)][rjust(first(get(%va/RTITLE_##),|),10)])];@pemit %#=[u(%va/FN_FOOTER,[ansi(h,+jobs/reports <report>)])]}
+&CMD_JOBS/SEARCH here=$+jobs/search *:@switch [u(%va/HAS_ACCESS,%#)]=0*,{@pemit %#=Permission denied.},{@pemit %#=[u(%va/FN_JOBSHEADER,%#)];@dolist revwords(lcon(%va))={@pemit [setq(0,%b)]%#=ifelse(and(u(%va/FN_ACCESSCHECK,parent(##),%#),gt(words(grepi(##,*,%0)),0)),[u(%va/FN_JOBLIST,##,%#)],)};@wait me={@pemit %#=[u(%va/FN_FOOTER)]};@wait 0=@notify me}
+&CMD_JOBS/SORT here=$+jobs/sort:@wait me=@switch [u(%va/HAS_ACCESS,%#)]=0*,{@pemit %#=Permission denied.;@wait 0=@notify me},{@pemit %#=[u(%va/FN_JOBSHEADER,%#)];@dolist sortby(%va/SORTBY_SORT,lcon(%va))={@pemit %#=[ifelse(u(%va/FN_MONITORCHECK,parent(##),%#),[u(%va/FN_JOBLIST,##,%#)],)]};@wait .1=@pemit %#=[u(%va/FN_FOOTER,* Denotes New Activity)];@wait 0=@notify me}
+&CMD_JOBS/WHO here=$+jobs/who *:@switch [u(%va/HAS_ACCESS,%#)][setq(0,pmatch(%0))][or(match(%0,none),isdbref(%q0))]=0*,{@pemit %#=Permission denied.},10,@pemit %#={There is no player by that name. Request must be by player or 'none'.},{@pemit %#=[u(%va/FN_JOBSHEADER,%#)];@dolist [setq(1,switch(match(%0,none),0,%q0,))][trim(squish(iter(revwords(lcon(%va)),switch(u(%va/FIL_WHO,##,%q1),1,##))))]={@pemit %#=[ifelse(u(%va/FN_ACCESSCHECK,parent(##),%#),[u(%va/FN_JOBLIST,##,%#)],)]};@wait me={@pemit %#=[u(%va/FN_FOOTER,* Denotes New Activity)]};@wait 0=@notify me}
+&CMD_JOBS/WHO2 here=$+jobs/who:@switch [u(%va/HAS_ACCESS,%#)]=0*,{@pemit %#=Permission denied.},{@pemit %#=You must identify a player.}
+&CMD_MYJOB/ADD here=$+myjob/add *=*:@switch [not(haspower(%#,guest))][setq(0,locate(%va,Job %0,i))][isdbref(%q0)][and(u(%va/IS_PUBLIC,%q0),match(get(%q0/opened_by),%#))][not(hasattr(%q0,LOCKED)),gt(member(%q0/TAGGED_FOR),%#),0))]=0*,@pemit %#={This command is not available to guests.},10*,@pemit %#={That is an invalid job number.},110*,{@pemit %#=Job %0 is not yours. You can only modify your own jobs.},1110*,{@pemit %#=That job is locked and cannot be changed at this time.},{@pemit %#=Comments to job number %0 added.;@trigger %va/TRIG_ADD=%q0,%1,%#,ADD;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Comments added to job %0 by %n.}
+&CMD_MYJOB/VIEW here=$+myjob *:@switch [not(haspower(%#,guest))][setq(0,locate(%va,Job %0,i))][isdbref(%q0)][or(gt(member(get(%q0/TAGGED_FOR),%#),0),u(%va/IS_TRANSPARENT,%q0),and(get(%q0/PUBLIC),match(get(%q0/OPENED_BY),%#)))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That is not a valid job number.},110*,{@pemit %#=Job %0 is not yours. You can only view your own jobs.},{@pemit %#=[center(| [ansi(hy,View Job Number %0)] |,79,=)]%r[ulocal(%va/DISPLAY_MYHEADERS,%q0)][iter([trim(squish(iter(filter(%va/FIL_COMMENTS,lattr(%q0/COMMENT_*)),switch(or(u(%q0/PUBLISH),hasflag(%q0/##,no_inherit),gt(member(get(%q0/TAGGED_FOR),%#),0),strmatch(extract(get(%q0/##),3,1,|),%#)),1,##))))],{%r[repeat(-,79)]%r[ansi(h,[extract(get(%q0/##),4,1,|)] added on [convsecs(extract(get(%q0/##),2,1,|))]:)] [edit(last(get(%q0/##),|),@@PIPE@@,|)]})]%r[repeat(=,79)]}
+&CMD_MYJOBS here=$+myjobs:@switch [haspower(%#,guest)]=1,@pemit %#={Sorry, this command is not available to guests.},{@pemit %#={[u(%va/MYJOBS_HEADER)]};@dolist revwords(lcon(%va))={@pemit %#=[ifelse(or(gt(member(get(##/TAGGED_FOR),%#),0),[or(and(get([parent(##)]/PUBLIC),match(get(##/OPENED_BY),%#)),u(%va/IS_TRANSPARENT,##))]),[u(%va/DISPLAY_MYJOB,##)],)]};@wait .1=@pemit %#=[repeat(=,79)]}
+&CMD_PITCH here=$+pitch *=*:@switch [not(haspower(%#,guest))]=0*,{@pemit %#=Permission Denied.},{@pemit %#=You have pitched your idea to staff about '[secure(%0)]'. Please remember that this is merely an idea [ansi(hu,pitch)], and not a request. Staff, for one reason or many, may decide not to go with the idea.;@trigger %va/TRIG_CREATE=%#,locate(%vc,PITCH,i),1,[strtrunc(secure(%0),30)],%1,,,3}
+&CMD_REQUEST here=$+request *=*:@switch [not(haspower(%#,guest))]=0*,{@pemit %#=Permission denied.},{@pemit %#=You have requested [secure(strtrunc(%0,30))] from staff. Please allow for some time to process it. Do not page staff about it - you will hear back soon.;@trigger %va/TRIG_CREATE=%#,[locate(%vc,REQ,i)],2,[strtrunc(secure(%0),30)],[strtrunc(%1,get(%va/BUFFER))],,,2}
+&CMD_TYPO here=$+typo *:@switch [not(haspower(%#,guest))]=0*,{@pemit %#=Permission denied.},{@pemit %#=You have notified production staff of the typo, with the details '[strtrunc(%0,get(%va/BUFFER))]';@trigger %va/TRIG_CREATE=%#,locate(%vc,BUILD,i),2,Typo Reported,[strtrunc(%0,get(%va/BUFFER))],,,4}
+@@ -------------------------------------------------------------------
+@@ Job Tracker: Please do not rename this object.
+@@ -------------------------------------------------------------------
+@@
+@pemit %#=[ansi(hc,ANOMALY JOBS:)] Setting up Job Tracker.
+@@
+@@
+@wipe Job Tracker/*
+@@
+&TRIG_MAIL Job Tracker=@mail/quick [remove(%0,owner(me))]/%1=%2
+&TRIG_POST Job Tracker=+bbpost %0/%1=%2
+@set Job Tracker=!INHERIT
+@@ -------------------------------------------------------------------
+@@ Job Database <JD>: Please do not rename this object.
+@@ -------------------------------------------------------------------
+@@
+@pemit %#=[ansi(hc,ANOMALY JOBS:)] Setting up Job Database.
+@@
+@wipe Job Database <JD>/*
+@@
+@Desc Job Database <JD>=%r[columns(sort(lattr(me/*)),18)]%r%r[center(Please do not rename this object.,79)]
+@Startup Job Database <JD>=@drain me;@notify me
+@@
+&BUCKET_HEADER Job Database <JD>=[repeat(=,79)]%r[ansi(hc,[ljust(Bucket,8)]Description)]%r[repeat(-,79)]
+&CHARGRAPH Job Database <JD>=@+-/!*ox#.X$^`~O>
+&COLORGRAPH_1 Job Database <JD>=gG
+&COLORGRAPH_2 Job Database <JD>=yY
+&COLORGRAPH_3 Job Database <JD>=rR
+&COLORGRAPH_4 Job Database <JD>=cC
+&COLORGRAPH_5 Job Database <JD>=bB
+&COLORGRAPH_6 Job Database <JD>=mM
+&COLORGRAPH_7 Job Database <JD>=wW
+&COLORGRAPH_8 Job Database <JD>=hX
+&COLORGRAPH_9 Job Database <JD>=hC
+&COLORGRAPH_10 Job Database <JD>=hB
+&COLORGRAPH_11 Job Database <JD>=hR
+&COLORGRAPH_12 Job Database <JD>=hY
+&COLORGRAPH_13 Job Database <JD>=hG
+&COLORGRAPH_14 Job Database <JD>=hM
+&COLORGRAPH_15 Job Database <JD>=hW
+&COLORGRAPH_16 Job Database <JD>=hX
+&COLORGRAPH_17 Job Database <JD>=hC
+&DATA_31-15 Job Database <JD>=[@[@[@[@[#[#[#[#[$[$[$[^[^[^[&[&[&[*[*[([([([)[)[_[_[+[+[+[{[{[}[}[|[|[;[;['['[:[:[:["["[<[<[<[>[>[>[?[?[?[,[,[,[.[.[.[.[/[/[/ [![![@[@[@[@[#[#[#[$[$[$[^[^[^[&[&[&[*[*[([([)[)[)[_[_[+[+[{[{[}[}[|[|[;[;['['[:[:["["[<[<[<[>[>[?[?[?[,[,[,[.[.[.[.[/[/[/[/[a [![![![![@[@[@[@[#[#[#[$[$[$[^[^[&[&[&[*[*[([([)[)[_[_[+[+[{[{[}[}[|[|[;['['[:[:["["["[<[<[>[>[?[?[?[,[,[,[.[.[.[/[/[/[/[a[a[a [~[~[![![![![@[@[@[@[#[#[#[$[$[^[^[^[&[&[*[*[([([)[)[_[+[+[{[{[}[}[|[;[;['['[:[:["["[<[<[>[>[?[?[?[,[,[.[.[.[/[/[/[/[a[a[a[a[b [=[~[~[~[~[![![![@[@[@[#[#[#[$[$[^[^[^[&[&[*[*[([)[)[_[_[+[{[{[}[|[|[;[;['[:[:["["[<[<[>[>[?[?[,[,[,[.[.[/[/[/[a[a[a[a[b[b[b[b [=[=[=[~[~[~[~[![![![@[@[@[#[#[#[$[$[^[^[&[&[*[([([)[)[_[+[+[{[}[|[|[;['['[:["["[<[<[>[>[?[?[,[,[.[.[/[/[/[a[a[a[a[b[b[b[b[c[c [-[-[=[=[=[=[~[~[~[~[![![![@[@[#[#[$[$[^[^[&[&[*[([([)[_[+[+[{[}[|[|[;['[:[:["[<[<[>[?[?[,[,[.[.[.[/[/[a[a[a[b[b[b[b[c[c[c[c[d [0[-[-[-[-[=[=[=[=[~[~[~[![![![@[@[#[#[$[$[^[&[&[*[([)[)[_[+[{[}[|[;[;['[:["[<[<[>[?[?[,[,[.[.[/[/[a[a[a[b[b[b[c[c[c[c[d[d[d[d [0[0[0[0[0[-[-[-[-[=[=[=[~[~[~[![![@[@[#[$[$[^[&[&[*[([)[_[+[{[}[|[;['[:["[<[<[>[?[,[,[.[.[/[/[a[a[b[b[b[c[c[c[d[d[d[d[d[e[e[e [9[9[9[9[0[0[0[0[-[-[-[-[=[=[=[~[~[![![@[@[#[$[^[^[&[*[([)[+[{[}[|[;['[:["[<[>[?[,[.[.[/[/[a[a[b[b[c[c[c[d[d[d[d[e[e[e[e[e[f[f [8[8[8[9[9[9[9[9[0[0[0[0[-[-[-[=[=[~[~[![![@[#[#[$[^[&[([)[_[+[}[|['[:["[<[>[?[,[.[/[a[a[b[b[c[c[c[d[d[d[e[e[e[e[f[f[f[f[f[f[g [7[7[7[8[8[8[8[8[8[9[9[9[9[0[0[0[-[-[=[=[~[~[![@[#[$[^[&[([)[+[}[;['["[<[?[,[.[/[a[a[b[c[c[d[d[d[e[e[e[f[f[f[f[f[g[g[g[g[g[g[g [6[6[7[7[7[7[7[7[7[7[8[8[8[8[9[9[9[9[0[0[-[-[=[~[![@[#[^[&[([+[}[;[:[<[?[.[/[a[b[c[c[d[d[e[e[f[f[f[f[g[g[g[g[g[h[h[h[h[h[h[h[h [5[6[6[6[6[6[6[6[6[6[6[6[7[7[7[7[7[8[8[8[9[9[0[0[-[=[~[@[$[&[)[}['[<[,[/[a[c[d[d[e[f[f[f[g[g[g[h[h[h[h[h[h[i[i[i[i[i[i[i[i[i[i [5[5[5[5[5[5[5[5[5[5[5[5[5[5[5[5[6[6[6[6[6[6[7[7[8[8[9[0[=[@[&[}[<[/[c[d[f[f[g[h[h[h[i[i[i[i[i[i[i[j[j[j[j[j[j[j[j[j[j[j[j[j[j [4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l [3[3[3[3[3[3[2[2[2[2[2[2[2[2[2[2[2[2[1[1[1[1[`[`[`[Z[Y[X[V[S[O[H[B[w[u[s[r[q[p[p[o[o[o[o[n[n[n[n[n[n[n[n[m[m[m[m[m[m[m[m[m[m[m [2[2[2[2[2[1[1[1[1[1[1[1[1[`[`[`[`[`[Z[Z[Z[Y[Y[X[W[V[U[S[Q[O[L[H[E[B[y[w[v[u[t[s[r[r[q[q[p[p[p[p[o[o[o[o[o[o[o[o[n[n[n[n[n[n[n [1[1[1[1[`[`[`[`[`[`[`[Z[Z[Z[Z[Y[Y[Y[X[X[W[W[V[U[T[S[R[Q[O[M[K[H[F[D[B[z[y[w[v[u[u[t[s[s[r[r[r[q[q[q[q[p[p[p[p[p[p[o[o[o[o[o[o [`[`[`[`[Z[Z[Z[Z[Z[Z[Y[Y[Y[Y[X[X[X[W[W[V[V[U[T[S[R[Q[P[O[M[L[J[H[G[E[C[B[A[y[x[w[w[v[u[u[t[t[s[s[r[r[r[r[q[q[q[q[q[p[p[p[p[p[p [Z[Z[Z[Z[Z[Y[Y[Y[Y[X[X[X[X[W[W[W[V[V[U[U[T[S[S[R[Q[P[O[N[L[K[J[H[G[F[D[C[B[A[z[y[x[w[w[v[v[u[u[t[t[s[s[s[s[r[r[r[r[q[q[q[q[q[q [Y[Y[Y[Y[Y[X[X[X[X[W[W[W[W[V[V[U[U[T[T[S[S[R[Q[Q[P[O[N[M[L[K[J[H[G[F[E[D[C[B[A[z[y[y[x[w[w[v[v[u[u[u[t[t[t[s[s[s[s[r[r[r[r[r[q [Y[X[X[X[X[X[W[W[W[V[V[V[V[U[U[T[T[S[S[R[R[Q[P[P[O[N[M[L[K[J[I[H[G[F[E[D[D[C[B[A[z[z[y[x[x[w[w[v[v[v[u[u[u[t[t[t[s[s[s[s[s[r[r [X[X[W[W[W[W[V[V[V[V[U[U[U[T[T[S[S[R[R[Q[Q[P[P[O[N[M[M[L[K[J[I[H[H[G[F[E[D[C[C[B[A[A[z[y[y[x[x[w[w[w[v[v[u[u[u[u[t[t[t[t[s[s[s [W[W[W[V[V[V[V[U[U[U[T[T[T[S[S[S[R[R[Q[Q[P[O[O[N[N[M[L[K[K[J[I[H[H[G[F[E[E[D[C[C[B[A[A[z[z[y[y[x[x[w[w[w[v[v[v[u[u[u[u[t[t[t[t [V[V[V[V[U[U[U[U[T[T[T[S[S[S[R[R[Q[Q[P[P[O[O[N[N[M[L[L[K[J[J[I[H[H[G[F[F[E[D[D[C[B[B[A[A[z[z[y[y[y[x[x[w[w[w[v[v[v[v[u[u[u[u[t [V[V[U[U[U[U[T[T[T[S[S[S[R[R[R[Q[Q[P[P[O[O[N[N[M[M[L[K[K[J[J[I[H[H[G[F[F[E[E[D[D[C[B[B[A[A[z[z[z[y[y[x[x[x[w[w[w[v[v[v[v[u[u[u [U[U[U[T[T[T[T[S[S[S[R[R[R[Q[Q[Q[P[P[O[O[N[N[M[M[L[L[K[K[J[J[I[H[H[G[G[F[F[E[D[D[C[C[B[B[A[A[A[z[z[y[y[y[x[x[x[w[w[w[w[v[v[v[v [U[T[T[T[T[S[S[S[S[R[R[R[Q[Q[P[P[P[O[O[N[N[N[M[M[L[L[K[K[J[I[I[H[H[G[G[F[F[E[E[D[D[C[C[B[B[A[A[A[z[z[z[y[y[y[x[x[x[w[w[w[w[v[v [T[T[T[S[S[S[S[R[R[R[Q[Q[Q[P[P[P[O[O[N[N[N[M[M[L[L[K[K[J[J[I[I[H[H[G[G[F[F[E[E[D[D[D[C[C[B[B[B[A[A[z[z[z[y[y[y[x[x[x[x[w[w[w[w [T[S[S[S[S[R[R[R[R[Q[Q[Q[P[P[P[O[O[N[N[N[M[M[L[L[L[K[K[J[J[I[I[H[H[G[G[G[F[F[E[E[D[D[C[C[C[B[B[B[A[A[z[z[z[z[y[y[y[x[x[x[x[w[w
+&DATA_CHARS Job Database <JD>=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ`1234567890-=~!@#$^&*()_+{}|;':"<>?,./
+&DATA_CHARS2 Job Database <JD>=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ `1234567890-=~!@#$%^&*()_[]\{}|;':",./<>?
+&DISPLAY_# Job Database <JD>=[ljust(%0,8)]
+&DISPLAY_A Job Database <JD>=[ljust(ifelse(isdbref(get(%0/ASSIGNED_TO)),name(get(%0/ASSIGNED_TO)),-),16)]
+&DISPLAY_B Job Database <JD>=[ljust(u(%va/FN_BUCKETNAME,%0),5)]
+&DISPLAY_C Job Database <JD>=[ljust(u(%va/FN_SHORT_DATE,convsecs(get(%0/OPENED_ON))),8)]
+&DISPLAY_D Job Database <JD>=[ljust(switch(get(%0/STATUS),0,--HOLD--,ifelse(get(%0/DUE_ON),ifelse(gt(secs(),get(%0/DUE_ON)),OVERDUE!,[u(%va/FN_SHORT_DATE,convsecs(get(%0/DUE_ON)))]),--------)),8)]
+&DISPLAY_F Job Database <JD>=[ifelse(u(me/IS_LOCKED,%0),L,-)][ifelse(u(me/IS_PUBLIC,%0),M,-)][ifelse(u(me/IS_TAGGED,%0),T,-)][ifelse(u(me/IS_PUBLISHED,%0),P,-)]
+&DISPLAY_M Job Database <JD>=[ljust(u(%va/FN_SHORT_DATE,convsecs(get(%0/MODIFIED_ON))),8)]
+&DISPLAY_O Job Database <JD>=[ljust(name(first(get(%0/OPENED_BY))),16)]
+&DISPLAY_P Job Database <JD>=[ifelse(u(me/IS_LOCKED,%0),L,-)]
+&DISPLAY_S Job Database <JD>=[center(ifelse(hasattrp(%0,LOCKED),LOCKED,switch(get(%0/STATUS),0,ON HOLD,1,NEW,2,UNDERWAY,3,1/4 DONE,4,1/2 DONE,5,3/4 DONE,6,COMPLETE,NEW)),8)]
+&DISPLAY_T Job Database <JD>=[ljust(mid(get(%0/TITLE),0,30),30)]
+&DISPLAY_MYHEADERS Job Database <JD>=[setq(0,%0)][setq(x,itemize(map(MAP_NAME,get(%q0/OPENED_BY),%b,|),|))][ljust([rjust(ansi(hc,Bucket:),10)] [u(%va/FN_BUCKETNAME,%q0)],40)][rjust(ansi(hc,Due On:),12)] [ifelse(get(%q0/DUE_ON),ifelse(gt(secs(),get(%q0/DUE_ON)),OVERDUE!,convsecs(get(%q0/DUE_ON))),-)]%r[ljust([rjust(ansi(hc,Title:),10)] [get(%q0/TITLE)],40)][rjust(ansi(hc,Assigned To:),12)] [ifelse(isdbref(get(%q0/ASSIGNED_TO)),name(get(%q0/ASSIGNED_TO)),Nobody)]%r[ljust([rjust(ansi(hc,Opened On:),10)] [convsecs(get(%q0/OPENED_ON))],40)][rjust(ansi(hc,Status:),12)] [switch(get(%q0/PRIORITY),1,Green,2,Yellow,3,Red)] %r[rjust(ansi(hc,Opened By:),10)] %qx
+&DISPLAY_MYJOB Job Database <JD>=[rjust([last(name(%0))],6)]%b%b[ljust(mid(get(%0/TITLE),0,40),40)]%b[ljust(ifelse(isdbref(get(%0/ASSIGNED_TO)),name(get(%0/ASSIGNED_TO)),Nobody),16)]%b[center(switch(get(%0/STATUS),0,ON HOLD,1,NEW,2,UNDERWAY,3,1/4 DONE,4,1/2 DONE,5,3/4 DONE,6,COMPLETE,NEW),8)]
+&DISPLAY_BUCKET Job Database <JD>=[rjust(ansi(h,Name:),20)] [name(%q0)] [ifelse(orflags(%#,WZ),%(%q0%),)] %([words(children(%q0))] jobs in bucket%)%r[rjust(ansi(h,Locked To:),20)] [ifelse(hasattrp(%q0,ACCESS),[get(%q0/ACCESS)] [ifelse(u(%q0/ACCESS,%#),%(You have access%),%(You do not have access%))],*UNLOCKED*)]%r[rjust(ansi(h,Post Data:),20)] %(Job system will post to these boards%)%r[columns(Complete: [u(%q0/POST_COMPLETE)]|Approve: [u(%q0/POST_APPROVE)]|Deny: [u(%q0/POST_DENY)],15,|,21)][ifelse(hasattrp(%q0,TURNAROUND),%r[rjust(ansi(h,Turnaround:),20)] [get(%q0/TURNAROUND)] hours %([div(get(%q0/TURNAROUND),24)] days%),)][ifelse(hasattrp(%q0,LOGFILE),%r[rjust(ansi(h,Logfile:),20)] M-[u(%q0/LOGFILE)].log,)]%r[rjust(ansi(h,Hidden Status:),20)] [switch([hasattrp(%q0,HIDDEN)][gt(member(u(%#/JOBSH),%q0),0)],00,Unhidden,01,Locally,11,Globally Hidden & Locally Watched,10,Globally,UNKNOWN CASE)]%r[rjust(ansi(h,+Myjobs Status:),20)] [ifelse(hasattrp(%q0,PUBLIC),Accessible,Inaccessible)]%r[rjust(ansi(h,Avg Resolve Time:),20)] [trim(u(FN_ART,%q0))]%r[rjust(ansi(h,Desc:),20)] [get(%q0/DESC)][ifelse(gt(words(setr(x,setdiff(lattr(%q0),u(%va/LIST_BADATTR,%q0)))),0),%r[rjust(ansi(h,Provides:),20)] %(Attributes provided to jobs in the bucket%)%r[columns(%qx,16,,21)],)][ifelse(gt(words(lattr(%q0/PROCESS_*)),0),%r[rjust(ansi(h,Settings:),20)] %(+job/sumset settings%)%r[columns(map(MAP_SETTINGS,lattr(%q0/PROCESS_*)),16,,21)],)]
+&DISPLAY_BUCKET2 Job Database <JD>=[rjust(ansi(h,Players:),20)] %(Connected players with access to this bucket)%r[columns([trim(squish(iter(edit(objeval(%#,lwho()),%b,|),ifelse(and(u(%va/HAS_ACCESS,##),u(%va/FN_ACCESSCHECK,%q0,##)),name(##),),|,|),|),b,|)],15,|,21)]
+&FIL_ACCESS Job Database <JD>=[u(%va/FN_ACCESSCHECK,%0,%#)]
+&FIL_BROADCAST Job Database <JD>=[ifelse(hasattrp(%0,JOBS_SILENCE),0,u(%va/FN_ACCESSCHECK,%q0,%0))]
+&FIL_COMMENTS Job Database <JD>=[gt(member(get(%va/LIST_VISCOMMENTS),first(get(%q0/%0),|)),0)]
+&FIL_DELETE Job Database <JD>=[switch(parent(%0,%q0,1,0)]
+&FIL_GOING Job Database <JD>=[switch(u(%va/FN_BUCKETNAME,%0),GOING,0,1)]
+&FIL_MINE Job Database <JD>=[gt(member([get(%0/assigned_to)] [get(%0/tagged_for)],%#),0)]
+&FIL_NEW Job Database <JD>=[gt(get(%0/MODIFIED_ON),get(%q0/LAST_CONN))]
+&FIL_NEW0 Job Database <JD>=[gt(get(%0/MODIFIED_ON),get(%q0/LAST_CONN))]
+&FIL_NEW1 Job Database <JD>=[gt(dec(get(%0/NUM_COMMENT)),last(grab(get(%0/LIST_READERS),%q0|*),|))]
+&FIL_NEWCOMMENTS0 Job Database <JD>=[and(gt(extract(get(%q0/%0),2,1,|),%q1),gt(member(get(%va/LIST_VISCOMMENTS),first(get(%q0/%0),|)),0))]
+&FIL_NEWCOMMENTS1 Job Database <JD>=[and(gt(dec(get(%q0/NUM_COMMENT)),last(grab(get(%q0/LIST_READERS),%#|*),|)),gt(member(get(%va/LIST_VISCOMMENTS),first(get(%q0/%0),|)),0))]
+&FIL_NOSPAM Job Database <JD>=[not(hasattr(%0,JOBS_NOSPAM))]
+&FIL_OVERDUE Job Database <JD>=ifelse(get(%0/DUE_ON),gt(secs(),get(%0/DUE_ON)),0)
+&FIL_WHO Job Database <JD>=[switch(get(%0/ASSIGNED_TO),%1,1,0)]
+&FN_ACCESSCHECK Job Database <JD>=[and(or(u(%va/FN_WIZONLY,%1),switch([elock(%0/speech,%1)][gt(member(get(%1/JOBSB),%0),0)],01,1,10,1,11,0,0)),u(%va/HAS_ACCESS,%1))]
+&FN_ADDSTAT Job Database <JD>=[localize([setq(x,ifelse(hasattr(%1,LIST_STATS),get(%1/LIST_STATS),))][setq(0,match(%qx,%0|*))][setq(1,grab(%qx,%0|*))][ifelse(gt(%q0,0),[set(%1,LIST_STATS:[setunion(ldelete(%qx,%q0),[first(%q1,|)]|[inc(rest(%q1,|))])])],[set(%1,LIST_STATS:[setunion(%qx,%0|1)])])])]
+&FN_ADDSTAT_ART Job Database <JD>=[set(%0,STAT_ART:[add(first(get(%0/STAT_ART)),sub(secs(),get(%1/OPENED_ON)))] [inc(last(get(%0/STAT_ART)))])]
+&FN_ANSIFY Job Database <JD>=foreach(map_ansify,%0)
+&FN_ART Job Database <JD>=u(FN_TIME,fdiv(first(get(%0/STAT_ART)),rest(get(%0/STAT_ART))))
+&FN_ASSEMBLEPIE Job Database <JD>=[localize([setq(1,%1)][setq(0,0)][map(%va/MAP_PIEDATA,%0,switch(%2,,%b,%2),|)])]
+&FN_BANNER Job Database <JD>=[u(FN_SKIN,BANNER,%0,%1,%2,%3)]
+&FN_BARGRAPH Job Database <JD>=localize([setq(4,ifelse(%5,%5, ))][setq(5,ifelse(%2,%2,2))][setq(6,ifelse(%3,ifelse(gt(%3,16),16,%3),1))][setq(7,switch(%4,,#,%4))][setq(1,ifelse(%1,%1,18))][setq(2,%q1)][setq(0,last(sort(%0,n,%q4,%q4),%q4))][setq(3,fdiv(%q1,%q0))][setq(x,list(lnum(%q1),[setq(9,0)][switch(%q2,%q1,rjust(%q0,3),ifelse(mod(%q1,2),inc(div(%q1,2)),div(%q1,2)),[rjust(div(%q0,2),3)],[space(3)])]|[map(MAP_GRAPH,%0,%q4,%b)][setq(2,sub(%q2,1))]))]%qx[space(2)]0+[repeat(-,dec(add(mul(words(%0,%q4),%q5),words(%0,%q4))))])
+&FN_BREAK Job Database <JD>=[u(FN_SKIN,BREAK,%0,%1,%2,%3)]
+&FN_BUCKETHEADER Job Database <JD>=[u(FN_SKIN,BUCKETHEADER,%0,%1,%2,%3)]
+&FN_BUCKETLIST Job Database <JD>=[u(FN_SKIN,BUCKETLIST,%0,%1,%2,%3)]
+&FN_BUCKETNAME Job Database <JD>=[ifelse(isdbref(parent(%0)),name(parent(%0)),ifelse(hasflag(%0,GOING),GOING,ERROR))]
+&FN_COLORPIE Job Database <JD>=setq(0,u(fn_equalizepie,%1,%2))[setq(p,%0)][setq(1,u(fn_rotatestr,setr(1,v(data_chars)),mod(round(fdiv(mul(%3,strlen(%q1)),360),0),360)))][setq(a,%]%])][setq(b,%qa%qa)][setq(c,%qb%qb)][map(map_colorpie,%q0,%2,@@)][edit(edit(%qp,%b,%%b),\\,%%r)]
+&FN_COORD2ANG Job Database <JD>=switch(%0:%1,-*:-*,add(180,atan(fdiv(%1,%0),deg)),-*:*,add(180,atan(fdiv(%1,%0),deg)),*:-*,add(360,atan(fdiv(%1,%0),deg)),0:0,0,atan(fdiv(%1,%0),deg))
+&FN_CUTPIE Job Database <JD>=setq(0,inc(%2))[setq(1,fdiv(%1,%2))][setq(2,power(%3,2))][setq(5,iter(lnum(0,dec(%3)),round(mul(sqrt(sub(%q2,power(add(##,.7),2))),%q1),0)))][setq(5,revwords(%q5) [setr(8,inc(ceil(mul(%3,2))))] %q5)][iter(lnum(-%3,%3),space(sub(%q8,setr(9,extract(%q5,#@,1))))[mid(extract(%0,add(##,%q0),1),shl(sub(%1,%q9),1),shl(%q9,2))],,\\)]
+&FN_EASYPIE Job Database <JD>=u(fn_pielegend,eval(edit(u(fn_colorpie,u(fn_cutpie,v(data_31-15),31,15,%0),map(map_easypie,%1,%2),%2,%4),%%r,%\%\)),map(map_easypie2,%1,%2),%2,%3)
+&FN_EQUALIZEPIE Job Database <JD>=setq(0,ladd(map(map_equalizepie,%0,%1),%1))[setq(1,strlen(v(data_chars)))][map(map_equalizepie2,%0,%1)]
+&FN_FLAG Job Database <JD>=[ansi(h,%[)][ansi(switch(%1,,hy,%1),%0)][ansi(h,%])]
+&FN_FLAGS Job Database <JD>=[u(FN_SKIN,FLAGS,%0,%1,%2,%3)]
+&FN_FOOTER Job Database <JD>=[u(FN_SKIN,FOOTER,%0,%1,%2,%3)]
+&FN_GENDATA Job Database <JD>=setq(0,%0)[setq(z,fdiv(inc(shl(%1,1)),inc(shl(%0,1))))][setq(9,fdiv(dec(setr(m,strlen(setr(8,v(data_charS))))),360))][setq(s,%2)][map(map_gendata,lnum(-%1,%1))]
+&FN_HEADER Job Database <JD>=[u(FN_SKIN,HEADER,%0,%1,%2,%3)]
+&FN_ISNEW Job Database <JD>=[localize([setq(0,%1)][u(FIL_NEW[default(%1/JOBSN,0)],%0)])]
+&FN_JOBLIST Job Database <JD>=[u(FN_SKIN,JOBLIST,%0,%1,%2,%3)]
+&FN_JOBSHEADER Job Database <JD>=[u(FN_SKIN,JOBSHEADER,%0,%1,%2,%3)]
+&FN_MAXWIDTH Job Database <JD>=last(sort(map(map_maxwidth,%0,%\,),n))
+&FN_MONITORCHECK Job Database <JD>=[and(or(u(%va/FN_ACCESSCHECK,%0,%1),u(%va/FN_WIZONLY,%1)),switch([hasattrp(%0,HIDDEN)][gt(member(get(%1/JOBSH),%0),0)],01,0,10,0,11,1,1),isdbref(parent(%0)))]
+&FN_NEW_JOBS Job Database <JD>=[setdiff(map(%va/MAP_NEW,lcon(%va)),u(%0/JOBSR))]
+&FN_PCT Job Database <JD>=%([mul(round(fdiv(%0,words(lcon(%va))),2),100)]%%%)
+&FN_PIEESCAPE Job Database <JD>=case(ord(%0),92,%%%\,91,%%%[,93,%%%],37,%%%%,%0)
+&FN_PIELEGEND Job Database <JD>=setq(d,inc(u(fn_maxwidth,%0)))[setq(n,%0[repeat(\\,sub(setr(a,add(words(%1,%2),%3)),setr(b,words(%0,\\))))])][setq(m,repeat(\\,%3)[edit(%1,ifelse(%2,%2,%b),\\)][repeat(\\,sub(%qb,%qa))])][map(map_pielegend,lnum(1,words(%qm,\\)),,%r)]
+&FN_PLAYERLIST Job Database <JD>=[itemize(map(MAP_NAME,get(%0/OPENED_BY),%b,|),|)]
+&FN_PRETTY Job Database <JD>=[switch(words(%0,switch(%1,,%b,%1)),0,%0,1,%0,[ldelete(edit(%0,switch(%1,,%b,%1),%,%b),words(%0,switch(%1,,%b,%1)),%,)] and [last(%0,switch(%1,,%b,%1))])]
+&FN_READERS Job Database <JD>=[localize([setq(0,match(get(%0/LIST_READERS),%1|*))][setq(1,grab(get(%0/LIST_READERS),%1|*))][setq(2,extract(%q1,1,1,|))][setq(3,extract(%q1,2,1,|))][set(%0,LIST_READERS:[setunion(ldelete(get(%0/LIST_READERS),%q0),%1|[dec(get(%0/NUM_COMMENT))])])])]
+&FN_READJOB Job Database <JD>=[u(FN_SKIN,READ,%0,%1,%2,%3)]
+&FN_ROTATESTR Job Database <JD>=mid(%0,%1,3999)[mid(%0,0,%1)]
+&FN_SHORT_DATE Job Database <JD>=[switch(extract(%0,2,1),Jan,01,Feb,02,Mar,03,Apr,04,May,05,Jun,06,Jul,07,Aug,08,Sep,09,Oct,10,Nov,11,Dec,12,??)]/[extract(%0,3,1)]/[mid(last(%0),2,2)]
+&FN_SKIN Job Database <JD>=[setq(z,default(%#/JOBSKIN,DEFAULT))][ifelse(hasattr(me,%qz_SKIN),ifelse(hasattr(me,%qz_%0),u(%qz_%0,%1,%2,%3,%4),u(DEFAULT_%0,%1,%2,%3,%4)),u(DEFAULT_%0,%1,%2,%3,%4))]
+&FN_STAFFALL Job Database <JD>=[orflags(%0,WZ)]
+&FN_STAFFSUM Job Database <JD>=[u(FN_SKIN,STAFFSUM,%0,%1,%2,%3)]
+&FN_SUMMARY Job Database <JD>=[u(FN_SKIN,SUMMARY,%0,%1,%2,%3)]
+&FN_TIME Job Database <JD>=[localize([setq(2,mod(%0,86400))][rjust([div(%0,86400)],2,0)]:[rjust(div(%q2,3600),2,0)]:[rjust(div(mod(%q2,3600),60),2,0)]:[rjust(mod(%q2,60),2,0)])]
+&FN_WIZONLY Job Database <JD>=[hasflag(%0,WIZARD)]
+&FOLD_ADD Job Database <JD>=add(%0,%1)
+&FOREACH_COLORPIE Job Database <JD>=setq(p,edit(%qp,%[%0,%]))
+&HEADER_# Job Database <JD>=[ljust(DB#,8)]
+&HEADER_A Job Database <JD>=[ljust(Assigned To,16)]
+&HEADER_B Job Database <JD>=[ljust(Type,5)]
+&HEADER_C Job Database <JD>=[ljust(Opened,8)]
+&HEADER_D Job Database <JD>=[ljust(Due On,8)]
+&HEADER_F Job Database <JD>=[ljust(Flag,4)]
+&HEADER_M Job Database <JD>=[ljust(Modified,8)]
+&HEADER_O Job Database <JD>=[ljust(Opened By,16)]
+&HEADER_S Job Database <JD>=[ljust(Status,8)]
+&HEADER_T Job Database <JD>=[ljust(Title,30)]
+&IS_HIDDEN Job Database <JD>=[udefault(%0/HIDDEN,0)]
+&IS_LOCKED Job Database <JD>=[udefault(%0/LOCKED,0)]
+&IS_PLAYER Job Database <JD>=[switch(type(%0),PLAYER,%0,)]
+&IS_PUBLIC Job Database <JD>=[udefault(%0/PUBLIC,0)]
+&IS_PUBLISHED Job Database <JD>=[udefault(%0/PUBLISH,0)]
+&IS_SUMMARY Job Database <JD>=[hasattrp(%0,SUMMARY)]
+&IS_TAGGED Job Database <JD>=[gt(words(get(%0/TAGGED_FOR)),0)]
+&IS_TRANSPARENT Job Database <JD>=[hasattrp(%0,TRANSPARENT)]
+&JOBS_DEFAULT Job Database <JD>=BTDAS
+&JOBS_HEADER Job Database <JD>=[ulocal(%va/JOBS_HEADER2,%0)]
+&JOBS_HEADER2 Job Database <JD>=[u(FN_HEADER)]%r[setq(1,[secure(switch(hasattrp(%0,JOBS),1,lcstr(mid(get(%0/JOBS),0,20)),u(JOBS_DEFAULT)))])][ansi(hc,*%b%b[ljust(Job#,5)][iter(lnum(strlen(%q1)),u(HEADER_[mid(%q1,##,1)]))])]%r[u(FN_BREAK)]
+&LIST_ACTIONS Job Database <JD>=ADD Player input|ASN Assignment|CLN Clone|CRE Create|DUE Due date|EDT Edited job|LOK Locked Job|MRG Merged job|NAM Re-name job|PUB Publication|SRC Source change|STA Status change|SUM Sumset change|TAG Job tag|TRN Transfer|UNL Unlock job|UNP Unpublish|COM +job/complete|DNY +job/deny|APR +job/approve|DEL +job/delete
+&LIST_BADATTR Job Database <JD>=Created Modified ACCESS Desc [lattr(%0/ACCESS_*)] [lattr(%0/ERROR_*)] [lattr(%0/PROCESS_*)] LIST_STATS STAT_ART TURNAROUND
+&LIST_VISCOMMENTS Job Database <JD>=ADD CRE COM MAI APR DEL DNY
+&MAP_ACTIONS Job Database <JD>=[rest(%0,|)]
+&MAP_ACTIONS2 Job Database <JD>=[first(%0,|)]
+&MAP_ANSIFY Job Database <JD>=%%x%0
+&MAP_ARTSGRAPH Job Database <JD>=[setq(0,iter(sortby(%va/SORTBY_NAME,lcon(%vc)),fdiv(first(get(##/STAT_ART)),rest(get(##/STAT_ART))))]%q0
+&MAP_COLORPIE Job Database <JD>=foreach(foreach_colorpie,mid(%q1,0,setr(9,last(%0,:))))[setq(x,u(fn_ansify,before(mid(%0,1,100),:)))][setq(h,u(fn_pieescape,mid(%0,0,1)))][setq(i,%qh%qh)][setq(j,%qi%qi)][setq(k,%qj%qj)][setq(p,edit(edit(edit(edit(%qp,%qc,%qx%qk%%cn),%qb,%qx%qj%%cn),%qa,%qx%qi%%cn),%],%qx%qh%%cn))][setq(1,mid(%q1,%q9,256))]
+&MAP_EASYPIE Job Database <JD>=extract(%0,1,switch(%0,:*,3,2),:)
+&MAP_EASYPIE2 Job Database <JD>=ldelete(%0,switch(%0,:*,3,2),:)
+&MAP_EQUALIZEPIE Job Database <JD>=last(%0,:)
+&MAP_EQUALIZEPIE2 Job Database <JD>=revwords(setr(8,round(fdiv(mul(%q1,setr(7,last(%0,:))),%q0),0))[setq(1,sub(%q1,%q8))][setq(0,sub(%q0,%q7))]:[rest(revwords(%0,:),:)],:)
+&MAP_GENDATA Job Database <JD>=setq(1,%0)%[[map(map_gendata2,lnum(-%q0,%q0),,%[)]
+&MAP_GENDATA2 Job Database <JD>=mid(%q8,mod(round(mul(add(u(fn_coord2ang,%0,%q1),%qs),%q9),0),%qm),1)
+&MAP_GRAPH Job Database <JD>=[setq(9,ifelse(gt(inc(%q9),%q6),1,inc(%q9)))][ifelse(lte(%q2,mul(%0,%q3)),[ansi(v(COLORGRAPH_%q9),[repeat(%q7,%q5)])],[repeat(%b,%q5)])]
+&MAP_ISPLAYER Job Database <JD>=[isdbref(num(*%0))]
+&MAP_MAXWIDTH Job Database <JD>=strlen(%0)
+&MAP_NAME Job Database <JD>=[name(%0)]
+&MAP_NAME2 Job Database <JD>=[name(*%0)]
+&MAP_NEW Job Database <JD>=[pack(after(%0,#))]:[pack(u(%0/NUM_COMMENT))]
+&MAP_PARAMS Job Database <JD>=[lcstr(rest(%0,_))]
+&MAP_PIEDATA Job Database <JD>=[mid(get(%va/CHARGRAPH),%q0,1)][setq(0,inc(%q0))][get(me/COLORGRAPH_%q0)]:%0:[extract(%q1,%q0,1)]
+&MAP_PIELEGEND Job Database <JD>=ljust(extract(%qn,%0,1,\\),%qd) [ansi(before(mid(setr(q,extract(%qm,%0,1,\\)),1,10),:),mid(%qq,0,1))] [switch(%qq,:*,extract(%qq,3,100,:),after(%qq,:))]
+&MAP_PMATCH Job Database <JD>=[pmatch(%0)]
+&MAP_REPORTS Job Database <JD>=[after(lcstr(%0),_)]
+&MAP_SETTINGS Job Database <JD>=[rest(%0,_)]
+&MAP_SOURCE Job Database <JD>=[pmatch(%0)]
+&MAP_STAT_ESC Job Database <JD>=[ifelse(and(hasattrp(%0,DUE_ON),gt(secs(),get(%0/DUE_ON))),[setq(3,inc(%q3))],[switch(default(%0/PRIORITY,1),1,setq(1,inc(%q1)),2,setq(2,inc(%q2)),3,setq(3,inc(%q3)),setq(0,inc(%q0)))])]
+&MAP_STAT_STATUS Job Database <JD>=[ifelse(u(%va/FIL_OVERDUE,%0),setq(7,inc(%q7)),switch(default(%0/STATUS,1),1,setq(1,inc(%q1)),2,setq(2,inc(%q2)),3,setq(3,inc(%q3)),4,setq(4,inc(%q4)),5,setq(5,inc(%q5)),6,setq(6,inc(%q6)),setq(0,inc(%q0))))]
+&MYJOBS_HEADER Job Database <JD>=[center(| [ansi(hy,Anomaly Jobs [get(%va/VERSION)])] |,79,=)]%r[ansi(hc,*%b%b[ljust(Job#,5)][ljust(Description,41)][ljust(Assigned To,17)]Status)]%r[repeat(-,79)]
+&REPORT_ACTBY Job Database <JD>=[switch(%0,,This report requires you to supply an action code.%r%rUse: '+jobs/reports ACTBY=<action code>'.%r,[setq(0,squish(iter(lcon(%vc),ifelse(eq(words(grab(u(##/LIST_STATS),%0|*)),0),,##))))][setq(1,squish(iter(%q0,rest(grab(u(##/LIST_STATS),%0|*),|))))][ifelse(lt(words(%q1),1),There is no action code '[ucstr(%0)]' presently in the system.%r,[ulocal(FN_BARGRAPH,%q1,10,2,16,#)]%r[space(4)][iter(%q0,[center(name(##),2)])]%r%r[center([ucstr(%0)] Actions by Bucket,79)])])]
+&REPORT_ACTIONS Job Database <JD>=[localize([ulocal(FN_BARGRAPH,map(MAP_ACTIONS,v(LIST_STATS)),15,2,16,#)]%r[space(4)][setq(1,map(MAP_ACTIONS2,sort(v(LIST_STATS))))][iter(%q1,[mid(##,0,1)]%b)]%r[space(4)][iter(%q1,[mid(##,1,1)]%b)]%r[space(4)][iter(%q1,[mid(##,2,1)]%b)])]%r%r[center(Number of Actions Performed Since [v(INSTALL_DATE)],79)]
+&REPORT_ARTS Job Database <JD>=[list(sortby(%va/SORTBY_NAME,lcon(%vc)),[ifelse(hasattr(##,STAT_ART),u(%va/FN_TIME,fdiv(first(get(##/STAT_ART)),rest(get(##/STAT_ART)))),[rjust(-,11)])]%b[ljust(ansi(hc,[name(##)]),20)])][rjust(u(%va/FN_TIME,fdiv(first(get(%vc/STAT_ART)),rest(get(%vc/STAT_ART)))),11)] [ansi(hy,Total ART)]%r[center(Average Resolution Times by Bucket,79)]
+&REPORT_ARTSGRAPH Job Database <JD>=[setq(0,iter(setr(1,sortby(%va/SORTBY_NAME,lcon(%vc))),ifelse(hasattr(##,STAT_ART),[div(fdiv(first(get(##/STAT_ART)),rest(get(##/STAT_ART))),86400)],0)))][ulocal(%va/FN_BARGRAPH,%q0,15,2,16,#)]%r[space(4)][iter(%q1,mid(name(##),0,2))]%r%r[center(Average Resolution Time by Bucket %(in days%),79)]
+&REPORT_BACT Job Database <JD>=[switch(%0,,This report requires you to supply a bucket name.%r%rUse: '+jobs/reports BACT=<bucket name>' to specify a bucket.%r,[setq(0,locate(%vc,%0,i))][ifelse(isdbref(%q0),[localize([ulocal(FN_BARGRAPH,map(MAP_ACTIONS,get(%q0/LIST_STATS)),15,1,16,#)]%r[space(4)][setq(1,map(MAP_ACTIONS2,sort(get(%q0/LIST_STATS))))][iter(%q1,mid(##,0,1))]%r[space(4)][iter(%q1,mid(##,1,1))]%r[space(4)][iter(%q1,mid(##,2,1))])]%r%r[center(Number of Actions Performed on Bucket [name(%q0)],79)],That is not a valid bucket name. See '+buckets' for a list of valid buckets.)])]
+&REPORT_BUCKETS Job Database <JD>=[localize([ulocal(FN_BARGRAPH,iter(sortby(SORTBY_NAME,lcon(%vc)),words(children(##))),15,2,16,#)])]%r[space(4)][iter(sortby(SORTBY_NAME,lcon(%vc)),mid(name(##),0,2))]%r%r[center(# of Jobs in Buckets,79)]
+&REPORT_CLOSURE Job Database <JD>=[localize([setq(0,iter(APR DNY COM DEL,grab(get(%va/LIST_STATS),##|*)))][u(%va/FN_EASYPIE,10,u(%va/FN_ASSEMBLEPIE,map(MAP_ACTIONS,%q0),iter(map(MAP_ACTIONS2,%q0),case(##,APR,Approved,DNY,Denied,COM,Completed,Deleted))),|,10)])]
+&REPORT_CODES Job Database <JD>=[center(List of Action Codes:,79)]%r%r[setq(0,sort(get(%va/LIST_ACTIONS),b,|,|))][columns(%q0,25,|,2)]%r
+&REPORT_ESC Job Database <JD>=[localize([setq(z,[iter(lnum(1,3),setq(##,0))][map(%va/MAP_STAT_ESC,lcon(%va))])][u(FN_EASYPIE,10,@Gg:%q1:Green|#Yy:%q2:Yellow|.Rr:%q3:Red,|,16,45)])]%r%r[center(Job Escalation Colors,79)]%r
+&REPORT_JACT Job Database <JD>=[switch(%0,,This report requires you to supply a job.%r%rUse: +jobs/reports JACT=<#>%r,[setq(0,locate(%va,Job %0,i))][ifelse(isdbref(%q0),[localize([ulocal(FN_BARGRAPH,map(MAP_ACTIONS,get(%q0/LIST_STATS)),15,1,16,#)]%r[space(4)][setq(1,map(MAP_ACTIONS2,sort(get(%q0/LIST_STATS))))][iter(%q1,mid(##,0,1))]%r[space(4)][iter(%q1,mid(##,1,1))]%r[space(4)][iter(%q1,mid(##,2,1))])]%r%r[center(Actions Performed on [name(%q0)],79)],That is not a valid job.%r)])]
+&REPORT_STATS Job Database <JD>=[rjust(ansi(hc,Install:),20)] [get(%va/INSTALL_DATE)]%r[rjust(ansi(hc,Version:),20)] Anomaly Jobs [get(%va/VERSION)][space(5)]%r[rjust(ansi(hc,Release:),20)] [get(%va/RELEASE)]%r[rjust(ansi(hc,Memory:),20)] [setr(a,fold(%va/FOLD_ADD,iter(setr(b,[num(me)] [loc(me)] %vb %vc [lcon(%vc)] [lcon(me)]),objmem(##))))] %([round(fdiv(%qa,1024),1)]k in [words(%qb)] objects%)%r[rjust(ansi(hc,Open Jobs:),20)] [setr(0,words(lcon(%va)))]%r[rjust(ansi(hc,Capacity:),20)] [setr(1,u(%va/MAX_JOBS))] %([mul(round(fdiv(%q0,%q1),2),100)]%% Full%)%r[rjust(ansi(hc,Next Job:),20)] [inc(u(%va/JOBS_NUM))]%r[rjust(ansi(hc,Buckets:),20)] [words(lcon(%vc))]%r[rjust(ansi(hc,Opened:),20)] [last(grab(get(%va/LIST_STATS),CRE|*),|)][setq(x,iter(APR DNY COM DEL,grab(get(%va/LIST_STATS),##|*)))][setq(y,map(%va/MAP_ACTIONS,%qx))]%r[rjust(ansi(hc,Closed:),20)] [fold(%va/FOLD_ADD,%qy)]%r[rjust(ansi(hc,ART:),20)] [u(%va/FN_ART,%vc)][space(10)] ART=Average Resolution Time%r[rjust(ansi(hc,REQ ART:),20)] [u(%va/FN_ART,locate(%vc,REQ,i))][space(18)]DD:HH:MM:SS%r[rjust(ansi(hc,CODE ART:),20)] [u(%va/FN_ART,locate(%vc,CODE,i))]%r[rjust(ansi(hc,TPS ART:),20)] [u(%va/FN_ART,locate(%vc,TPS,i))]%r[rjust(ansi(hc,BUILD ART:),20)] [u(%va/FN_ART,locate(%vc,BUILD,i))]%r
+&REPORT_STATUS Job Database <JD>=[localize([setq(x,[iter(lnum(10),setq(##,0))][map(%va/MAP_STAT_STATUS,lcon(%va))])][u(FN_EASYPIE,12,XRr:%q7:Overdue|-Bb:%q0:Hold|xGg:%q1:New|+Cc:%q2:Begun|*Ww:%q3:1/4|oYy:%q4:1/2|@Mm:%q5:3/4|/Xh:%q6:Done,|,10,45)])]
+&RTITLE_ACTBY Job Database <JD>=BAR|Graph of one action across all buckets
+&RTITLE_ACTIONS Job Database <JD>=BAR|System-wide Actions
+&RTITLE_ARTS Job Database <JD>=STATS|Average Resolution Times by Bucket
+&RTITLE_ARTSGRAPH Job Database <JD>=BAR|Average Resolution Times Graph
+&RTITLE_BACT Job Database <JD>=BAR|All actions on a specified bucket
+&RTITLE_BUCKETS Job Database <JD>=BAR|Job Dispersal Among Buckets
+&RTITLE_CLOSURE Job Database <JD>=PIE|Job Closure Patterns
+&RTITLE_CODES Job Database <JD>=STATS|A list of system-generated action codes
+&RTITLE_ESC Job Database <JD>=PIE|Job Escalation Status
+&RTITLE_JACT Job Database <JD>=BAR|Actions performed on a job
+&RTITLE_STATS Job Database <JD>=STATS|General System Stats
+&RTITLE_STATUS Job Database <JD>=PIE|Job Status Settings
+&SORTBY_DATE Job Database <JD>=[comp(get(%0/MODIFIED_ON),get(%1/MODIFIED_ON))]
+&SORTBY_JOB Job Database <JD>=[sort(%0,n)]
+&SORTBY_NAME Job Database <JD>=[comp(name(%0),name(%1))]
+&SORTBY_OLDEST Job Database <JD>=[comp(rjust(get(%0/MODIFIED_ON),20,0),rjust(get(%1/MODIFIED_ON),20,0))]
+&SORTBY_PRI Job Database <JD>=[comp(get(%0/PRIORITY),get(%1/PRIORITY))]
+&SORTBY_SORT Job Database <JD>=[comp(parent(%0),parent(%1))]
+&TRIG_ADD Job Database <JD>=think [setq(0,default(%0/NUM_COMMENT,1))][u(FN_ADDSTAT,%3,%va)][u(FN_ADDSTAT,%3,%0)][u(FN_ADDSTAT,%3,parent(%0))];&COMMENT_%q0 %0=%3|[secs()]|%2|[name(%2)]|[ifelse(hasattrp(%0,ALETTER_%3),strtrunc(u(%0/ALETTER_%3,%0,%2,edit(%1,|,@@PIPE@@)),get(%va/BUFFER)),strtrunc(edit(%1,|,@@PIPE@@),get(%va/BUFFER)))];&NUM_COMMENT %0=[inc(%q0)];&MODIFIED_ON %0=[secs()];&MODIFIED_BY %0=%2;@trigger parent(%0)/HOOK_%3=%0,%2,[parent(%0)];@trigger %va/TRIG_POST=%0,%3,%2,%1;@trigger %va/TRIG_MAIL=%0,%3,%2,%1
+&TRIG_APPLY Job Database <JD>=@trigger %va/TRIG_CREATE=%0,[locate(%vc,APPS,i)],Application by [name(%0)],Character Application
+&TRIG_BROADCAST Job Database <JD>=@pemit/list [setq(0,%0)][filter(%va/FIL_BROADCAST,setunion(lwho(),))]=[ansi(hc,JOBS:)] %1
+&TRIG_CREATE Job Database <JD>=@switch gt(words(lcon(%va)),u(%va/MAX_JOBS))=1,{@pemit %0=[ansi(hr,JOBS ERROR:)] Creation failed. The +jobs system is full. Contact staff immediately.;@trigger #1430/TRIG_BROADCAST=%1,JOBS SYSTEM IS FULL! Please complete jobs or boost your MAX_JOBS configuration.},{think [setq(0,inc(u(%va/JOBS_NUM)))][setq(1,create(Job %q0,10))][setq(y,case(%7,1,CRE,OTH))];@tel %q1=%va;@link %q1=%va;&OPENED_BY %q1=[switch(%5,,%0,%5)];&OPENED_ON %q1=[secs()];&MODIFIED_ON %q1=[secs()];&STATUS %q1=1;&TITLE %q1=%3;@parent %q1=[locate(%vc,%1,i)];&NUM_COMMENT %q1=2;&PRIORITY %q1=%2;&COMMENT_1 %q1=CRE|[secs()]|%0|[name(%0)]|[ifelse(hasattrp(%q0,ALETTER_%qy),strtrunc(u(%q0/ALETTER_%qy,%q1,%0,edit(%4,|,@@PIPE@@)),get(%va/BUFFER)),strtrunc(edit(%4,|,@@PIPE@@),get(%va/BUFFER)))];&ASSIGNED_TO %q1=%6;&JOBS_NUM %va=%q0;&DUE_ON %q1=[ifelse(hasattrp(%q1,TURNAROUND),add(secs(),mul(60,60,get(%q1/TURNAROUND))),)];@trigger %va/TRIG_BROADCAST=%1,New [name(%1)] job # %q0 submitted by [name(%0)]: %3;@trigger %1/HOOK_%qy=%q1,%0,%1;@trigger %va/TRIG_POST=%q1,%qy,%0,%4;@trigger %va/TRIG_MAIL=%q1,%qy,%0,%4;think [u(FN_ADDSTAT,CRE,%va)][u(FN_ADDSTAT,CRE,parent(%q1))]}
+&TRIG_LOG Job Database <JD>=@switch [hasattrp(%va,JOB_LOGGING)][setq(0,%0)][setq(1,parent(%q0))][setq(x,itemize(map(MAP_NAME,get(%q0/OPENED_BY),%b,|),|))]=0,{@@},{@log [u(%q1/LOGFILE)]=[center(| [name(%q0)] |,79,=)];@log [u(%q1/LOGFILE)]=[ljust([rjust(ansi(hc,Bucket:),10)] [u(FN_BUCKETNAME,%q0)],40)][rjust(ansi(hc,Due On:),12)] [ifelse(get(%q0/DUE_ON),ifelse(gt(secs(),get(%q0/DUE_ON)),OVERDUE!,convsecs(get(%q0/DUE_ON))),-)];@log [u(%q1/LOGFILE)]=[ljust([rjust(ansi(hc,Title:),10)] [get(%q0/TITLE)],40)][rjust(ansi(hc,Assigned To:),12)] [ifelse(isdbref(get(%q0/ASSIGNED_TO)),name(get(%q0/ASSIGNED_TO)),Nobody)];@log [u(%q1/LOGFILE)]=[ljust([rjust(ansi(hc,Opened On:),10)] [convsecs(get(%q0/OPENED_ON))],40)][rjust(ansi(hc,Status:),12)] [switch(get(%q0/PRIORITY),1,Green,2,Yellow,3,Red)] %([switch(get(%q0/STATUS),0,On Hold,1,New,2,Underway,3,25%%,4,50%%,5,75%%,6,100%%,?)]%);@log [u(%q1/LOGFILE)]=[rjust(ansi(hc,Opened By:),10)] %qx;@dolist lattr(%q0/COMMENT_*)={@log [u(%q1/LOGFILE)]=[repeat(-,79)];@log [u(%q1/LOGFILE)]=[extract(get(%q0/##),4,1,|)] added on [convsecs(extract(get(%q0/##),2,1,|))]: [edit(last(get(%q0/##),|),@@PIPE@@,|)]};@wait .5={@log [u(%q1/LOGFILE)]=[repeat(=,79)]}}
+&TRIG_MAIL Job Database <JD>=@switch [hasattrp(%0,MLETTER_%1)]=1,{@wait me={@trigger %vb/TRIG_MAIL=[switch(%1,MAI,[get(%0/OPENED_BY)],APR,[get(%0/OPENED_BY)],DNY,[get(%0/OPENED_BY)],filter(%va/FIL_NOSPAM,setunion(get(%0/OPENED_BY),)))],[switch(%1,APR,Approved:,DEL,Deleted:,DNY,Denied:,COM,Complete:,[name(%0)]:)] [get(%0/TITLE)],[u(parent(%0)/MLETTER_%1,%0,%1,%2,%3)]};@notify me}
+&TRIG_POST Job Database <JD>=@switch [hasattrp(%0,PLETTER_%1)]=1,{@wait me={@trigger %vb/TRIG_POST=[u(%0/POST_[case(%1,APR,APPROVE,DEL,DELETE,DNY,DENY,COM,COMPLETE,APPROVE)])],[switch(%1,APR,A:,DNY,D:,COM,C:,[name(%0)]:)] [get(%0/TITLE)],[u(parent(%0)/PLETTER_%1,%0,%1,%2,%3)]};@notify me}
+&MAX_JOBS Job Database <JD>=200
+@switch [first(version())]=TinyMUSH,{&BUFFER Job Database <JD>=4000},{&BUFFER Job Database <JD>=8000}
+&JOBS_NUM %va=[inc(last(name(first(lcon(%va)))))]
+@@
+@@
+@@ ------------------------------------------------------------------
+@@ These attributes control who can access what features of the code.
+@@
+@@ HAS_ACCESS      : Return 1 if player can access the +jobs code.
+@@ ADD_ACCESS      : Return 1 if player can /add to jobs.
+@@ APPROVE_ACCESS  : Return 1 if player can /approve jobs.
+@@ COMPLETE_ACCESS : Return 1 if player can /complete jobs.
+@@ CREATE_ACCESS   : Return 1 if player can /create jobs.
+@@ DENY_ACCESS     : Return 1 if player can /deny jobs.
+@@ EDIT_ACCESS     : Return 1 if player can edit a job.
+@@ GIVE_ACCESS     : Return 1 if player can +bucket/access.
+@@ LOG_ACCESS      : Return 1 if player can /log a job.
+@@ MAIL_ACCESS     : Return 1 if player can /mail regarding a job.
+@@ STATS_ACCESS    : Return 1 if player can get reports.
+@@ CONFIG_ACCESS   : Return 1 if player can use /sumset.
+@@ ------------------------------------------------------------------
+@@
+&HAS_ACCESS Job Database <JD>=[or(haspower(%0,builder),u(%va/FN_STAFFALL,%0))]
+&ADD_ACCESS Job Database <JD>=[u(%va/FN_STAFFALL,%0)]
+&APPROVE_ACCESS Job Database <JD>=[u(%va/FN_STAFFALL,%0)]
+&COMPLETE_ACCESS Job Database <JD>=[u(%va/FN_STAFFALL,%0)]
+&CREATE_ACCESS Job Database <JD>=[u(%va/FN_STAFFALL,%0)]
+&DENY_ACCESS Job Database <JD>=[u(%va/FN_STAFFALL,%0)]
+&EDIT_ACCESS Job Database <JD>=[u(%va/FN_STAFFALL,%0)]
+&GIVE_ACCESS Job Database <JD>=[u(%va/FN_WIZONLY,%0)]
+&LOG_ACCESS Job Database <JD>=[u(%va/FN_WIZONLY,%0)]
+&MAIL_ACCESS Job Database <JD>=[u(%va/FN_STAFFALL,%0)]
+&STATS_ACCESS Job Database <JD>=[u(%va/FN_STAFFALL,%0)]
+&CONFIG_ACCESS Job Database <JD>=[u(%va/FN_STAFFALL,%0)] 
+@@
+@@ -------------------------------------------------------------------
+@@ SKINS:
+@@ 
+@@ You can change the way your Jobs system appears through the use of
+@@ skins. The DEFAULT skin is the 'standard' view of the system, and
+@@ all the DEFAULT_* attributes are required for its operation.
+@@
+@@ For new skins, you must have at least one attribute:
+@@
+@@     <NAME>_SKIN must be set to 1.
+@@
+@@ The *_SKIN attribute informs the system whether the <NAME> is a
+@@ valid skin or not.
+@@
+@@ If you do not have a particular attribute set for your skin, the
+@@ system will fall back to the default for that attribute.
+@@
+@@ -------------------------------------------------------------------
+@@
+@@ Default Skin
+@@
+&DEFAULT_SKIN Job Database <JD>=1
+&DEFAULT_BANNER Job Database <JD>=[setq(0,%0)][setq(x,itemize(map(MAP_NAME,get(%q0/OPENED_BY),%b,|),|))][ljust([rjust(ansi(hc,Bucket:),10)] [u(%va/FN_BUCKETNAME,%q0)],40)][rjust(ansi(hc,Due On:),12)] [ifelse(get(%q0/DUE_ON),ifelse(gt(secs(),get(%q0/DUE_ON)),OVERDUE!,convsecs(get(%q0/DUE_ON))),-)]%r[ljust([rjust(ansi(hc,Title:),10)] [get(%q0/TITLE)],40)][rjust(ansi(hc,Status:),12)] [switch(get(%q0/PRIORITY),1,Green,2,Yellow,3,Red)] %([switch(get(%q0/STATUS),0,On Hold,1,New,2,Underway,3,25%%,4,50%%,5,75%%,6,100%%,?)]%)%r[ljust([rjust(ansi(hc,Opened On:),10)] [convsecs(get(%q0/OPENED_ON))],40)][rjust(ansi(hc,Assigned To:),12)] [ifelse(isdbref(get(%q0/ASSIGNED_TO)),name(get(%q0/ASSIGNED_TO)),Nobody)]%r[rjust(ansi(hc,Opened By:),10)] %qx
+&DEFAULT_BREAK Job Database <JD>=switch(%0,,repeat(-,79),rjust(%[%0%],79,-))
+&DEFAULT_BUCKETHEADER Job Database <JD>=[u(FN_HEADER,Bucket List)]%r[ifelse(u(%va/FN_WIZONLY,%#),[ansi(hc,[ljust(Name,9)][ljust(Flags,6)]%b%b[ljust(Description,30)][rjust(#Jobs,5)][rjust(Pct,5)][space(3)]C%b%bA%b%bD%b%bDue[space(3)]ARTS)],[ansi(hc,[ljust(NAME,8)][ljust(Description,50)]%b[rjust(Viewing,20)])])]%r[u(FN_BREAK)]
+&DEFAULT_BUCKETLIST Job Database <JD>=[ifelse(u(%va/FN_WIZONLY,%#),[ljust(name(%0),6)]%b%b[ifelse(u(%va/FN_MONITORCHECK,%0,%#),V,-)][ifelse(u(%va/IS_HIDDEN,%0),H,-)][ifelse(u(%va/IS_LOCKED,%0),L,-)][ifelse(u(%va/IS_TAGGED,%0),T,-)][ifelse(u(%va/IS_PUBLIC,%0),M,-)][ifelse(u(%va/IS_PUBLISHED,%0),P,-)][ifelse(u(%va/IS_SUMMARY,%0),S,-)]%b%b[strtrunc(ljust(get(%0/DESC),40),30)][rjust(words(children(%0)),5)][rjust(mul(round(fdiv(words(children(%0)),words(lcon(%va))),2),100)%%,5)]%b%b[rjust(get(%0/POST_COMPLETE),2)]%b[rjust(get(%0/POST_APPROVE),2)]%b[rjust(get(%0/POST_DENY),2)][rjust(default(%0/TURNAROUND,0),5)][rjust([ifelse(hasattr(%0,STAT_ART),[div(fdiv(first(get(%0/STAT_ART)),rest(get(%0/STAT_ART))),86400)]d,-)],7)],[ljust(name(%0),6)]%b%b[strtrunc(ljust(get(%0/DESC),50),50)]%b[rjust(ifelse(u(%va/FN_MONITORCHECK,%0,%#),Yes,-),20)])]
+&DEFAULT_FLAGS Job Database <JD>=[ifelse(u(me/IS_LOCKED,%0),u(me/FN_FLAG,LOCKED,hr),)][ifelse(u(me/IS_PUBLIC,%0),u(me/FN_FLAG,Myjobs),)][ifelse(u(me/IS_PUBLISHED,%0),u(me/FN_FLAG,Published),)][ifelse(u(me/IS_TAGGED,%0),u(me/FN_FLAG,Tags),)]
+&DEFAULT_FOOTER Job Database <JD>=[switch(%0,,repeat(=,79),center(| %0 |,79,=))]
+&DEFAULT_HEADER Job Database <JD>=[switch(%0,,[repeat(=,79)],[center(| [ansi(hy,%0)] |,79,=)])]
+&DEFAULT_JOBLIST Job Database <JD>=[setq(0,secure(ifelse(hasattrp(%1,JOBS),lcstr(mid(get(%1/JOBS),0,20)),get(%va/JOBS_DEFAULT))))][setq(1,ifelse(get(%0/DUE_ON),ifelse(gt(secs(),get(%0/DUE_ON)),r,switch(get(%0/PRIORITY),1,g,2,y,3,r,g)),switch(get(%0/PRIORITY),1,g,2,y,3,r)))][ifelse(u(%va/FN_ISNEW,%0,%1),[ansi(hr,*)]%b,%b%b)][ansi(h%q1,[rjust([last(name(%0))],5)]%b[iter(lnum(strlen(%q0)),[u(%va/DISPLAY_[mid(%q0,##,1)],%0,%1)])])]
+&DEFAULT_JOBSHEADER Job Database <JD>=localize([u(FN_HEADER,Anomaly Jobs [u(VERSION)])]%r[setq(1,[secure(switch(hasattrp(%0,JOBS),1,lcstr(mid(get(%0/JOBS),0,20)),u(JOBS_DEFAULT)))])][ansi(hc,*%b%b[ljust(Job#,5)][iter(lnum(strlen(%q1)),u(HEADER_[mid(%q1,##,1)]))])]%r[u(FN_BREAK)])
+&DEFAULT_READ Job Database <JD>=[repeat(-,79)]%r[ifelse(u(%va/EDIT_ACCESS,%#),[ansi(h,%[)][ifelse(and(or(u(%va/IS_PUBLISHED,%1),switch(extract(get(%1/%0),3,1,|),u(%1/OPENED_BY),1,0),hasflag(%1/%0,no_inherit)),u(%va/IS_PUBLIC,%1)),ansi(hc,[rest(%0,_)]+),ansi(hc,[rest(%0,_)]-))][ansi(h,%])]%b,)][ansi(h,[extract(get(%1/%0),4,1,|)] added on [convsecs(extract(get(%1/%0),2,1,|))]:%b )][edit(last(get(%1/%0),|),@@PIPE@@,|)]
+&DEFAULT_STAFFSUM Job Database <JD>=[localize(%r[repeat(-,79)]%r[rjust(ansi(hc,DB#:),10)] %0[space(10)][rjust(ansi(hc,Comments:),10)] [setr(z,words(lattr(%0/COMMENT_*)))]%r%r[rjust(ansi(hc,Players:),10)] %(Players contributing to this job%)%r[setq(y,setunion(iter(lattr(%0/COMMENT_*),extract(get(%0/##),4,1,|),%b,|),,|))][columns(%qy,20,|,11)][ifelse(hasattr(%0,LIST_READERS),%r[rjust(ansi(hc,Readers:),10)] %(Players who have read this job in the past%)%r[setq(z,iter(get(%0/LIST_READERS),first(##,|)))][columns(map(%va/MAP_NAME,%qz,%b,|),20,|,11)],)][ifelse(hasattr(%0,TAGGED_FOR),%r[rjust(ansi(hc,Tags:),10)] %(Players this job has been tagged for%)%r[columns(map(%va/MAP_NAME,get(%0/TAGGED_FOR),%b,|),20,|,11)],)]%r[rjust(ansi(hc,Stats:),10)]%r[columns(iter(ifelse(hasattr(%0,LIST_STATS),sort(get(%0/LIST_STATS)),),[first(##,|)] [last(##,|)],%b,|),20,|,11)]%r)]
+&DEFAULT_SUMMARY Job Database <JD>=%r[repeat(-,79)]%r[u(parent(%0)/SUMMARY,%0)]
+@@
+@@ Chrome Skin
+@@
+&CHROME_SKIN Job Database <JD>=1
+&CHROME_BANNER Job Database <JD>=%r[setq(0,%0)][setq(x,itemize(map(MAP_NAME,get(%q0/OPENED_BY),%b,|),|))][ljust([rjust(ansi(hc,Bucket:),10)] [u(%va/FN_BUCKETNAME,%q0)],40)][rjust(ansi(hc,Due On:),12)] [ifelse(get(%q0/DUE_ON),ifelse(gt(secs(),get(%q0/DUE_ON)),OVERDUE!,convsecs(get(%q0/DUE_ON))),-)]%r[ljust([rjust(ansi(hc,Title:),10)] [get(%q0/TITLE)],40)][rjust(ansi(hc,Status:),12)] [switch(get(%q0/PRIORITY),1,Green,2,Yellow,3,Red)] %([switch(get(%q0/STATUS),0,On Hold,1,New,2,Underway,3,25%%,4,50%%,5,75%%,6,100%%,?)]%)%r[ljust([rjust(ansi(hc,Opened On:),10)] [convsecs(get(%q0/OPENED_ON))],40)][rjust(ansi(hc,Assigned To:),12)] [ifelse(isdbref(get(%q0/ASSIGNED_TO)),name(get(%q0/ASSIGNED_TO)),Nobody)]%r[rjust(ansi(hc,Opened By:),10)] %qx
+&CHROME_BREAK Job Database <JD>=[repeat(_,79)]
+&CHROME_FLAGS Job Database <JD>=[edit(trim(squish([ifelse(u(me/IS_LOCKED,%0),%b[ansi(hr,LOCKED)]%b,)][ifelse(u(me/IS_PUBLIC,%0),%bMYJOBS%b,)][ifelse(u(me/IS_PUBLISHED,%0),%bPUBLISHED%b,)][ifelse(u(me/IS_TAGGED,%0),%bTAGS%b,)])),%b,%b-%b)]
+&CHROME_FOOTER Job Database <JD>=%r[switch(%0,,[repeat(~,79)],[repeat(~,sub(73,strlen(%0)))]|[ansi(Chw,%b[stripansi(%0)]%b)]|~~)]
+&CHROME_HEADER Job Database <JD>=[switch(%0,,[repeat(_,79)],__|[ansi(Chw,%b%0%b)]|[repeat(_,sub(73,strlen(%0)))])]
+&CHROME_JOBLIST Job Database <JD>=[setq(0,secure(ifelse(hasattrp(%1,JOBS),lcstr(mid(get(%1/JOBS),0,20)),get(%va/JOBS_DEFAULT))))][setq(1,ifelse(get(%0/DUE_ON),ifelse(gt(secs(),get(%0/DUE_ON)),h,switch(get(%0/PRIORITY),1,hx,2,n,3,h,hx)),switch(get(%0/PRIORITY),1,hx,2,n,3,h)))][ifelse(gt(get(%0/MODIFIED_ON),get(%#/LAST_CONN)),[ansi(hr,*)]%b,%b%b)][ansi(h%q1,[rjust([last(name(%0))],5)]%b[iter(lnum(strlen(%q0)),[u(%va/DISPLAY_[mid(%q0,##,1)],%0,%1)])])]
+&CHROME_JOBSHEADER Job Database <JD>=localize([u(FN_HEADER,Anomaly Jobs [u(VERSION)])]%r[setq(1,[secure(switch(hasattrp(%0,JOBS),1,lcstr(mid(get(%0/JOBS),0,20)),u(JOBS_DEFAULT)))])][ansi(Chcu,*%b%b[ljust(Job#,5)][iter(lnum(strlen(%q1)),u(HEADER_[mid(%q1,##,1)]))])])%r
+&CHROME_READ Job Database <JD>=%r[ansi(u,[ifelse(u(%va/EDIT_ACCESS,%#),[ansi(Xh,%b[rest(%0,_)]:%b)],[ansi(Xh,%b)])]|[ansi(Xhc,%b[extract(get(%1/%0),4,1,|)])]%b|[ansi(Xhu,repeat(%b,sub(28,strlen(extract(get(%1/%0),4,1,|)))))][ifelse(and(or(u(%va/IS_PUBLISHED,%1),switch(extract(get(%1/%0),3,1,|),u(%1/OPENED_BY),1,0),hasflag(%1/%0,no_inherit)),u(%va/IS_PUBLIC,%1)),|[ansi(Xc,%b+Published+%b)][ansi(Xh,|___)],[ansi(Xhu,repeat(%b,17))])][ansi(Xhu,[convsecs(extract(get(%1/%0),2,1,|))]%b)],43,)]%r[space(4)][edit(last(get(%1/%0),|),@@PIPE@@,|)]
+&CHROME_SUMMARY Job Database <JD>=%r[repeat(_,79)]%r[u(parent(%0)/SUMMARY,%0)]
+@@ -------------------------------------------------------------------
+@@ Version/Etc
+@@
+@@ -------------------------------------------------------------------
+&CREDITS Job Database <JD>=Starfleet@Anomaly (eye1movies@aol.com)
+&LICENSE Job Database <JD>=Contributors: Firestorm@Ephemera, Grey@Anomaly, Ian@MUX%r%rYou may port this code to any game provided that these credits remain intact. Please report any and all bugs, feedback or whatnot to the email address provided above. The most recent version of this code can be found at Anomaly's web page: http://anomaly.mushpark.com
+&RELEASE Job Database <JD>=Jan 31, 2006
+&VERSION Job Database <JD>=v5.0
+&VERSION Job Parent Object <JPO>=v5.0
+@@
+@@ Set the right install date
+@@
+@fo me={&INSTALL_DATE Job Database <JD>=time()}
+@@
+@@ -------------------------------------------------------------------
+@@ Automatic Assignment:
+@@
+@@ This will detect whether or not you had /create automatically
+@@ assign the creator to the job. 
+@@
+@@ If you previously did not have this feature turned on, and you
+@@ want to turn it on, un-comment the following:
+@@
+@@ &CONFIG_ASSIGN Job Database <JD>=1
+@@
+@@ If you previously had this feature and no longer want to use
+@@ it, add comments to the following:
+@@
+@switch u(Job Database <JD>/CONFIG_ASSIGN)=1,{&HOOK_CRE Job Parent Object <JPO>=&ASSIGNED_TO %0=%1},{@@}
+@@
+@@ -------------------------------------------------------------------
+@@ Automatic Loggig:
+@@
+@@ Remove the comments if you want to log every job that comes through
+@@ the system:
+@@
+@@ &HOOK_APR Job Parent Object <JPO>=@trigger [v(VA)]/TRIG_LOG=%0,[v(VA)]
+@@ &HOOK_DEL Job Parent Object <JPO>=@trigger [v(VA)]/TRIG_LOG=%0,[v(VA)]
+@@ &HOOK_DNY Job Parent Object <JPO>=@trigger [v(VA)]/TRIG_LOG=%0,[v(VA)]
+@@ &HOOK_COM Job Parent Object <JPO>=@trigger [v(VA)]/TRIG_LOG=%0,[v(VA)]
+@@
+@@ Note that the logs must previously exist on the server before they
+@@ can be written to:
+@@        /game/logs/M-<logfile>.log
+@@
+@@ The two default <logfiles> are 'reqlog' (for all player +requests)
+@@ and 'joblog' (for all other buckets).
+@@ -------------------------------------------------------------------
+@@
+@pemit %#=[ansi(hc,ANOMALY JOBS:)] Configuring Buckets.
+@@
+drop jpo
+enter jpo
+@@ -------------------------------------------------------------------
+@@ Set required buckets as SAFE.
+@@ -------------------------------------------------------------------
+@set REQ=SAFE
+@set QUERY=SAFE
+@set PITCH=SAFE
+@set CODE=SAFE
+@set BUILD=SAFE
+@@ -------------------------------------------------------------------
+@@ ADMIN
+@@ -------------------------------------------------------------------
+&ACCESS ADMIN=[u(%va/FN_STAFFALL,%#)]
+@@ -------------------------------------------------------------------
+@@ APPS
+@@
+@@ ALETTER_OTH: Post this message to itself as the comment upon job
+@@                generation other than /create.
+@@
+@@ MLETTER_OTH: Mail this letter to the player when the application is
+@@                submitted.
+@@
+@@ MLETTER_APR: Send this to the /source list in @mail upon job 
+@@                /approval.
+@@
+@@ PLETTER_APR: Send this to the BBS POST_APPROVE board upon job
+@@                /approval.
+@@ -------------------------------------------------------------------
+&ACCESS APPS=[u(%va/FN_STAFFALL,%#)]
+&ALETTER_OTH APPS=Application for approval submitted by [name(%1)].
+&MLETTER_OTH APPS=You have submitted an application for approval. Please give staff some time to process the application. You will hear back soon.
+&MLETTER_APR APPS=You have been approved by [name(%1)].
+&PLETTER_APR APPS=[name(%1)] has approved [name(get(%0/OPENED_BY))] for roleplay.
+@@ -------------------------------------------------------------------
+@@ BUILD
+@@
+@@ PUBLIC: +myjobs can see into this bucket.
+@@ -------------------------------------------------------------------
+&PUBLIC BUILD=1
+&ACCESS BUILD=[or(haspower(%#,builder),u(%va/FN_STAFFALL,%#))]
+@@ -------------------------------------------------------------------
+@@ CGEN
+@@ -------------------------------------------------------------------
+&ACCESS CGEN=[u(%va/FN_STAFFALL,%#)]
+@@ -------------------------------------------------------------------
+@@ CODE
+@@ 
+@@ PUBLIC: +myjobs can see into this bucket.
+@@ -------------------------------------------------------------------
+&PUBLIC CODE=1
+&ACCESS CODE=[u(%va/FN_STAFFALL,%#)]
+@@ -------------------------------------------------------------------
+@@ FEEP
+@@
+@@ HIDDEN: Bucket is not visible by default in '+jobs'.
+@@ -------------------------------------------------------------------
+&HIDDEN FEEP=1
+&ACCESS FEEP=[u(%va/FN_STAFFALL,%#)]
+@@ -------------------------------------------------------------------
+@@ FORUM
+@@ This bucket did not exist in former installations. Creating new
+@@ bucket.
+@@ -------------------------------------------------------------------
+@create FORUM=10
+@Desc FORUM=Tabled discussion jobs. Feedback needed.
+@lock/SpeechLock FORUM=ACCESS/1
+&ACCESS FORUM=[u(%va/FN_STAFFALL,%#)]
+@parent FORUM=Job Parent Object <JPO>
+@set FORUM=INHERIT
+@set FORUM=COMMANDS
+@set FORUM=!HALTED
+drop FORUM
+@@ -------------------------------------------------------------------
+@@ PITCH
+@@
+@@ HIDDEN: Bucket is not visible by default in '+jobs'.
+@@ -------------------------------------------------------------------
+&ACCESS PITCH=[u(%va/FN_STAFFALL,%#)]
+&HIDDEN PITCH=1
+@@ -------------------------------------------------------------------
+@@ PUB
+@@ This bucket did not exist in former installations. Creating new
+@@ bucket.
+@@
+@@ TRANSPARENT: This setting indicates that any job inside the bucket
+@@                will be +myjobs accessible to all players, following
+@@                the standard +myjobs rules.
+@@
+@@ PUBLIC: +myjobs can see into this bucket.
+@@
+@@ HOOK_CRE: Run this hook upon +job/create (in this case, 
+@@             automatically set the first comment to be visible to
+@@             someone typing +myjobs).
+@@ -------------------------------------------------------------------
+@create PUB=10
+@Desc PUB=Public jobs. Everyone has +myjobs access.
+@lock/SpeechLock PUB=ACCESS/1
+&ACCESS PUB=[u(%va/FN_STAFFALL,%#)]
+&TRANSPARENT PUB=1
+&PUBLIC PUB=1
+&HOOK_CRE PUB=@set %0/COMMENT_1=no_inherit
+@parent PUB=Job Parent Object <JPO>
+drop PUB
+@set PUB=INHERIT
+@set PUB=SAFE
+@set PUB=COMMANDS
+@set PUB=!HALTED
+@@ -------------------------------------------------------------------
+@@ QUERY
+@@ 
+@@ PRIORITY: Jobs in this bucket will inherit the '2' (yellow)
+@@             priority code.
+@@
+@@ PUBLIC: +myjobs can see into this bucket.
+@@
+@@ TURNAROUND: This is how many hours in the future to set the due
+@@               date for a newly created job.
+@@
+@@ HOOK_OTH: Upon job creation by any means other than /create, run
+@@              this hook. In this case, publish the comment and
+@@              assign the job to the player who opened it.
+@@
+@@ MLETTER_OTH: Upon job creation by any means other than /create,
+@@                send this letter via @mail to the player.
+@@ -------------------------------------------------------------------
+&PRIORITY QUERY=2
+&PUBLIC QUERY=1
+&ACCESS QUERY=[u(%va/FN_STAFFALL,%#)]
+&TURNAROUND QUERY=168
+&HOOK_OTH QUERY=@set %0/COMMENT_1=no_inherit;&ASSIGNED_TO %0=%1
+&MLETTER_OTH QUERY=You have been issued an official query by the jobs system by [name(%2)]. You have [div(v(TURNAROUND),24)] days at the time of this mail to respond to the query%, otherwise staff may need to act on the issue without your input. To see your query%, please type '+myjob [last(name(%0))]'.
+@@ -------------------------------------------------------------------
+@@ REQ
+@@
+@@ PUBLIC: +myjobs can see into this bucket.
+@@
+@@ PRIORITY: Jobs in this bucket will inherit the '2' (yellow)
+@@             priority code.
+@@ 
+@@ TURNAROUND: This is how many hours in the future to set the due
+@@               date for a newly created job, in this case, 72.
+@@
+@@ LOGFILE: This is the file name of the log that jobs will be written
+@@            to when they are logged. Logging can only happen if the
+@@            following file exists on your system:
+@@                   /game/logs/M-<filename>.log
+@@            The default <filename> is 'joblog'.
+@@
+@@ MLETTER_OTH: Upon job creation by any means other than /create,
+@@                send this letter via @mail to the player.
+@@ -------------------------------------------------------------------
+&PUBLIC REQ=1
+&PRIORITY REQ=2
+&ACCESS REQ=[u(%va/FN_STAFFALL,%#)]
+&TURNAROUND REQ=72
+&LOGFILE REQ=reqlog
+&MLETTER_OTH REQ=You have requested '[name(%0)]: [get(%0/TITLE)]' from staff: %r%r%3%r%r[repeat(-,75)]%rSee '[ansi(h,+help myjobs)]' for help on how to display and add to your jobs.%r%rPlease give staff at least [u(me/TURNAROUND)] hours from the date of this mail to process your request.
+@@ -------------------------------------------------------------------
+@@ RP
+@@
+@@ SUMMARY: This is the summary information to display for jobs in
+@@            this bucket. A summary is a secondary header, with
+@@            settings.
+@@
+@@ MAP_NAME: Code used by the SUMMARY.
+@@
+@@ HIDDEN: This bucket is not on the default '+jobs' list.
+@@
+@@ ACCESS_<setting>: Who can access the <setting>.
+@@ PROCESS_<setting>: How the system should process <setting> info.
+@@ ERROR_<setting>: Error codes generated by the <setting>.
+@@ 
+@@ -------------------------------------------------------------------
+&ACCESS RP=[u(%va/FN_STAFFALL,%#)]
+&ACCESS_APPROVED RP=[u(%va/FN_STAFFALL,%0)]
+&ACCESS_ARC RP=[u(%va/FN_STAFFALL,%0)]
+&ACCESS_PLAYERS RP=[u(%va/FN_STAFFALL,%0)]
+&ACCESS_SCHEDULE RP=[u(%va/FN_STAFFALL,%0)]
+&ACCESS_STAFF RP=[u(%va/FN_STAFFALL,%0)]
+&ACCESS_SYNOPSIS RP=[u(%va/FN_STAFFALL,%0)]
+&ERROR_PLAYERS RP=I don't recognize [ansi(h,%qp)] as a player.
+&ERROR_STAFF RP=I don't recognize [ansi(h,%qp)] as a player.
+&HIDDEN RP=1
+&HELP RP=%r[space(5)]This bucket is for plots that have potential but aren't yet ready to run. Jobs in this bucket should remain here until the plot is approved to be run.%r%r[u(%va/FN_BREAK,ansi(hc,Settings for +job/sumset))]%r[ljust(ansi(h,PLAYERS),10)] Accepts <player> as a valid parameter.%r[ljust(ansi(h,SCHEDULE),10)] Describe when the plot is in effect.%r[ljust(ansi(h,ARC),10)] Describes the story arc associated to this plot.%r[ljust(ansi(h,STAFF),10)] Accepts <player> as a valid parameter.%r[ljust(ansi(h,SYNOPSIS),10)] A brief synopsis of the plot.%r[ljust(ansi(h,APPROVED),10)] Wiz-only, for approving plots. Accepts 'yes' or 'no'.
+&MAP_NAME RP=[name(*%0)]
+&PROCESS_APPROVED RP=[setq(3,APPROVED)][setq(1,%0)]1
+&PROCESS_ARC RP=[setq(3,PLOT_ARC)][setq(1,strtrunc(%0,50))]
+&PROCESS_PLAYERS RP=[setq(3,PLAYERS)][ifelse(not(gt(strlen(trim(squish(iter(%0,if(not(isdbref(pmatch(itext(0)))),[setr(p,itext(0))]))))),0)),[setq(9,iter(%0,pmatch(itext(0))))][setq(8,get(%1/PLAYERS))][iter(%q9,ifelse(gt(member(%q8,##),0),setq(8,setdiff(%q8,##)),setq(8,setunion(%q8,##))))][setq(1,%q8)]1,0)]
+&PROCESS_SCHEDULE RP=[setq(3,SCHEDULE)][setq(1,strtrunc(%0,50))]1
+&PROCESS_STAFF RP=[setq(3,WRITER)][ifelse(not(gt(strlen(trim(squish(iter(%0,if(not(isdbref(pmatch(itext(0)))),[setr(p,itext(0))]))))),0)),[setq(9,iter(%0,pmatch(itext(0))))][setq(8,get(%1/WRITER))][iter(%q9,ifelse(gt(member(%q8,##),0),setq(8,setdiff(%q8,##)),setq(8,setunion(%q8,##))))][setq(1,%q8)]1,0)]
+&PROCESS_SYNOPSIS RP=[setq(3,BRIEF)][setq(1,%0)]1
+&SUMMARY RP=[rjust(ansi(hc,Approved:),10)] [ifelse(hasattrp(%0,APPROVED),get(%0/APPROVED),Unapproved)]%r[rjust(ansi(hc,Players:),10)] [ifelse(hasattrp(%0,PLAYERS),itemize(map(me/MAP_NAME,get(%0/PLAYERS),%b,|),|),Nobody)]%r[rjust(ansi(hc,Schedule:),10)] [ifelse(hasattrp(%0,SCHEDULE),get(%0/SCHEDULE),Unset)]%r[rjust(ansi(hc,Arc:),10)] [ifelse(hasattrp(%0,PLOT_ARC),get(%0/PLOT_ARC),Unset)]%r[rjust(ansi(hc,Staff:),10)] [ifelse(hasattrp(%0,WRITER),itemize(map(me/MAP_NAME,get(%0/WRITER),%b,|),|),Nobody)]%r[rjust(ansi(hc,Synopsis:),10)] [ifelse(hasattrp(%0,BRIEF),get(%0/BRIEF),Unset)]
+@@ -------------------------------------------------------------------
+@@ TECH
+@@ -------------------------------------------------------------------
+&ACCESS TECH=[u(%va/FN_STAFFALL,%#)]
+@@ -------------------------------------------------------------------
+@@ THEME
+@@ -------------------------------------------------------------------
+&ACCESS THEME=[u(%va/FN_STAFFALL,%#)]
+@@ -------------------------------------------------------------------
+@@ TPS
+@@
+@@ SUMMARY: This is the summary information to display for jobs in
+@@            this bucket. A summary is a secondary header, with
+@@            settings.
+@@
+@@ MAP_NAME: Code used by the SUMMARY.
+@@
+@@ ACCESS_<setting>: Who can access the <setting>.
+@@ PROCESS_<setting>: How the system should process <setting> info.
+@@ ERROR_<setting>: Error codes generated by the <setting>.
+@@ 
+@@ -------------------------------------------------------------------
+&ACCESS TPS=[u(%va/FN_STAFFALL,%#)]
+&ACCESS_APPROVED TPS=[orflags(%0,W)]
+&ACCESS_ARC TPS=[orflags(%0,WZ)]
+&ACCESS_PLAYERS TPS=[orflags(%0,WZ)]
+&ACCESS_SCHEDULE TPS=[orflags(%0,WZ)]
+&ACCESS_STAFF TPS=[orflags(%0,WZ)]
+&ACCESS_SYNOPSIS TPS=[orflags(%0,WZ)]
+&ERROR_PLAYERS TPS=I don't recognize [ansi(h,%qp)] as a player.
+&ERROR_SCHEDULE TPS=You must enter a valid date string.
+&ERROR_STAFF TPS=I don't recognize [ansi(h,%qp)] as a player.
+&HELP TPS=%r[space(5)]This bucket is for currently active plots that are running on the grid. Care should be taken to keep the headers of these jobs up-to-date, especially in terms of Progress settings and due dates. When the plot is completed, the job should be set complete and left open until follow-up requests are completed.%r%r[u(%va/FN_BREAK,ansi(hc,Settings for +job/sumset))]%r[ljust(ansi(h,PLAYERS),10)] Accepts <player> as a valid parameter.%r[ljust(ansi(h,SCHEDULE),10)] Describe when the plot is in effect.%r[ljust(ansi(h,ARC),10)] Describes the story arc associated to this plot.%r[ljust(ansi(h,STAFF),10)] Accepts <player> as a valid parameter.%r[ljust(ansi(h,SYNOPSIS),10)] A brief synopsis of the plot.%r[ljust(ansi(h,APPROVED),10)] Wiz-only, for approving plots. Accepts 'yes' or 'no'.
+&MAP_NAME TPS=[name(*%0)]
+&PROCESS_APPROVED TPS=[setq(3,APPROVED)][setq(1,%0)]1
+&PROCESS_ARC TPS=[setq(3,PLOT_ARC)][setq(1,strtrunc(%0,50))]
+&PROCESS_PLAYERS TPS=[setq(3,PLAYERS)][ifelse(not(gt(strlen(trim(squish(iter(%0,if(not(isdbref(pmatch(itext(0)))),[setr(p,itext(0))]))))),0)),[setq(9,iter(%0,pmatch(itext(0))))][setq(8,get(%1/PLAYERS))][iter(%q9,ifelse(gt(member(%q8,##),0),setq(8,setdiff(%q8,##)),setq(8,setunion(%q8,##))))][setq(1,%q8)]1,0)]
+&PROCESS_SCHEDULE TPS=[setq(3,SCHEDULE)][setq(1,strtrunc(%0,50))]1
+&PROCESS_STAFF TPS=[setq(3,WRITER)][ifelse(not(gt(strlen(trim(squish(iter(%0,if(not(isdbref(pmatch(itext(0)))),[setr(p,itext(0))]))))),0)),[setq(9,iter(%0,pmatch(itext(0))))][setq(8,get(%1/WRITER))][iter(%q9,ifelse(gt(member(%q8,##),0),setq(8,setdiff(%q8,##)),setq(8,setunion(%q8,##))))][setq(1,%q8)]1,0)]
+&PROCESS_SYNOPSIS TPS=[setq(3,BRIEF)][setq(1,%0)]1
+&SUMMARY TPS=[rjust(ansi(hc,Approved:),10)] [ifelse(hasattrp(%0,APPROVED),get(%0/APPROVED),Unapproved)]%r[rjust(ansi(hc,Players:),10)] [ifelse(hasattrp(%0,PLAYERS),itemize(map(me/MAP_NAME,get(%0/PLAYERS),%b,|),|),Nobody)]%r[rjust(ansi(hc,Schedule:),10)] [ifelse(hasattrp(%0,SCHEDULE),get(%0/SCHEDULE),Unset)]%r[rjust(ansi(hc,Arc:),10)] [ifelse(hasattrp(%0,PLOT_ARC),get(%0/PLOT_ARC),Unset)]%r[rjust(ansi(hc,Staff:),10)] [ifelse(hasattrp(%0,WRITER),itemize(map(me/MAP_NAME,get(%0/WRITER),%b,|),|),Nobody)]%r[rjust(ansi(hc,Synopsis:),10)] [ifelse(hasattrp(%0,BRIEF),get(%0/BRIEF),Unset)]
+@@
+@@
+@@
+leave
+@@
+@fo me={&VA Job Database <JD>=[num(Job Database <JD>)]}
+@fo me={&VB Job Database <JD>=[num(Job Tracker)]}
+@fo me={&VC Job Database <JD>=[num(Job Parent Object <JPO>)]}
+@fo me={&VA here=[num(Job Database <JD>)]}
+@fo me={&VB here=[num(Job Tracker)]}
+@fo me={&VC here=[num(Job Parent Object <JPO>)]}
+@fo me={&VA Job Parent Object <JPO>=[num(Job Database <JD>)]}
+@fo me={&VB Job Parent Object <JPO>=[num(Job Tracker)]}
+@fo me={&VC Job Parent Object <JPO>=[num(Job Parent Object <JPO>)]}
+@restart
+@wait 5=@pemit %#=[ansi(hc,ANOMALY JOBS:)] Installation complete! Thank you for using Anomaly Jobs!
+@wait 6=@set me=!quiet
