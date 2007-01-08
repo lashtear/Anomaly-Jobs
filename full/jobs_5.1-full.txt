@@ -672,8 +672,8 @@
 &PUBLIC PUB=1
 &HOOK_CRE PUB=@set %0/COMMENT_1=no_inherit
 @parent PUB=Job Parent Object <JPO>
-@tel PUB=Job Parent Object <JPO>
 @set PUB=SAFE
+@tel PUB=Job Parent Object <JPO>
 @@ -------------------------------------------------------------------
 @@ QUERY
 @@ 

@@ -9,4 +9,4 @@ Version 5.1
 - Edited the BBoard configuration, making sure that POST_DELETE was set on the Job Parent Object <JPO> and pointing to the Staff Job Tracker bulletin board.
 - Fixed bracket matching and missed get() in +myjob/add command attribute.
 - Changed +myjob view command to use @dolist instead of iter(). This stop the command from hitting buffer limits.
-
+- Made sure that flag setting on PUB occurred befor teleportation of the PUB object into storage.
