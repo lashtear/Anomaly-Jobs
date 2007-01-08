@@ -6,3 +6,4 @@ Verion 5.1
 - Renamed file to jobs_5.1-patch.txt
 - Added updated +job/approve command. This removed '@@trigger %vb/TRIG_APPROVE=%0,%#,%1,[get(%q0/TITLE)]' which is deprecated code leftover from Jobs 4.x.
 - Added updated +myjob/add command. Fixes bracket matching and missing get().
+- Added updated +myjob command. Fixes buffer limitation.

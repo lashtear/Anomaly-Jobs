@@ -8,3 +8,5 @@ Version 5.1
 - Removed '@@trigger %vb/TRIG_APPROVE=%0,%#,%1,[get(%q0/TITLE)]' from the +job/approve command. This is deprecated code left over from the Jobs 4 days. TRIG_ADD handles the TRIG_APR hook now.
 - Edited the BBoard configuration, making sure that POST_DELETE was set on the Job Parent Object <JPO> and pointing to the Staff Job Tracker bulletin board.
 - Fixed bracket matching and missed get() in +myjob/add command attribute.
+- Changed +myjob view command to use @dolist instead of iter(). This stop the command from hitting buffer limits.
+
