@@ -10,3 +10,11 @@ Version 5.1
 - Fixed bracket matching and missed get() in +myjob/add command attribute.
 - Changed +myjob view command to use @dolist instead of iter(). This stop the command from hitting buffer limits.
 - Made sure that flag setting on PUB occurred befor teleportation of the PUB object into storage.
+- Updated the Version and Credits information.
+- Corrected @wait on final restart so it runs after final @pemit.
+- Fixed +job/sumset so that checks are in the correct order.
+- Udpated +job/set in jhelp.txt &commands2
+- Updated +myjob/view with missing @pemit.
+- More fixes and updates to +job/sumset. 
+- Pulled out the tagged_for check on +myjob/add for two reason. First, the intent is unclear consider the code is buggy. Two, removing it makes sure the job is only locked by +job/lock, making +myjob/add work like +job/add.
+- Added Maintainer line to +job/credits.

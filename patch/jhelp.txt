@@ -516,7 +516,7 @@
   [ansi(h,+job/name <#>=<name>                     )]: Rename a job.
   [ansi(h,+job/publish <#>[=<comment>]             )]: Publishes a job or <comment>.
   [ansi(h,+job/query <players>/<title>=<query>     )]: Sends a query to <players>.
-  [ansi(h,+job/set <#>=<0-6>                       )]: Set progress status on a job.
+  [ansi(h,+job/set <#>=<status>                    )]: Set progress status on a job.
   [ansi(h,+job/source <#>=<player list>            )]: Changes opened-by to <player list>.
   [ansi(h,+job/summary <#>                         )]: Views a job's header & SUMMARY.
   [ansi(h,+job/sumset <#>/<set>=<value>            )]: Changes a job SUMMARY setting.

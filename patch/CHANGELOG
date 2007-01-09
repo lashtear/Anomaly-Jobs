@@ -7,3 +7,11 @@ Verion 5.1
 - Added updated +job/approve command. This removed '@@trigger %vb/TRIG_APPROVE=%0,%#,%1,[get(%q0/TITLE)]' which is deprecated code leftover from Jobs 4.x.
 - Added updated +myjob/add command. Fixes bracket matching and missing get().
 - Added updated +myjob command. Fixes buffer limitation.
+- Added Version and Credit information.
+- Added updated +job/sumset comment. Corrected so checks are in the correct order.
+- Udpated +job/set in jhelp.txt &commands2
+- Updated script to work as patch. Now teleports user into the JGO and runs there.
+- Updated +myjob/view with missing @pemit for footer.
+- More fixes and updates to the +job/sumset command. 
+- Pulled out the tagged_for check on +myjob/add for two reason. First, the intent is unclear consider the code is buggy. Two, removing it makes sure the job is only locked by +job/lock, making +myjob/add work like +job/add.
+- Added maintainer to +jobs/credits and file.
