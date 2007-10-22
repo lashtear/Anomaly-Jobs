@@ -15,3 +15,7 @@ Verion 5.1
 - More fixes and updates to the +job/sumset command. 
 - Pulled out the tagged_for check on +myjob/add for two reason. First, the intent is unclear consider the code is buggy. Two, removing it makes sure the job is only locked by +job/lock, making +myjob/add work like +job/add.
 - Added maintainer to +jobs/credits and file.
+
+Version 5.2
+- Modified destruction behavior for Rhost compatibility and consistency across all code-bases; Jobs will now remain GOING for one minute after closure in which they may be saved by +job/trans.
+- Various other changes for Rhost compatibility. 

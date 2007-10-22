@@ -5,7 +5,7 @@ CHANGELOG for full install of Anomaly Jobs
 Full Install. 
 
 Version 5.1
-- Removed '@@trigger %vb/TRIG_APPROVE=%0,%#,%1,[get(%q0/TITLE)]' from the +job/approve command. This is deprecated code left over from the Jobs 4 days. TRIG_ADD handles the TRIG_APR hook now.
+- Removed '@trigger %vb/TRIG_APPROVE=%0,%#,%1,[get(%q0/TITLE)]' from the +job/approve command. This is deprecated code left over from the Jobs 4 days. TRIG_ADD handles the TRIG_APR hook now.
 - Edited the BBoard configuration, making sure that POST_DELETE was set on the Job Parent Object <JPO> and pointing to the Staff Job Tracker bulletin board.
 - Fixed bracket matching and missed get() in +myjob/add command attribute.
 - Changed +myjob view command to use @dolist instead of iter(). This stop the command from hitting buffer limits.
@@ -18,3 +18,7 @@ Version 5.1
 - More fixes and updates to +job/sumset. 
 - Pulled out the tagged_for check on +myjob/add for two reason. First, the intent is unclear consider the code is buggy. Two, removing it makes sure the job is only locked by +job/lock, making +myjob/add work like +job/add.
 - Added Maintainer line to +job/credits.
+
+Version 5.2
+- Modified destruction behavior for Rhost compatibility and consistency across all code-bases; Jobs will now remain GOING for one minute after closure in which they may be saved by +job/trans.
+- Various other changes for Rhost compatibility.
