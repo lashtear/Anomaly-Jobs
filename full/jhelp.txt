@@ -1,5 +1,5 @@
 & help
-  Anomaly Jobs v5.0
+  Anomaly Jobs v5.2
   
   Anomaly Jobs is a feature-rich task-tracker.
   
@@ -797,13 +797,13 @@
   The /mail switch sends the list of players in Opened-By a <message>
   via @mail and gives instructions to the player on how to respond.
   
-  [ansi(h,+job/set <#>=<0-6>)]
+  [ansi(h,+job/set <#>=<hold|new|underway|25|50|75|100>)]
   [ansi(h,+job/due <#>=<<date>|none>)]
   [ansi(h,+job/act <#>)]
   [ansi(h,+job/all <#>)]
   [ansi(h,+job/name <#>=<title>)]
   
-  The first command changes job <#>'s status from <0> to <6>. The second 
+  The first command changes job <#>'s status to the given value. The second
   command allows you to set a due date for job <#>. The <date> string can be
   in one of two formats: 'Jan 13 10:00:00 2003' or '01/13/03'. Using /act 
   will allow you to view all job actions performed on a job - escalations, 

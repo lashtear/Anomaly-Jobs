@@ -3,7 +3,7 @@
 @@ 
 @@ Anomaly Jobs
 @@ Superior Task Tracking Technology
-@@ Version 5.1 09Jan2007
+@@ Version 5.2 09Jan2007
 @@
 @@    Written by: Starfleet @ Anomaly (eye1movies@aol.com)
 @@ Maintained by: Halmar@Gamma One (grey419@gmail.com)
@@ -121,7 +121,7 @@
 @@ ===============================================================================
 @@
 @set me=quiet
-@pemit %#=[repeat(=,79)]%r%r[center(ansi(hc,Setting up Anomaly Jobs v5.0),79)]%r%r[repeat(=,79)]
+@pemit %#=[repeat(=,79)]%r%r[center(ansi(hc,Setting up Anomaly Jobs v5.2),79)]%r%r[repeat(=,79)]
 @@
 @pemit %#=[ansi(hc,ANOMALY JOBS:)] Creating objects.
 @@
@@ -467,8 +467,8 @@
 &MAINTAINER Job Database <JD>=Halmar@Gamma One (grey419@gmail.com)
 &LICENSE Job Database <JD>=Contributors: Firestorm@Ephemera, Grey@Anomaly, Ian@MUX%r%rYou may port this code to any game provided that these credits remain intact. Please report any and all bugs, feedback or whatnot to the email address provided above. The most recent version of this code can be found at project's home: http://code.google.com/p/anomalyjobs/
 &RELEASE Job Database <JD>=Jan 9, 2007
-&VERSION Job Database <JD>=v5.1
-&VERSION Job Parent Object <JPO>=v5.1
+&VERSION Job Database <JD>=v5.2
+&VERSION Job Parent Object <JPO>=v5.2
 @@
 @@ -------------------------------------------------------------------
 @@ Job Tracker

@@ -19,3 +19,7 @@ Verion 5.1
 Version 5.2
 - Modified destruction behavior for Rhost compatibility and consistency across all code-bases; Jobs will now remain GOING for one minute after closure in which they may be saved by +job/trans.
 - Various other changes for Rhost compatibility. 
+- Changed 5.0 to 5.2 in the jhelp.txt file.
+- Updated the manage2 helpfile to correct the +job/set syntax.
+- Updated version in README to 5.2
+- Updated version in install file t 5.2

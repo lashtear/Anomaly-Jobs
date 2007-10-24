@@ -3,7 +3,7 @@
 @@ 
 @@ Anomaly Jobs
 @@ Superior Task Tracking Technology
-@@ Version 5.1 PATCH from Version 5.0 9 Jan 2007
+@@ Version 5.2 PATCH from Version 5.1 9 Jan 2007
 @@
 @@    Written by: Starfleet @ Anomaly (eye1movies@aol.com)
 @@ Maintained by: Halmar@Gamma One (grey419@gmail.com)
@@ -11,7 +11,7 @@
 @@                Ian @ MUX (Pies)
 @@
 @@ Platforms supported: MUX 2.x, MUSH 3
-@@ Requirements: Myrddin's BBS, @mail system, Jobs 5.0
+@@ Requirements: Myrddin's BBS, @mail system, Jobs 5.1
 @@
 @@ This code is provided as-is and expresses no guarantee or warranty. Use it
 @@ entirely at your own risk. Author is not liable for any damages, real or
@@ -68,6 +68,6 @@
 &MAINTAINER Job Database <JD>=Halmar@Gamma One (grey419@gmail.com)
 &LICENSE Job Database <JD>=Contributors: Firestorm@Ephemera, Grey@Anomaly, Ian@MUX%r%rYou may port this code to any game provided that these credits remain intact. Please report any and all bugs, feedback or whatnot to the email address provided above. The most recent version of this code can be found at project's home: http://code.google.com/p/anomalyjobs/
 &RELEASE Job Database <JD>=Jan 9, 2007
-&VERSION Job Database <JD>=v5.1
-&VERSION Job Parent Object <JPO>=v5.1
+&VERSION Job Database <JD>=v5.2
+&VERSION Job Parent Object <JPO>=v5.2
 @pemit %#=[ansi(hc,ANOMALY JOBS:)] Upgrade Complete.
