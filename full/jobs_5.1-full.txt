@@ -733,7 +733,6 @@
 &PUBLIC REQ=1
 &PRIORITY REQ=2
 &ACCESS REQ=[u(%va/FN_STAFFALL,%#)]
-&POST_COMPLETE REQ=11
 &TURNAROUND REQ=72
 &LOGFILE REQ=reqlog
 &MLETTER_OTH REQ=You have requested '[name(%0)]: [get(%0/TITLE)]' from staff: %r%r%3%r%r[repeat(-,75)]%rSee '[ansi(h,+help myjobs)]' for help on how to display and add to your jobs.%r%rPlease give staff at least [u(me/TURNAROUND)] hours from the date of this mail to process your request.

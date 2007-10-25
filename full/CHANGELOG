@@ -26,3 +26,4 @@ Version 5.2
 - Updated the manage2 helpfile to correct the +job/set syntax.
 - Updated version in install file t 5.2
 - Added +bucket/check with two entries in jhelp.txt. Issue 15.
+- Removed POST_COMPLETE from the REQ bucket. Issue 18.
