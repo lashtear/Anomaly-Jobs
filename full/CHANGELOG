@@ -27,3 +27,5 @@ Version 5.2
 - Updated version in install file t 5.2
 - Added +bucket/check with two entries in jhelp.txt. Issue 15.
 - Removed POST_COMPLETE from the REQ bucket. Issue 18.
+- Changed the @aconnect. Issue 20.
+
