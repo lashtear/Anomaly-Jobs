@@ -25,3 +25,4 @@ Version 5.2
 - Changed 5.0 to 5.2 in the jhelp.txt file. 
 - Updated the manage2 helpfile to correct the +job/set syntax.
 - Updated version in install file t 5.2
+- Added +bucket/check with two entries in jhelp.txt. Issue 15.

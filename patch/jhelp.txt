@@ -455,6 +455,12 @@
   however.
   
   See also: access
+& bucket/check 
+
+  [ansi(h,+bucket/check <player>)]
+
+  Checks all buckets and lists whether the player has access or not.
+	 
 & bucket/set
 
   [ansi(h,+bucket/set <bucket>/<setting>=<parameter>)]
@@ -540,6 +546,7 @@
   [ansi(h,+bucket/create <bucket>=<description>)]
   [ansi(h,+bucket/delete <bucket>)]
   [ansi(h,+bucket/access <player>=<bucket>)]
+  [ansi(h,+bucket/check <player>=<bucket>)]
   [ansi(h,+bucket/set <bucket>/<setting>=<value>)]
 
   You can get details on each command with '+jhelp <command>/<switch>' without
