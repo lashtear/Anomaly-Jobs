@@ -1046,235 +1046,1270 @@ $+job/summary *:
 -
 
 &CMD_JOB/SUMSET Job Global Object <JGO>=
-$+job/sumset */*=*:@switch [setq(5,0)][setq(0,locate(%va,Job %0,i))][u(%va/HAS_ACCESS,%#)][isdbref(%q0)][hasattrp(%q0,ACCESS_%1)][and(u(%va/CONFIG_ACCESS,%#),u(%q0/ACCESS_%1,%#))][not(u(%va/IS_LOCKED,%q0))][u(%q0/PROCESS_%1,%2,%q0,%#)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no such job. See '[ansi(h,+jobs)]' for a list of valid jobs.},110*,{@pemit %#='%1' is not a valid parameter. Valid parameters for [name(%q0)] are [u(%va/FN_PRETTY,map(%va/MAP_PARAMS,lattr(parent(%q0)/PROCESS_*)))].},1110*,{@pemit %#=You either can not use the +job/sumset command, or set that parameter.},11110*,{@pemit %#=That job is locked. It cannot be modified until it is unlocked.},111110*,{@pemit %#=[u(%q0/ERROR_%1%q2)]},{@trigger %va/TRIG_BROADCAST=[parent(%q0)],[name(%q0)]'s [ucstr(%1)] parameter updated by %n.;&%q3 %q0=%q1;@trigger %va/TRIG_ADD=%q0,[ucstr(%1)] parameter updated to '%2',%#,SUM}
+$+job/sumset */*=*:
+	@switch 
+		[setq(5,0)]
+		[setq(0,locate(%va,Job %0,i))]
+		[u(%va/HAS_ACCESS,%#)]
+		[isdbref(%q0)]
+		[hasattrp(%q0,ACCESS_%1)]
+		[and(u(%va/CONFIG_ACCESS,%#),u(%q0/ACCESS_%1,%#))]
+		[not(u(%va/IS_LOCKED,%q0))]
+		[u(%q0/PROCESS_%1,%2,%q0,%#)]
+		=
+		0*,{@pemit %#=Permission denied.},
+		10*,{@pemit %#=There is no such job. See '[ansi(h,+jobs)]' for a list of valid jobs.},
+		110*,{
+			@pemit %#='%1' is not a valid parameter. Valid parameters for [name(%q0)] are 
+				[u(%va/FN_PRETTY,
+					map(%va/MAP_PARAMS,
+						lattr(parent(%q0)/PROCESS_*)
+					)
+				)].
+		},
+		1110*,{@pemit %#=You either can not use the +job/sumset command, or set that parameter.},
+		11110*,{@pemit %#=That job is locked. It cannot be modified until it is unlocked.},
+		111110*,{@pemit %#=[u(%q0/ERROR_%1%q2)]},
+		{
+			@trigger %va/TRIG_BROADCAST=[parent(%q0)],[name(%q0)]'s [ucstr(%1)] parameter updated by %n.;
+			&%q3 %q0=%q1;
+			@trigger %va/TRIG_ADD=%q0,[ucstr(%1)] parameter updated to '%2',%#,SUM
+		}
+-
 
-&CMD_JOB/TAG Job Global Object <JGO>=$+job/tag *:@switch [switch(strmatch(%0,*=*),1,[setq(8,secure(first(%0,=)))][setq(9,secure(rest(%0,=)))],[setq(8,secure(%0))][setq(9,%#)])][setq(7,iter(%q9,pmatch(##)))][setq(6,trim(squish(iter(%q9,if(not(isdbref(pmatch(##))),I don't recognize '##' as a player.)))))][u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %q8,i))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)][not(u(%va/IS_LOCKED,%q0))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That is an invalid job number.},110*,{@pemit %#=You do not have access to that job.},1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@switch gt(strlen(%q6),0)=1,@pemit %#=%q6,{@switch [strlen(setdiff(%q7,get(%q0/tagged_for)))]=0,{@pemit %#={[name(%q0)] is already tagged for the named player(s): [iter(%q7,name(##))]}},{&tagged_for %q0=[setunion(get(%q0/tagged_for),%q7)];@trigger %va/TRIG_ADD=%q0,Added tags for [setr(5,iter(%q7,name(##)))],%#,TAG,%q7;@trigger %va/TRIG_BROADCAST=[parent(%q0)],[name(%q0)] updated - tagged by %n for %q5.;@pemit %#={Job %q8 updated - tags added. Now tagged for: [iter(get(%q0/tagged_for),name(##))]}}}}
+&CMD_JOB/TAG Job Global Object <JGO>=
+$+job/tag *:
+	@switch 
+		[switch(strmatch(%0,*=*),
+			1,
+				[setq(8,secure(first(%0,=)))]
+				[setq(9,secure(rest(%0,=)))],
+			[setq(8,secure(%0))][setq(9,%#)]
+		)]
+		[setq(7,iter(%q9,pmatch(itext(0))))]
+		[setq(6,
+			trim(
+				squish(
+					iter(%q9,
+						if(
+							not(isdbref(pmatch(itext(0)))),
+								I don't recognize '##' as a player.
+						)
+					)
+				)
+			)
+		)]
+		[u(%va/HAS_ACCESS,%#)]
+		[setq(0,locate(%va,Job %q8,i))]
+		[isdbref(%q0)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[not(u(%va/IS_LOCKED,%q0))]
+		=
+		0*,{@pemit %#=Permission denied.},
+		10*,{@pemit %#=That is an invalid job number.},
+		110*,{@pemit %#=You do not have access to that job.},
+		1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},
+		{
+			@switch 
+			[gt(strlen(%q6),0)]=1,
+			{
+				@pemit %#=%q6
+			},{
+				@switch 
+				[strlen(setdiff(%q7,get(%q0/tagged_for)))]=0,
+				{
+					@pemit %#={[name(%q0)] is already tagged for the named player(s): [iter(%q7,name(##))]}
+				},{
+					&tagged_for %q0=[setunion(get(%q0/tagged_for),%q7)];
+					@trigger %va/TRIG_ADD=%q0,Added tags for [setr(5,iter(%q7,name(##)))],%#,TAG,%q7;
+					@trigger %va/TRIG_BROADCAST=[parent(%q0)],[name(%q0)] updated - tagged by %n for %q5.;
+					@pemit %#={Job %q8 updated - tags added. Now tagged for: [iter(get(%q0/tagged_for),name(##))]}
+				}
+			}
+		}
+-
 
-&CMD_JOB/TRANS Job Global Object <JGO>=$+job/trans *=*:@switch [u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %0,i))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)][isdbref(setr(1,locate(%vc,%1,i)))][not(u(%va/IS_LOCKED,%q0))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no job by that number.},110*,{@pemit %#=You do not have access to that job.},1110*,{@pemit %#=There is no bucket by that name. Type '[ansi(h,+buckets)]' for a list of valid buckets.},11110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@pemit %#=You have transferred the job from [u(%va/FN_BUCKETNAME,%q0)] to [name(%q1)].;@set %q0=!going;&going %q0;@parent %q0=%q1;@trigger %va/TRIG_ADD=%q0,Transferred to [name(%q1)].,%#,TRN;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 transferred to [name(%q1)] by [name(%#)].}
+&CMD_JOB/TRANS Job Global Object <JGO>=
+$+job/trans *=*:
+	@switch 
+	[u(%va/HAS_ACCESS,%#)]
+	[setq(0,locate(%va,Job %0,i))]
+	[isdbref(%q0)]
+	[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+	[isdbref(setr(1,locate(%vc,%1,i)))]
+	[not(u(%va/IS_LOCKED,%q0))]
+	=
+	0*,{@pemit %#=Permission denied.},
+	10*,{@pemit %#=There is no job by that number.},
+	110*,{@pemit %#=You do not have access to that job.},
+	1110*,{@pemit %#=There is no bucket by that name. Type '[ansi(h,+buckets)]' for a list of valid buckets.},
+	11110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},
+	{
+		@pemit %#=You have transferred the job from [u(%va/FN_BUCKETNAME,%q0)] to [name(%q1)].;
+		@set %q0=!going;
+		&going %q0;
+		@parent %q0=%q1;
+		@trigger %va/TRIG_ADD=%q0,Transferred to [name(%q1)].,%#,TRN;
+		@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 transferred to [name(%q1)] by [name(%#)].
+	}
+-
 
-&CMD_JOB/UNLOCK Job Global Object <JGO>=$+job/unlock *:@switch [u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %0,i))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)][u(%va/IS_LOCKED,%q0)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That is an invalid job number.},110*,{@pemit %#=You do not have access to that job.},1110*,{@pemit %#=That job is not locked.},{@pemit %#=You have unlocked job %0.;&LOCKED %q0=;&LOCKED_BY %q0=;@trigger %va/TRIG_ADD=%q0,Unlocked by %n.,%#,UNL;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 unlocked by %n.}
+&CMD_JOB/UNLOCK Job Global Object <JGO>=
+$+job/unlock *:
+	@switch 
+	[u(%va/HAS_ACCESS,%#)]
+	[setq(0,locate(%va,Job %0,i))]
+	[isdbref(%q0)]
+	[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+	[u(%va/IS_LOCKED,%q0)]
+	=
+	0*,{@pemit %#=Permission denied.},
+	10*,{@pemit %#=That is an invalid job number.},
+	110*,{@pemit %#=You do not have access to that job.},
+	1110*,{@pemit %#=That job is not locked.},
+	{
+		@pemit %#=You have unlocked job %0.;
+		&LOCKED %q0=;
+		&LOCKED_BY %q0=;
+		@trigger %va/TRIG_ADD=%q0,Unlocked by %n.,%#,UNL;
+		@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 unlocked by %n.
+	}
+-
 
-&CMD_JOB/UNTAG Job Global Object <JGO>=$+job/untag *:@switch [switch(strmatch(%0,*=*),1,[setq(8,secure(first(%0,=)))][setq(9,secure(rest(%0,=)))],[setq(8,secure(%0))][setq(9,%#)])][setq(7,iter(%q9,pmatch(##)))][setq(6,trim(squish(iter(%q9,if(not(isdbref(pmatch(##))),I don't recognize '##' as a player.)))))][u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %q8,i))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)][not(u(%va/FN_ISLOCKED,%q0))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That is an invalid job number.},110*,{@pemit %#=You do not have access to that job.},1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@switch gt(strlen(%q6),0)=1,@pemit %#=%q6,{@switch [strlen(setinter(%q7,get(%q0/tagged_for)))]=0,{@pemit %#={[name(%q0)] is not tagged for any of the named player(s): [iter(%q7,name(##))]}},{&tagged_for %q0=[setdiff(get(%q0/tagged_for),%q7)];@trigger %va/TRIG_ADD=%q0,Removed tags for [setr(5,iter(%q7,name(##)))],%#,TAG;@trigger %va/TRIG_BROADCAST=[parent(%q0)],[name(%q0)] updated - untagged by %n for %q5.;@pemit %#={Job %q8 updated - tags removed. Now tagged for: [iter(get(%q0/tagged_for),name(##))]}}}}
+&CMD_JOB/UNTAG Job Global Object <JGO>=
+$+job/untag *:
+	@switch 
+	[switch(strmatch(%0,*=*),
+		1,
+			[setq(8,secure(first(%0,=)))]
+			[setq(9,secure(rest(%0,=)))],
+		[setq(8,secure(%0))]
+		[setq(9,%#)]
+	)]
+	[setq(7,iter(%q9,pmatch(##)))]
+	[setq(6,
+		trim(
+			squish(
+				iter(%q9,
+					if(not(isdbref(pmatch(##))),
+						I don't recognize '##' as a player.
+					)
+				)
+			)
+		)
+	)]
+	[u(%va/HAS_ACCESS,%#)]
+	[setq(0,locate(%va,Job %q8,i))]
+	[isdbref(%q0)]
+	[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+	[not(u(%va/FN_ISLOCKED,%q0))]
+	=
+	0*,{@pemit %#=Permission denied.},
+	10*,{@pemit %#=That is an invalid job number.},
+	110*,{@pemit %#=You do not have access to that job.},
+	1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},
+	{
+		@switch 
+		[gt(strlen(%q6),0)]=1,
+		{
+			@pemit %#=%q6
+		},{
+			@switch 
+			[strlen(setinter(%q7,get(%q0/tagged_for)))]=0,
+			{
+				@pemit %#={[name(%q0)] is not tagged for any of the named player(s): [iter(%q7,name(##))]}
+			},{
+				&tagged_for %q0=[setdiff(get(%q0/tagged_for),%q7)];
+				@trigger %va/TRIG_ADD=%q0,Removed tags for [setr(5,iter(%q7,name(##)))],%#,TAG;
+				@trigger %va/TRIG_BROADCAST=[parent(%q0)],[name(%q0)] updated - untagged by %n for %q5.;
+				@pemit %#={Job %q8 updated - tags removed. Now tagged for: [iter(get(%q0/tagged_for),name(##))]}
+			}
+		}
+	}
+-
 
-&CMD_JOB/VIEW Job Global Object <JGO>=$+job *:@switch [u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %0,i))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no job by that name. Please type '[ansi(h,+jobs/all)]' for all jobs or '[ansi(h,+jobs/list <bucket>)]' to list by bucket.},110*,{@pemit %#=You do not have access to that job.},{@pemit %#=[u(%va/FN_READERS,%q0,%#)][u(%va/FN_HEADER,View [name(%q0)])]%r[ulocal(%va/FN_BANNER,%q0,%#)][ifelse(hasattrp(%q0,SUMMARY),[ulocal(%va/FN_SUMMARY,%q0,%#)],)];@dolist [filter(%va/FIL_COMMENTS,lattr(%q0/COMMENT_*))]={@pemit %#=[u(%va/FN_READJOB,##,%q0)]};@wait me={@pemit %#=[u(%va/FN_FOOTER,u(%va/FN_FLAGS,%q0))]};@notify me}
+&CMD_JOB/VIEW Job Global Object <JGO>=
+$+job *:
+	@switch 
+	[u(%va/HAS_ACCESS,%#)]
+	[setq(0,locate(%va,Job %0,i))]
+	[isdbref(%q0)]
+	[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+	=
+	0*,{@pemit %#=Permission denied.},
+	10*,{@pemit %#=There is no job by that name. Please type '[ansi(h,+jobs/all)]' for all jobs or '[ansi(h,+jobs/list <bucket>)]' to list by bucket.},
+	110*,{@pemit %#=You do not have access to that job.},
+	{
+		@pemit %#=
+			[u(%va/FN_READERS,%q0,%#)]
+			[u(%va/FN_HEADER,View [name(%q0)])]%r
+			[ulocal(%va/FN_BANNER,%q0,%#)]
+			[ifelse(hasattrp(%q0,SUMMARY),[ulocal(%va/FN_SUMMARY,%q0,%#)],)];
+		@dolist 
+			[filter(%va/FIL_COMMENTS,lattr(%q0/COMMENT_*))]
+		={
+			@pemit %#=[u(%va/FN_READJOB,##,%q0)]
+		};
+		@wait me={
+			@pemit %#=[u(%va/FN_FOOTER,u(%va/FN_FLAGS,%q0))]
+		};
+		@notify me
+	}
+-
 
-&CMD_JOBS Job Global Object <JGO>=$+jobs:@switch [u(%va/HAS_ACCESS,%#)]=0*,{@pemit %#=Permission denied.},{@pemit %#=[u(%va/FN_JOBSHEADER,%#)];@dolist revwords(lcon(%va))={@pemit %#=[ifelse(u(%va/FN_MONITORCHECK,parent(##),%#),[u(%va/FN_JOBLIST,##,%#)],)]};@wait me={@pemit %#=[u(%va/FN_FOOTER,[ansi(hr,*)] [ansi(hy,Denotes New Activity)])]};@notify me}
+&CMD_JOBS Job Global Object <JGO>=
+$+jobs:
+	@switch 
+	[u(%va/HAS_ACCESS,%#)]=0*,{
+		@pemit %#=Permission denied.
+	},{
+		@pemit %#=[u(%va/FN_JOBSHEADER,%#)];
+		@dolist 
+			[revwords(lcon(%va))]
+		={
+			@pemit %#=
+				[ifelse(
+					u(%va/FN_MONITORCHECK,parent(##),%#),
+						[u(%va/FN_JOBLIST,##,%#)],
+				)]
+		};
+		@wait me={
+			@pemit %#=[u(%va/FN_FOOTER,[ansi(hr,*)] [ansi(hy,Denotes New Activity)])]
+		};
+		@notify me
+	}
+-
 
-&CMD_JOBS/ALL Job Global Object <JGO>=$+jobs/all:@switch [u(%va/HAS_ACCESS,%#)][ucstr(secure(first(%0)))]=0*,{@pemit %#=Permission denied.},{@pemit %#=[u(%va/FN_JOBSHEADER,%#)];@dolist filter(%va/FIL_GOING,revwords(lcon(%va)))=@pemit %#=[ifelse(u(%va/FN_ACCESSCHECK,[parent(##)],%#),u(%va/FN_JOBLIST,##,%#),)];@wait me={@pemit %#=[u(%va/FN_FOOTER)]};@wait 0=@notify me}
+&CMD_JOBS/ALL Job Global Object <JGO>=
+$+jobs/all:
+	@switch 
+	[u(%va/HAS_ACCESS,%#)]=0,
+	{
+		@pemit %#=Permission denied.
+	},{
+		@pemit %#=[u(%va/FN_JOBSHEADER,%#)];
+		@dolist 
+			[filter(%va/FIL_GOING,revwords(lcon(%va)))]
+		={
+			@pemit %#=
+				[ifelse(
+					u(%va/FN_ACCESSCHECK,[parent(##)],%#),
+						u(%va/FN_JOBLIST,##,%#),
+				)];
+			@wait me={@pemit %#=[u(%va/FN_FOOTER)]};
+			@wait 0=@notify me
+		}
+	}
+-
 
-&CMD_JOBS/COMPRESS Job Global Object <JGO>=$+jobs/compress:@switch [u(%va/FN_WIZONLY,%#)]=0*,{@pemit %#=Permission denied.},{@dolist lnum(1,words(lcon(%va)))={@name [extract(revwords(lcon(%va)),##,1)]=Job ##};&JOBS_NUM %va=[words(lcon(%va))];@pemit %#=Compressed. The next job number will be [inc(get(%va/JOBS_NUM))].}
+&CMD_JOBS/COMPRESS Job Global Object <JGO>=
+$+jobs/compress:
+	@switch [u(%va/FN_WIZONLY,%#)]=0*,
+	{
+		@pemit %#=Permission denied.
+	},{
+		@dolist 
+			[lnum(1,words(lcon(%va)))]
+		={
+			@name [extract(revwords(lcon(%va)),##,1)]=Job ##
+		};
+		&JOBS_NUM %va=[words(lcon(%va))];
+		@pemit %#=Compressed. The next job number will be [inc(get(%va/JOBS_NUM))].
+	}
+-
 
-&CMD_JOBS/CREDITS Job Global Object <JGO>=$+jobs/credits:@pemit %#=[u(%va/FN_HEADER,Anomaly Jobs)]%r%rVersion: [u(%va/VERSION)][space(5)]Release: [u(%va/RELEASE)]%r%rAuthor: [u(%va/CREDITS)]%r%rMaintainer: [u(%va/MAINTAINER)]%r%r[u(%va/LICENSE)]%r%r[u(%va/FN_FOOTER)]
+&CMD_JOBS/CREDITS Job Global Object <JGO>=
+$+jobs/credits:
+	@pemit %#=
+		[u(%va/FN_HEADER,Anomaly Jobs)]%r%r
+		Version: [u(%va/VERSION)][space(5)]Release: [u(%va/RELEASE)]%r%r
+		Author: [u(%va/CREDITS)]%r%r
+		Maintainer: [u(%va/MAINTAINER)]%r%r
+		[u(%va/LICENSE)]%r%r
+		[u(%va/FN_FOOTER)]
+-
 
-&CMD_JOBS/DATE Job Global Object <JGO>=$+jobs/date:@wait me=@switch [u(%va/HAS_ACCESS,%#)]=0*,{@pemit %#=Permission denied.;@wait 0=@notify me},{@pemit %#=[u(%va/FN_JOBSHEADER,%#)];@dolist sortby(%va/SORTBY_DATE,lcon(%va))={@pemit %#=[ifelse(u(%va/FN_MONITORCHECK,parent(##),%#),[u(%va/FN_JOBLIST,##,%#)],)]};@wait .1=@pemit %#=[u(%va/FN_FOOTER,* Denotes New Activity)];@wait 0=@notify me}
+&CMD_JOBS/DATE Job Global Object <JGO>=
+$+jobs/date:
+	@wait me=
+		@switch [u(%va/HAS_ACCESS,%#)]=0*,
+		{
+			@pemit %#=Permission denied.;
+			@wait 0=@notify me
+		},{
+			@pemit %#=[u(%va/FN_JOBSHEADER,%#)];
+			@dolist 
+				[sortby(%va/SORTBY_DATE,lcon(%va))]
+			={
+				@pemit %#=[ifelse(u(%va/FN_MONITORCHECK,parent(##),%#),[u(%va/FN_JOBLIST,##,%#)],)]
+			};
+			@wait .1=@pemit %#=[u(%va/FN_FOOTER,* Denotes New Activity)];
+			@wait 0=@notify me
+		}
+-	
 
-&CMD_JOBS/LIST Job Global Object <JGO>=$+jobs/list *:@switch [setq(0,locate(%vc,%0,i))][u(%va/FN_ACCESSCHECK,%q0,%#)][isdbref(%q0)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That is not a valid bucket. Type '[ansi(h,+buckets)]' for a list of valid buckets.},{@pemit %#=[u(%va/FN_JOBSHEADER,%#)];@dolist [munge(%va/SORTBY_JOB,iter(children(%q0),rest(name(##))),children(%q0))]={@pemit %#=[u(%va/FN_JOBLIST,##,%#)]};@wait me={@pemit %#=[u(%va/FN_FOOTER)]};@wait 0=@notify me}
+&CMD_JOBS/LIST Job Global Object <JGO>=
+$+jobs/list *:
+	@switch 
+	[setq(0,locate(%vc,%0,i))]
+	[u(%va/FN_ACCESSCHECK,%q0,%#)]
+	[isdbref(%q0)]
+	=
+	0*,{@pemit %#=Permission denied.},
+	10*,{@pemit %#=That is not a valid bucket. Type '[ansi(h,+buckets)]' for a list of valid buckets.},
+	{
+		@pemit %#=[u(%va/FN_JOBSHEADER,%#)];
+		@dolist 
+			[munge(%va/SORTBY_JOB,
+				iter(children(%q0),
+					rest(name(##))
+				),
+				children(%q0)
+			)]
+		={
+			@pemit %#=[u(%va/FN_JOBLIST,##,%#)]
+		};
+		@wait me={@pemit %#=[u(%va/FN_FOOTER)]};
+		@wait 0=@notify me
+	}
+-
 
-&CMD_JOBS/MINE Job Global Object <JGO>=$+jobs/mine:@switch [u(%va/HAS_ACCESS,%#)]=0*,{@pemit %#=Permission denied.},{@pemit %#=[u(%va/FN_JOBSHEADER,%#)];@dolist filter(%va/FIL_MINE,revwords(lcon(%va)))={@pemit %#=[u(%va/FN_JOBLIST,##,%#)]};@wait me={@pemit %#=[u(%va/FN_FOOTER,* Denotes New Activity)]};@wait 0=@notify me}
+&CMD_JOBS/MINE Job Global Object <JGO>=
+$+jobs/mine:
+	@switch [u(%va/HAS_ACCESS,%#)]=0*,{
+		@pemit %#=Permission denied.
+	},{
+		@pemit %#=[u(%va/FN_JOBSHEADER,%#)];
+		@dolist 
+			[filter(%va/FIL_MINE,revwords(lcon(%va)))]
+		={
+			@pemit %#=[u(%va/FN_JOBLIST,##,%#)]
+		};
+		@wait me={@pemit %#=[u(%va/FN_FOOTER,* Denotes New Activity)]};
+		@wait 0=@notify me
+	}
+-
 
-&CMD_JOBS/NEW Job Global Object <JGO>=$+jobs/new:@switch [setq(0,%#)][u(%va/HAS_ACCESS,%#)]=0*,{@pemit %#=Permission denied.},{@pemit %#=[u(%va/FN_JOBSHEADER,%#)];@dolist filter(%va/FIL_NEW[default(%#/JOBSN,0)],revwords(lcon(%va)))={@pemit %#=[ifelse(u(%va/FN_ACCESSCHECK,parent(##),%#),u(%va/FN_JOBLIST,##,%#),)]};@wait me={@pemit %#=[u(%va/FN_FOOTER,[ansi(hr,*)] [ansi(hy,Denotes New Activity)])]};@wait 0=@notify me}
+&CMD_JOBS/NEW Job Global Object <JGO>=
+$+jobs/new:
+	@switch [setq(0,%#)][u(%va/HAS_ACCESS,%#)]=0*,{
+		@pemit %#=Permission denied.
+	},{
+		@pemit %#=[u(%va/FN_JOBSHEADER,%#)];
+		@dolist 
+			[filter(%va/FIL_NEW[default(%#/JOBSN,0)],revwords(lcon(%va)))]
+		={
+			@pemit %#=
+				[ifelse(
+					u(%va/FN_ACCESSCHECK,parent(##),%#),
+						u(%va/FN_JOBLIST,##,%#),
+				)]
+		};
+		@wait me={
+			@pemit %#=[u(%va/FN_FOOTER,[ansi(hr,*)] [ansi(hy,Denotes New Activity)])]
+		};
+		@wait 0=@notify me
+	}
+-
 
-&CMD_JOBS/OVERDUE Job Global Object <JGO>=$+jobs/overdue:@wait me=@switch [u(%va/HAS_ACCESS,%#)]=0*,{@pemit %#=Permission denied.;@wait 0=@notify me},{@pemit %#=[u(%va/FN_JOBSHEADER,%#)];@dolist filter(%va/FIL_OVERDUE,revwords(lcon(%va)))={@pemit %#=[ifelse(u(%va/FN_MONITORCHECK,parent(##),%#),[u(%va/FN_JOBLIST,##,%#)],)]};@wait .1=@pemit %#=[u(%va/FN_FOOTER,* Denotes New Activity)];@wait 0=@notify me}
+&CMD_JOBS/OVERDUE Job Global Object <JGO>=
+$+jobs/overdue:
+	@wait me=
+		@switch [u(%va/HAS_ACCESS,%#)]=0*,{
+			@pemit %#=Permission denied.;
+			@wait 0=@notify me
+		},{
+			@pemit %#=[u(%va/FN_JOBSHEADER,%#)];
+			@dolist 
+				[filter(%va/FIL_OVERDUE,revwords(lcon(%va)))]
+			={
+				@pemit %#=
+					[ifelse(
+						u(%va/FN_MONITORCHECK,parent(##),%#),
+							[u(%va/FN_JOBLIST,##,%#)],
+					)]
+			};
+			@wait .1=@pemit %#=[u(%va/FN_FOOTER,* Denotes New Activity)];
+			@wait 0=@notify me
+		}
+-
 
-&CMD_JOBS/PRI Job Global Object <JGO>=$+jobs/pri:@switch [u(%va/HAS_ACCESS,%#)]=0*,{@pemit %#=Permission denied.},{&JOBS_PRI %va=[sortby(%va/SORTBY_PRI,lcon(%va))];@pemit %#=[u(%va/FN_JOBSHEADER,%#)];@dolist revwords(get(%va/JOBS_PRI))={@pemit %#=[ifelse(and(u(%va/FN_ACCESSCHECK,[parent(##)],%#),u(%va/FN_MONITORCHECK,parent(##),%#)),u(%va/FN_JOBLIST,##,%#),)]};@wait me={@pemit %#=[u(%va/FN_FOOTER)]};@wait 0=@notify me}
+&CMD_JOBS/PRI Job Global Object <JGO>=
+$+jobs/pri:
+	@switch [u(%va/HAS_ACCESS,%#)]=0*,{
+		@pemit %#=Permission denied.
+	},{
+		&JOBS_PRI %va=[sortby(%va/SORTBY_PRI,lcon(%va))];
+		@pemit %#=[u(%va/FN_JOBSHEADER,%#)];
+		@dolist 
+			[revwords(get(%va/JOBS_PRI))]
+		={
+			@pemit %#=
+				[ifelse(
+					and(
+						u(%va/FN_ACCESSCHECK,[parent(##)],%#),
+						u(%va/FN_MONITORCHECK,parent(##),%#)
+					),
+						u(%va/FN_JOBLIST,##,%#),
+				)]
+		};
+		@wait me={@pemit %#=[u(%va/FN_FOOTER)]};
+		@wait 0=@notify me
+	}
+-
 
-&CMD_JOBS/REPORTS Job Global Object <JGO>=$+jobs/reports *:@switch [and(u(%va/HAS_ACCESS,%#),u(%va/STATS_ACCESS,%#))][hasattr(%va,REPORT_[first(%0,=)])][eq(words(%0,=),2)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no report by that name. See '[ansi(h,+jobs/reports)]' for a list of valid reports.},110*,{@pemit %#=[u(%va/FN_HEADER,[secure(first(ucstr(%0),=))] Report)]%r;@pemit %#=[u(%va/REPORT_[secure(%0)])];@pemit %#=[u(%va/FN_FOOTER)]},{@pemit %#=[setq(0,first(secure(%0),=))][setq(1,last(secure(%0),=))][u(%va/FN_HEADER,[secure(first(ucstr(%0),=))] Report)]%r;@pemit %#=[u(%va/REPORT_%q0,%q1)];@pemit %#=[u(%va/FN_FOOTER)]}
+&CMD_JOBS/REPORTS Job Global Object <JGO>=
+$+jobs/reports *:
+	@switch 
+	[and(u(%va/HAS_ACCESS,%#),u(%va/STATS_ACCESS,%#))]
+	[hasattr(%va,REPORT_[first(%0,=)])]
+	[eq(words(%0,=),2)]
+	=
+	0*,{@pemit %#=Permission denied.},
+	10*,{@pemit %#=There is no report by that name. See '[ansi(h,+jobs/reports)]' for a list of valid reports.},
+	110*,{
+		@pemit %#=[u(%va/FN_HEADER,[secure(first(ucstr(%0),=))] Report)]%r;
+		@pemit %#=[u(%va/REPORT_[secure(%0)])];
+		@pemit %#=[u(%va/FN_FOOTER)]
+	},{
+		@pemit %#=
+			[setq(0,first(secure(%0),=))]
+			[setq(1,last(secure(%0),=))]
+			[u(%va/FN_HEADER,[secure(first(ucstr(%0),=))] Report)]%r;
+		@pemit %#=[u(%va/REPORT_%q0,%q1)];
+		@pemit %#=[u(%va/FN_FOOTER)]
+	}
+-
 
-&CMD_JOBS/REPORTS2 Job Global Object <JGO>=$+jobs/reports:@switch [and(u(%va/HAS_ACCESS,%#),u(%va/STATS_ACCESS,%#))]=0*,{@pemit %#=Permission denied.},{@pemit %#=[u(%va/FN_HEADER,Available Reports)]%r[ansi(hc,[ljust(Name,10)][ljust(Description,59)][rjust(Type,10)])]%r[u(%va/FN_BREAK)];@pemit %#=[list(sort(ucstr(map(%va/MAP_REPORTS,lattr(%va/REPORT_*)))),[ljust(##,10)][ljust(rest(get(%va/RTITLE_##),|),59)][rjust(first(get(%va/RTITLE_##),|),10)])];@pemit %#=[u(%va/FN_FOOTER,[ansi(h,+jobs/reports <report>)])]}
+&CMD_JOBS/REPORTS2 Job Global Object <JGO>=
+$+jobs/reports:
+	@switch 
+		[and(
+			u(%va/HAS_ACCESS,%#),
+			u(%va/STATS_ACCESS,%#)
+		)]=0,
+	{
+		@pemit %#=Permission denied.
+	},{
+		@pemit %#=
+			[u(%va/FN_HEADER,Available Reports)]%r
+			[ansi(hc,[ljust(Name,10)][ljust(Description,59)][rjust(Type,10)])]%r
+			[u(%va/FN_BREAK)];
+		@pemit %#=
+			[list(
+				sort(
+					ucstr(
+						map(%va/MAP_REPORTS,lattr(%va/REPORT_*))
+					)
+				),
+					[ljust(##,10)][ljust(rest(get(%va/RTITLE_##),|),59)][rjust(first(get(%va/RTITLE_##),|),10)]
+			)];
+		@pemit %#=[u(%va/FN_FOOTER,[ansi(h,+jobs/reports <report>)])]
+	}
+-
 
-&CMD_JOBS/SEARCH Job Global Object <JGO>=$+jobs/search *:@switch [u(%va/HAS_ACCESS,%#)]=0*,{@pemit %#=Permission denied.},{@pemit %#=[u(%va/FN_JOBSHEADER,%#)];@dolist revwords(lcon(%va))={@pemit [setq(0,%b)]%#=ifelse(and(u(%va/FN_ACCESSCHECK,parent(##),%#),gt(words(grepi(##,*,%0)),0)),[u(%va/FN_JOBLIST,##,%#)],)};@wait me={@pemit %#=[u(%va/FN_FOOTER)]};@wait 0=@notify me}
+&CMD_JOBS/SEARCH Job Global Object <JGO>=
+$+jobs/search *:
+	@switch [u(%va/HAS_ACCESS,%#)]=0*,{
+		@pemit %#=Permission denied.
+	},{
+		@pemit %#=[u(%va/FN_JOBSHEADER,%#)];
+		@dolist 
+			revwords(lcon(%va))
+		={
+			@pemit [setq(0,%b)]%#=
+				ifelse(
+					and(
+						u(%va/FN_ACCESSCHECK,parent(##),%#),
+						gt(
+							words(
+								grepi(##,*,%0)
+							),
+							0
+						)
+					),
+						[u(%va/FN_JOBLIST,##,%#)],
+				)
+		};
+		@wait me={@pemit %#=[u(%va/FN_FOOTER)]};
+		@wait 0=@notify me
+	}
+-
 
-&CMD_JOBS/SORT Job Global Object <JGO>=$+jobs/sort:@wait me=@switch [u(%va/HAS_ACCESS,%#)]=0*,{@pemit %#=Permission denied.;@wait 0=@notify me},{@pemit %#=[u(%va/FN_JOBSHEADER,%#)];@dolist sortby(%va/SORTBY_SORT,lcon(%va))={@pemit %#=[ifelse(u(%va/FN_MONITORCHECK,parent(##),%#),[u(%va/FN_JOBLIST,##,%#)],)]};@wait .1=@pemit %#=[u(%va/FN_FOOTER,* Denotes New Activity)];@wait 0=@notify me}
+&CMD_JOBS/SORT Job Global Object <JGO>=
+$+jobs/sort:
+	@wait me=
+		@switch [u(%va/HAS_ACCESS,%#)]=0*,{
+			@pemit %#=Permission denied.;
+			@wait 0=@notify me
+		},{
+			@pemit %#=[u(%va/FN_JOBSHEADER,%#)];
+			@dolist 
+				sortby(%va/SORTBY_SORT,lcon(%va))
+			={
+				@pemit %#=
+					[ifelse(u(%va/FN_MONITORCHECK,parent(##),%#),[u(%va/FN_JOBLIST,##,%#)],)]
+			};
+			@wait .1=@pemit %#=[u(%va/FN_FOOTER,* Denotes New Activity)];
+			@wait 0=@notify me
+		}
+-
 
-&CMD_JOBS/WHO Job Global Object <JGO>=$+jobs/who *:@switch [u(%va/HAS_ACCESS,%#)][setq(0,pmatch(%0))][or(match(%0,none),isdbref(%q0))]=0*,{@pemit %#=Permission denied.},10,@pemit %#={There is no player by that name. Request must be by player or 'none'.},{@pemit %#=[u(%va/FN_JOBSHEADER,%#)];@dolist [setq(1,switch(match(%0,none),0,%q0,))][trim(squish(iter(revwords(lcon(%va)),switch(u(%va/FIL_WHO,##,%q1),1,##))))]={@pemit %#=[ifelse(u(%va/FN_ACCESSCHECK,parent(##),%#),[u(%va/FN_JOBLIST,##,%#)],)]};@wait me={@pemit %#=[u(%va/FN_FOOTER,* Denotes New Activity)]};@wait 0=@notify me}
+&CMD_JOBS/WHO Job Global Object <JGO>=
+$+jobs/who *:
+	@switch 
+	[u(%va/HAS_ACCESS,%#)]
+	[setq(0,pmatch(%0))]
+	[or(match(%0,none),isdbref(%q0))]
+	=
+	0*,{@pemit %#=Permission denied.},
+	10*,{@pemit %#={There is no player by that name. Request must be by player or 'none'.}},
+	{
+		@pemit %#=[u(%va/FN_JOBSHEADER,%#)];
+		@dolist 
+			[setq(1,
+				switch(
+					match(%0,none),
+					0,
+						%q0,
+				)
+			)]
+			[trim(
+				squish(
+					iter(
+						revwords(lcon(%va)),
+						switch(
+							u(%va/FIL_WHO,##,%q1),
+							1,
+								##
+						)
+					)
+				)
+			)]
+		={
+			@pemit %#=[ifelse(u(%va/FN_ACCESSCHECK,parent(##),%#),[u(%va/FN_JOBLIST,##,%#)],)]
+		};
+		@wait me={@pemit %#=[u(%va/FN_FOOTER,* Denotes New Activity)]};
+		@wait 0=@notify me
+	}
+-
 
-&CMD_JOBS/WHO2 Job Global Object <JGO>=$+jobs/who:@switch [u(%va/HAS_ACCESS,%#)]=0*,{@pemit %#=Permission denied.},{@pemit %#=You must identify a player.}
+&CMD_JOBS/WHO2 Job Global Object <JGO>=
+$+jobs/who:
+	@switch [u(%va/HAS_ACCESS,%#)]=0*,{
+		@pemit %#=Permission denied.
+	},{
+		@pemit %#=You must identify a player.
+	}
+-
 
-&CMD_MYJOB/ADD Job Global Object <JGO>=$+myjob/add *=*:@switch [not(haspower(%#,guest))][setq(0,locate(%va,Job %0,i))][isdbref(%q0)][and(u(%va/IS_PUBLIC,%q0),match(get(%q0/opened_by),%#))][not(hasattr(%q0,LOCKED))]=0*,@pemit %#={This command is not available to guests.},10*,@pemit %#={That is an invalid job number.},110*,{@pemit %#=Job %0 is not yours. You can only modify your own jobs.},1110*,{@pemit %#=That job is locked and cannot be changed at this time.},{@pemit %#=Comments to job number %0 added.;@trigger %va/TRIG_ADD=%q0,%1,%#,ADD;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Comments added to job %0 by %n.}
+&CMD_MYJOB/ADD Job Global Object <JGO>=
+$+myjob/add *=*:
+	@switch 
+	[not(haspower(%#,guest))]
+	[setq(0,locate(%va,Job %0,i))]
+	[isdbref(%q0)]
+	[and(
+		u(%va/IS_PUBLIC,%q0),
+		match(
+			get(%q0/opened_by),
+			%#
+		)
+	)]
+	[not(hasattr(%q0,LOCKED))]
+	=
+	0*,{@pemit %#={This command is not available to guests.}},
+	10*,{@pemit %#={That is an invalid job number.}},
+	110*,{@pemit %#=Job %0 is not yours. You can only modify your own jobs.},
+	1110*,{@pemit %#=That job is locked and cannot be changed at this time.},
+	{
+		@pemit %#=Comments to job number %0 added.;
+		@trigger %va/TRIG_ADD=%q0,%1,%#,ADD;
+		@trigger %va/TRIG_BROADCAST=[parent(%q0)],Comments added to job %0 by %n.
+	}
+-
 
-&CMD_MYJOB/VIEW Job Global Object <JGO>=$+myjob *:@switch [not(haspower(%#,guest))][setq(0,locate(%va,Job %0,i))][isdbref(%q0)][or(gt(member(get(%q0/TAGGED_FOR),%#),0),u(%va/IS_TRANSPARENT,%q0),and(get(%q0/PUBLIC),match(get(%q0/OPENED_BY),%#)))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That is not a valid job number.},110*,{@pemit %#=Job %0 is not yours. You can only view your own jobs.},{@pemit %#=[center(| [ansi(hy,View Job Number %0)] |,79,=)]%r[ulocal(%va/DISPLAY_MYHEADERS,%q0)];@dolist [trim(squish(iter(filter(%va/FIL_COMMENTS,lattr(%q0/COMMENT_*)),switch(or(u(%q0/PUBLISH),hasflag(%q0/##,no_inherit),gt(member(get(%q0/TAGGED_FOR),%#),0),strmatch(extract(get(%q0/##),3,1,|),%#)),1,##))))]=@pemit %#={[repeat(-,79)]%r[ansi(h,[extract(get(%q0/##),4,1,|)] added on [convsecs(extract(get(%q0/##),2,1,|))]:)] [edit(last(get(%q0/##),|),@@PIPE@@,|)]};@wait .1=@pemit %#=[repeat(=,79)]}
+&CMD_MYJOB/VIEW Job Global Object <JGO>=
+$+myjob *:
+	@switch 
+	[not(haspower(%#,guest))]
+	[setq(0,locate(%va,Job %0,i))]
+	[isdbref(%q0)]
+	[or(
+		gt(
+			member(get(%q0/TAGGED_FOR),%#),
+			0
+		),
+		u(%va/IS_TRANSPARENT,%q0),
+		and(
+			get(%q0/PUBLIC),
+			match(get(%q0/OPENED_BY),%#)
+		)
+	)]
+	=
+	0*,{@pemit %#=Permission denied.},
+	10*,{@pemit %#=That is not a valid job number.},
+	110*,{@pemit %#=Job %0 is not yours. You can only view your own jobs.},
+	{
+		@pemit %#=
+			[center(| [ansi(hy,View Job Number %0)] |,79,=)]%r
+			[ulocal(%va/DISPLAY_MYHEADERS,%q0)];
+		@dolist 
+			[trim(
+				squish(
+					iter(
+						filter(%va/FIL_COMMENTS,lattr(%q0/COMMENT_*)),
+						switch(
+							or(
+								u(%q0/PUBLISH),
+								hasflag(%q0/##,no_inherit),
+								gt(member(get(%q0/TAGGED_FOR),%#),0),
+								strmatch(extract(get(%q0/##),3,1,|),%#)
+							),
+							1,
+								##
+						)
+					)
+				)
+			)]
+		={
+			@pemit %#=
+				[repeat(-,79)]%r
+				[ansi(h,[extract(get(%q0/##),4,1,|)] added on [convsecs(extract(get(%q0/##),2,1,|))]:)] 
+				[edit(last(get(%q0/##),|),@@PIPE@@,|)];
+			@wait .1=@pemit %#=[repeat(=,79)]
+		}
+	}
+-
 
-&CMD_MYJOBS Job Global Object <JGO>=$+myjobs:@switch [haspower(%#,guest)]=1,@pemit %#={Sorry, this command is not available to guests.},{@pemit %#={[u(%va/MYJOBS_HEADER)]};@dolist revwords(lcon(%va))={@pemit %#=[ifelse(or(gt(member(get(##/TAGGED_FOR),%#),0),[or(and(get([parent(##)]/PUBLIC),match(get(##/OPENED_BY),%#)),u(%va/IS_TRANSPARENT,##))]),[u(%va/DISPLAY_MYJOB,##)],)]};@wait .1=@pemit %#=[repeat(=,79)]}
+&CMD_MYJOBS Job Global Object <JGO>=
+$+myjobs:
+	@switch [haspower(%#,guest)]=1,{
+		@pemit %#=Sorry, this command is not available to guests.
+	},{
+		@pemit %#={[u(%va/MYJOBS_HEADER)]};
+		@dolist 
+			revwords(lcon(%va))
+		={
+			@pemit %#=
+				[ifelse(
+					or(
+						gt(member(get(##/TAGGED_FOR),%#),0),
+						[or(
+							and(
+								get([parent(##)]/PUBLIC),
+								match(get(##/OPENED_BY),%#)
+							),
+							u(%va/IS_TRANSPARENT,##)
+						)]
+					),
+						[u(%va/DISPLAY_MYJOB,##)],
+				)]
+		};
+		@wait .1=@pemit %#=[repeat(=,79)]
+	}
+-
 
-&CMD_PITCH Job Global Object <JGO>=$+pitch *=*:@switch [not(haspower(%#,guest))]=0*,{@pemit %#=Permission Denied.},{@pemit %#=You have pitched your idea to staff about '[secure(%0)]'. Please remember that this is merely an idea [ansi(hu,pitch)], and not a request. Staff, for one reason or many, may decide not to go with the idea.;@trigger %va/TRIG_CREATE=%#,locate(%vc,PITCH,i),1,[strtrunc(secure(%0),30)],%1,,,3}
+&CMD_PITCH Job Global Object <JGO>=
+$+pitch *=*:
+	@switch [not(haspower(%#,guest))]=0*,{
+		@pemit %#=Permission Denied.
+	},{
+		@pemit %#=
+			You have pitched your idea to staff about '[secure(%0)]'. 
+			Please remember that this is merely an idea [ansi(hu,pitch)], and not a request. 
+			Staff, for one reason or many, may decide not to go with the idea.;
+		@trigger %va/TRIG_CREATE=%#,locate(%vc,PITCH,i),1,[strtrunc(secure(%0),30)],%1,,,3
+	}
+-
 
-&CMD_REQUEST Job Global Object <JGO>=$+request *=*:@switch [not(haspower(%#,guest))]=0*,{@pemit %#=Permission denied.},{@pemit %#=You have requested [secure(strtrunc(%0,30))] from staff. Please allow for some time to process it. Do not page staff about it - you will hear back soon.;@trigger %va/TRIG_CREATE=%#,[locate(%vc,REQ,i)],2,[strtrunc(secure(%0),30)],[strtrunc(%1,get(%va/BUFFER))],,,2}
-
-&CMD_TYPO Job Global Object <JGO>=$+typo *:@switch [not(haspower(%#,guest))]=0*,{@pemit %#=Permission denied.},{@pemit %#=You have notified production staff of the typo, with the details '[strtrunc(%0,get(%va/BUFFER))]';@trigger %va/TRIG_CREATE=%#,locate(%vc,BUILD,i),2,Typo Reported,[strtrunc(%0,get(%va/BUFFER))],,,4}
-
-@@
+&CMD_REQUEST Job Global Object <JGO>=
+$+request *=*:
+	@switch [not(haspower(%#,guest))]=0*,{
+		@pemit %#=Permission denied.
+	},{
+		@pemit %#=
+			You have requested [secure(strtrunc(%0,30))] from staff. 
+			Please allow for some time to process it. Do not page staff about it - you will hear back soon.;
+		@trigger %va/TRIG_CREATE=%#,[locate(%vc,REQ,i)],2,[strtrunc(secure(%0),30)],[strtrunc(%1,get(%va/BUFFER))],,,2
+	}
+-
+&CMD_TYPO Job Global Object <JGO>=
+$+typo *:
+	@switch [not(haspower(%#,guest))]=0*,{
+		@pemit %#=Permission denied.
+	},{
+		@pemit %#=
+			You have notified production staff of the typo, with the details '[strtrunc(%0,get(%va/BUFFER))]';
+			@trigger %va/TRIG_CREATE=%#,locate(%vc,BUILD,i),2,Typo Reported,[strtrunc(%0,get(%va/BUFFER))],,,4
+	}
+-
 
 @cpattr %#/JOB_VA=Job Global Object <JGO>/VA
+-
 
 @cpattr %#/JOB_VB=Job Global Object <JGO>/VB
+-
 
 @cpattr %#/JOB_VC=Job Global Object <JGO>/VC
-
-@@ -------------------------------------------------------------------
-
-@@ Job Database <JD>
-
-@@
-
-@@ Please do not rename this object. It will break future patches.
-
-@@
-
-@@ -------------------------------------------------------------------
+-
 
 @pemit %#=[ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
-
-@@
+-
 
 @Startup Job Database <JD>=@drain me;@notify me
-
-@@
+-
 
 @Desc Job Database <JD>=%r[columns(sort(lattr(me/*)),18)]%r%r[center(Please do not rename this object.,79)]
-
-@@
+-
 
 &BUCKET_HEADER Job Database <JD>=[repeat(=,79)]%r[ansi(hc,[ljust(Bucket,8)]Description)]%r[repeat(-,79)]
+-
 
 &CHARGRAPH Job Database <JD>=@+-/!*ox#.X$^`~O>
+-
 
 &COLORGRAPH_1 Job Database <JD>=gG
+-
 
 &COLORGRAPH_2 Job Database <JD>=yY
+-
 
 &COLORGRAPH_3 Job Database <JD>=rR
+-
 
 &COLORGRAPH_4 Job Database <JD>=cC
+-
 
 &COLORGRAPH_5 Job Database <JD>=bB
+-
 
 &COLORGRAPH_6 Job Database <JD>=mM
+-
 
 &COLORGRAPH_7 Job Database <JD>=wW
+-
 
 &COLORGRAPH_8 Job Database <JD>=hX
+-
 
 &COLORGRAPH_9 Job Database <JD>=hC
+-
 
 &COLORGRAPH_10 Job Database <JD>=hB
+-
 
 &COLORGRAPH_11 Job Database <JD>=hR
+-
 
 &COLORGRAPH_12 Job Database <JD>=hY
+-
 
 &COLORGRAPH_13 Job Database <JD>=hG
+-
 
 &COLORGRAPH_14 Job Database <JD>=hM
+-
 
 &COLORGRAPH_15 Job Database <JD>=hW
+-
 
 &COLORGRAPH_16 Job Database <JD>=hX
+-
 
 &COLORGRAPH_17 Job Database <JD>=hC
+-
 
 &DATA_31-15 Job Database <JD>=[@[@[@[@[#[#[#[#[$[$[$[^[^[^[&[&[&[*[*[([([([)[)[_[_[+[+[+[{[{[}[}[|[|[;[;['['[:[:[:["["[<[<[<[>[>[>[?[?[?[,[,[,[.[.[.[.[/[/[/ [![![@[@[@[@[#[#[#[$[$[$[^[^[^[&[&[&[*[*[([([)[)[)[_[_[+[+[{[{[}[}[|[|[;[;['['[:[:["["[<[<[<[>[>[?[?[?[,[,[,[.[.[.[.[/[/[/[/[a [![![![![@[@[@[@[#[#[#[$[$[$[^[^[&[&[&[*[*[([([)[)[_[_[+[+[{[{[}[}[|[|[;['['[:[:["["["[<[<[>[>[?[?[?[,[,[,[.[.[.[/[/[/[/[a[a[a [~[~[![![![![@[@[@[@[#[#[#[$[$[^[^[^[&[&[*[*[([([)[)[_[+[+[{[{[}[}[|[;[;['['[:[:["["[<[<[>[>[?[?[?[,[,[.[.[.[/[/[/[/[a[a[a[a[b [=[~[~[~[~[![![![@[@[@[#[#[#[$[$[^[^[^[&[&[*[*[([)[)[_[_[+[{[{[}[|[|[;[;['[:[:["["[<[<[>[>[?[?[,[,[,[.[.[/[/[/[a[a[a[a[b[b[b[b [=[=[=[~[~[~[~[![![![@[@[@[#[#[#[$[$[^[^[&[&[*[([([)[)[_[+[+[{[}[|[|[;['['[:["["[<[<[>[>[?[?[,[,[.[.[/[/[/[a[a[a[a[b[b[b[b[c[c [-[-[=[=[=[=[~[~[~[~[![![![@[@[#[#[$[$[^[^[&[&[*[([([)[_[+[+[{[}[|[|[;['[:[:["[<[<[>[?[?[,[,[.[.[.[/[/[a[a[a[b[b[b[b[c[c[c[c[d [0[-[-[-[-[=[=[=[=[~[~[~[![![![@[@[#[#[$[$[^[&[&[*[([)[)[_[+[{[}[|[;[;['[:["[<[<[>[?[?[,[,[.[.[/[/[a[a[a[b[b[b[c[c[c[c[d[d[d[d [0[0[0[0[0[-[-[-[-[=[=[=[~[~[~[![![@[@[#[$[$[^[&[&[*[([)[_[+[{[}[|[;['[:["[<[<[>[?[,[,[.[.[/[/[a[a[b[b[b[c[c[c[d[d[d[d[d[e[e[e [9[9[9[9[0[0[0[0[-[-[-[-[=[=[=[~[~[![![@[@[#[$[^[^[&[*[([)[+[{[}[|[;['[:["[<[>[?[,[.[.[/[/[a[a[b[b[c[c[c[d[d[d[d[e[e[e[e[e[f[f [8[8[8[9[9[9[9[9[0[0[0[0[-[-[-[=[=[~[~[![![@[#[#[$[^[&[([)[_[+[}[|['[:["[<[>[?[,[.[/[a[a[b[b[c[c[c[d[d[d[e[e[e[e[f[f[f[f[f[f[g [7[7[7[8[8[8[8[8[8[9[9[9[9[0[0[0[-[-[=[=[~[~[![@[#[$[^[&[([)[+[}[;['["[<[?[,[.[/[a[a[b[c[c[d[d[d[e[e[e[f[f[f[f[f[g[g[g[g[g[g[g [6[6[7[7[7[7[7[7[7[7[8[8[8[8[9[9[9[9[0[0[-[-[=[~[![@[#[^[&[([+[}[;[:[<[?[.[/[a[b[c[c[d[d[e[e[f[f[f[f[g[g[g[g[g[h[h[h[h[h[h[h[h [5[6[6[6[6[6[6[6[6[6[6[6[7[7[7[7[7[8[8[8[9[9[0[0[-[=[~[@[$[&[)[}['[<[,[/[a[c[d[d[e[f[f[f[g[g[g[h[h[h[h[h[h[i[i[i[i[i[i[i[i[i[i [5[5[5[5[5[5[5[5[5[5[5[5[5[5[5[5[6[6[6[6[6[6[7[7[8[8[9[0[=[@[&[}[<[/[c[d[f[f[g[h[h[h[i[i[i[i[i[i[i[j[j[j[j[j[j[j[j[j[j[j[j[j[j [4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[4[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l[l [3[3[3[3[3[3[2[2[2[2[2[2[2[2[2[2[2[2[1[1[1[1[`[`[`[Z[Y[X[V[S[O[H[B[w[u[s[r[q[p[p[o[o[o[o[n[n[n[n[n[n[n[n[m[m[m[m[m[m[m[m[m[m[m [2[2[2[2[2[1[1[1[1[1[1[1[1[`[`[`[`[`[Z[Z[Z[Y[Y[X[W[V[U[S[Q[O[L[H[E[B[y[w[v[u[t[s[r[r[q[q[p[p[p[p[o[o[o[o[o[o[o[o[n[n[n[n[n[n[n [1[1[1[1[`[`[`[`[`[`[`[Z[Z[Z[Z[Y[Y[Y[X[X[W[W[V[U[T[S[R[Q[O[M[K[H[F[D[B[z[y[w[v[u[u[t[s[s[r[r[r[q[q[q[q[p[p[p[p[p[p[o[o[o[o[o[o [`[`[`[`[Z[Z[Z[Z[Z[Z[Y[Y[Y[Y[X[X[X[W[W[V[V[U[T[S[R[Q[P[O[M[L[J[H[G[E[C[B[A[y[x[w[w[v[u[u[t[t[s[s[r[r[r[r[q[q[q[q[q[p[p[p[p[p[p [Z[Z[Z[Z[Z[Y[Y[Y[Y[X[X[X[X[W[W[W[V[V[U[U[T[S[S[R[Q[P[O[N[L[K[J[H[G[F[D[C[B[A[z[y[x[w[w[v[v[u[u[t[t[s[s[s[s[r[r[r[r[q[q[q[q[q[q [Y[Y[Y[Y[Y[X[X[X[X[W[W[W[W[V[V[U[U[T[T[S[S[R[Q[Q[P[O[N[M[L[K[J[H[G[F[E[D[C[B[A[z[y[y[x[w[w[v[v[u[u[u[t[t[t[s[s[s[s[r[r[r[r[r[q [Y[X[X[X[X[X[W[W[W[V[V[V[V[U[U[T[T[S[S[R[R[Q[P[P[O[N[M[L[K[J[I[H[G[F[E[D[D[C[B[A[z[z[y[x[x[w[w[v[v[v[u[u[u[t[t[t[s[s[s[s[s[r[r [X[X[W[W[W[W[V[V[V[V[U[U[U[T[T[S[S[R[R[Q[Q[P[P[O[N[M[M[L[K[J[I[H[H[G[F[E[D[C[C[B[A[A[z[y[y[x[x[w[w[w[v[v[u[u[u[u[t[t[t[t[s[s[s [W[W[W[V[V[V[V[U[U[U[T[T[T[S[S[S[R[R[Q[Q[P[O[O[N[N[M[L[K[K[J[I[H[H[G[F[E[E[D[C[C[B[A[A[z[z[y[y[x[x[w[w[w[v[v[v[u[u[u[u[t[t[t[t [V[V[V[V[U[U[U[U[T[T[T[S[S[S[R[R[Q[Q[P[P[O[O[N[N[M[L[L[K[J[J[I[H[H[G[F[F[E[D[D[C[B[B[A[A[z[z[y[y[y[x[x[w[w[w[v[v[v[v[u[u[u[u[t [V[V[U[U[U[U[T[T[T[S[S[S[R[R[R[Q[Q[P[P[O[O[N[N[M[M[L[K[K[J[J[I[H[H[G[F[F[E[E[D[D[C[B[B[A[A[z[z[z[y[y[x[x[x[w[w[w[v[v[v[v[u[u[u [U[U[U[T[T[T[T[S[S[S[R[R[R[Q[Q[Q[P[P[O[O[N[N[M[M[L[L[K[K[J[J[I[H[H[G[G[F[F[E[D[D[C[C[B[B[A[A[A[z[z[y[y[y[x[x[x[w[w[w[w[v[v[v[v [U[T[T[T[T[S[S[S[S[R[R[R[Q[Q[P[P[P[O[O[N[N[N[M[M[L[L[K[K[J[I[I[H[H[G[G[F[F[E[E[D[D[C[C[B[B[A[A[A[z[z[z[y[y[y[x[x[x[w[w[w[w[v[v [T[T[T[S[S[S[S[R[R[R[Q[Q[Q[P[P[P[O[O[N[N[N[M[M[L[L[K[K[J[J[I[I[H[H[G[G[F[F[E[E[D[D[D[C[C[B[B[B[A[A[z[z[z[y[y[y[x[x[x[x[w[w[w[w [T[S[S[S[S[R[R[R[R[Q[Q[Q[P[P[P[O[O[N[N[N[M[M[L[L[L[K[K[J[J[I[I[H[H[G[G[G[F[F[E[E[D[D[C[C[C[B[B[B[A[A[z[z[z[z[y[y[y[x[x[x[x[w[w
+-
 
 &DATA_CHARS Job Database <JD>=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ`1234567890-=~!@#$^&*()_+{}|;':"<>?,./
+-
 
 &DATA_CHARS2 Job Database <JD>=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ `1234567890-=~!@#$%^&*()_[]\{}|;':",./<>?
+-
 
 &DISPLAY_# Job Database <JD>=[ljust(%0,8)]
+-
 
-&DISPLAY_A Job Database <JD>=[ljust(ifelse(isdbref(get(%0/ASSIGNED_TO)),name(get(%0/ASSIGNED_TO)),-),16)]
+&DISPLAY_A Job Database <JD>=
+	[ljust(
+		ifelse(
+			isdbref(get(%0/ASSIGNED_TO)),
+				name(get(%0/ASSIGNED_TO)),
+			-
+		),
+		16
+	)]
+-
 
 &DISPLAY_B Job Database <JD>=[ljust(u(%va/FN_BUCKETNAME,%0),5)]
+-
 
 &DISPLAY_C Job Database <JD>=[ljust(u(%va/FN_SHORT_DATE,convsecs(get(%0/OPENED_ON))),8)]
+-
 
-&DISPLAY_D Job Database <JD>=[ljust(switch(get(%0/STATUS),0,--HOLD--,ifelse(get(%0/DUE_ON),ifelse(gt(secs(),get(%0/DUE_ON)),OVERDUE!,[u(%va/FN_SHORT_DATE,convsecs(get(%0/DUE_ON)))]),--------)),8)]
+&DISPLAY_D Job Database <JD>=
+	[ljust(
+		switch(
+			get(%0/STATUS),
+			0,
+				--HOLD--,
+			ifelse(
+				get(%0/DUE_ON),
+					ifelse(
+						gt(secs(),get(%0/DUE_ON)),
+							OVERDUE!,
+						[u(%va/FN_SHORT_DATE,convsecs(get(%0/DUE_ON)))]
+					),
+				--------
+			)
+		),
+		8
+	)]
+-
 
-&DISPLAY_F Job Database <JD>=[ifelse(u(me/IS_LOCKED,%0),L,-)][ifelse(u(me/IS_PUBLIC,%0),M,-)][ifelse(u(me/IS_TAGGED,%0),T,-)][ifelse(u(me/IS_PUBLISHED,%0),P,-)]
+&DISPLAY_F Job Database <JD>=
+	[ifelse(u(me/IS_LOCKED,%0),L,-)]
+	[ifelse(u(me/IS_PUBLIC,%0),M,-)]
+	[ifelse(u(me/IS_TAGGED,%0),T,-)]
+	[ifelse(u(me/IS_PUBLISHED,%0),P,-)]
+-
 
 &DISPLAY_M Job Database <JD>=[ljust(u(%va/FN_SHORT_DATE,convsecs(get(%0/MODIFIED_ON))),8)]
+-
 
 &DISPLAY_O Job Database <JD>=[ljust(name(first(get(%0/OPENED_BY))),16)]
+-
 
 &DISPLAY_P Job Database <JD>=[ifelse(u(me/IS_LOCKED,%0),L,-)]
+-
 
-&DISPLAY_S Job Database <JD>=[center(ifelse(hasattrp(%0,LOCKED),LOCKED,switch(get(%0/STATUS),0,ON HOLD,1,NEW,2,UNDERWAY,3,1/4 DONE,4,1/2 DONE,5,3/4 DONE,6,COMPLETE,NEW)),8)]
+&DISPLAY_S Job Database <JD>=
+	[center(
+		ifelse(
+			hasattrp(%0,LOCKED),
+				LOCKED,
+			switch(
+				get(%0/STATUS),
+				0,ON HOLD,
+				1,NEW,
+				2,UNDERWAY,
+				3,1/4 DONE,
+				4,1/2 DONE,
+				5,3/4 DONE,
+				6,COMPLETE,
+				NEW
+			)
+		),
+		8
+	)]
+-
 
 &DISPLAY_T Job Database <JD>=[ljust(mid(get(%0/TITLE),0,30),30)]
+-
 
-&DISPLAY_MYHEADERS Job Database <JD>=[setq(0,%0)][setq(x,itemize(map(MAP_NAME,get(%q0/OPENED_BY),%b,|),|))][ljust([rjust(ansi(hc,Bucket:),10)] [u(%va/FN_BUCKETNAME,%q0)],40)][rjust(ansi(hc,Due On:),12)] [ifelse(get(%q0/DUE_ON),ifelse(gt(secs(),get(%q0/DUE_ON)),OVERDUE!,convsecs(get(%q0/DUE_ON))),-)]%r[ljust([rjust(ansi(hc,Title:),10)] [get(%q0/TITLE)],40)][rjust(ansi(hc,Assigned To:),12)] [ifelse(isdbref(get(%q0/ASSIGNED_TO)),name(get(%q0/ASSIGNED_TO)),Nobody)]%r[ljust([rjust(ansi(hc,Opened On:),10)] [convsecs(get(%q0/OPENED_ON))],40)][rjust(ansi(hc,Status:),12)] [switch(get(%q0/PRIORITY),1,Green,2,Yellow,3,Red)] %r[rjust(ansi(hc,Opened By:),10)] %qx
+&DISPLAY_MYHEADERS Job Database <JD>=
+	[setq(0,%0)]
+	[setq(x,
+		itemize(
+			map(MAP_NAME,get(%q0/OPENED_BY),%b,|),
+			|
+		)
+	)]
+	[ljust(
+		[rjust(ansi(hc,Bucket:),10)] 
+			[u(%va/FN_BUCKETNAME,%q0)],
+		40
+	)]
+	[rjust(ansi(hc,Due On:),12)] 
+	[ifelse(
+		get(%q0/DUE_ON),
+			ifelse(
+				gt(secs(),get(%q0/DUE_ON)),
+					OVERDUE!,
+				convsecs(get(%q0/DUE_ON))
+			),
+		-
+	)]%r
+	[ljust(
+		[rjust(ansi(hc,Title:),10)] 
+			[get(%q0/TITLE)],40)]
+			[rjust(ansi(hc,Assigned To:),12)] 
+			[ifelse(
+				isdbref(get(%q0/ASSIGNED_TO)),
+					name(get(%q0/ASSIGNED_TO)),
+				Nobody
+			)]%r
+			[ljust(
+				[rjust(ansi(hc,Opened On:),10)] 
+					[convsecs(get(%q0/OPENED_ON))],
+				40
+			)]
+			[rjust(ansi(hc,Status:),12)] 
+			[switch(
+				get(%q0/PRIORITY),
+				1,Green,
+				2,Yellow,
+				3,Red
+			)]%r
+			[rjust(ansi(hc,Opened By:),
+		10
+	)] %qx
+-
 
-&DISPLAY_MYJOB Job Database <JD>=[rjust([last(name(%0))],6)]%b%b[ljust(mid(get(%0/TITLE),0,40),40)]%b[ljust(ifelse(isdbref(get(%0/ASSIGNED_TO)),name(get(%0/ASSIGNED_TO)),Nobody),16)]%b[center(switch(get(%0/STATUS),0,ON HOLD,1,NEW,2,UNDERWAY,3,1/4 DONE,4,1/2 DONE,5,3/4 DONE,6,COMPLETE,NEW),8)]
+&DISPLAY_MYJOB Job Database <JD>=
+	[rjust([last(name(%0))],6)]%b%b
+	[ljust(mid(get(%0/TITLE),0,40),40)]%b
+	[ljust(
+		ifelse(
+			isdbref(get(%0/ASSIGNED_TO)),
+				name(get(%0/ASSIGNED_TO)),
+			Nobody
+		),
+		16
+	)]%b
+	[center(
+		switch(
+			get(%0/STATUS),
+			0,ON HOLD,
+			1,NEW,
+			2,UNDERWAY,
+			3,1/4 DONE,
+			4,1/2 DONE,
+			5,3/4 DONE,
+			6,COMPLETE,
+			NEW
+		),
+		8
+	)]
+-
 
-&DISPLAY_BUCKET Job Database <JD>=[rjust(ansi(h,Name:),20)] [name(%q0)] [ifelse(orflags(%#,WZ),%(%q0%),)] %([words(children(%q0))] jobs in bucket%)%r[rjust(ansi(h,Locked To:),20)] [ifelse(hasattrp(%q0,ACCESS),[get(%q0/ACCESS)] [ifelse(u(%q0/ACCESS,%#),%(You have access%),%(You do not have access%))],*UNLOCKED*)]%r[rjust(ansi(h,Post Data:),20)] %(Job system will post to these boards%)%r[columns(Complete: [u(%q0/POST_COMPLETE)]|Approve: [u(%q0/POST_APPROVE)]|Deny: [u(%q0/POST_DENY)],15,|,21)][ifelse(hasattrp(%q0,TURNAROUND),%r[rjust(ansi(h,Turnaround:),20)] [get(%q0/TURNAROUND)] hours %([div(get(%q0/TURNAROUND),24)] days%),)][ifelse(hasattrp(%q0,LOGFILE),%r[rjust(ansi(h,Logfile:),20)] M-[u(%q0/LOGFILE)].log,)]%r[rjust(ansi(h,Hidden Status:),20)] [switch([hasattrp(%q0,HIDDEN)][gt(member(u(%#/JOBSH),%q0),0)],00,Unhidden,01,Locally,11,Globally Hidden & Locally Watched,10,Globally,UNKNOWN CASE)]%r[rjust(ansi(h,+Myjobs Status:),20)] [ifelse(hasattrp(%q0,PUBLIC),Accessible,Inaccessible)]%r[rjust(ansi(h,Avg Resolve Time:),20)] [trim(u(FN_ART,%q0))]%r[rjust(ansi(h,Desc:),20)] [get(%q0/DESC)][ifelse(gt(words(setr(x,setdiff(lattr(%q0),u(%va/LIST_BADATTR,%q0)))),0),%r[rjust(ansi(h,Provides:),20)] %(Attributes provided to jobs in the bucket%)%r[columns(%qx,16,,21)],)][ifelse(gt(words(lattr(%q0/PROCESS_*)),0),%r[rjust(ansi(h,Settings:),20)] %(+job/sumset settings%)%r[columns(map(MAP_SETTINGS,lattr(%q0/PROCESS_*)),16,,21)],)]
+&DISPLAY_BUCKET Job Database <JD>=
+	[rjust(ansi(h,Name:),20)] [name(%q0)] 
+	[ifelse(orflags(%#,WZ),%(%q0%),)] 
+	%([words(children(%q0))] jobs in bucket%)%r
+	[rjust(ansi(h,Locked To:),20)] 
+	[ifelse(
+		hasattrp(%q0,ACCESS),
+			[get(%q0/ACCESS)] 
+			[ifelse(
+				u(%q0/ACCESS,%#),
+					%(You have access%),
+				%(You do not have access%)
+			)],
+		*UNLOCKED*
+	)]%r
+	[rjust(ansi(h,Post Data:),20)] 
+	%(Job system will post to these boards%)%r
+	[columns(
+		Complete: [u(%q0/POST_COMPLETE)]|
+			Approve: [u(%q0/POST_APPROVE)]|
+			Deny: [u(%q0/POST_DENY)],
+		15,|,21
+	)]
+	[ifelse(
+		hasattrp(%q0,TURNAROUND),
+			%r[rjust(ansi(h,Turnaround:),20)] 
+			[get(%q0/TURNAROUND)] hours 
+			%([div(get(%q0/TURNAROUND),24)] days%),
+	)]
+	[ifelse(
+		hasattrp(%q0,LOGFILE),
+			%r[rjust(ansi(h,Logfile:),20)] M-[u(%q0/LOGFILE)].log,
+	)]%r
+	[rjust(ansi(h,Hidden Status:),20)] 
+	[switch(
+		[hasattrp(%q0,HIDDEN)][gt(member(u(%#/JOBSH),%q0),0)],
+		00,Unhidden,
+		01,Locally,
+		11,Globally Hidden & Locally Watched,
+		10,Globally,
+		UNKNOWN CASE
+	)]%r
+	[rjust(ansi(h,+Myjobs Status:),20)] 
+	[ifelse(
+		hasattrp(%q0,PUBLIC),
+			Accessible,
+		Inaccessible
+	)]%r
+	[rjust(ansi(h,Avg Resolve Time:),20)] 
+	[trim(u(FN_ART,%q0))]%r
+	[rjust(ansi(h,Desc:),20)] 
+	[get(%q0/DESC)]
+	[ifelse(
+		gt(
+			words(
+				setr(x,
+					setdiff(lattr(%q0),u(%va/LIST_BADATTR,%q0))
+				)
+			),
+			0
+		),
+			%r[rjust(ansi(h,Provides:),20)] %(Attributes provided to jobs in the bucket%)%r
+			[columns(%qx,16,,21)],
+	)]
+	[ifelse(
+		gt(
+			words(lattr(%q0/PROCESS_*)),
+			0
+		),
+			%r[rjust(ansi(h,Settings:),20)] %(+job/sumset settings%)%r
+			[columns(
+				map(MAP_SETTINGS,
+					lattr(%q0/PROCESS_*)
+				),
+				16,,21
+			)],
+	)]
+-
 
-&DISPLAY_BUCKET2 Job Database <JD>=[rjust(ansi(h,Players:),20)] %(Connected players with access to this bucket)%r[columns([trim(squish(iter(edit(objeval(%#,lwho()),%b,|),ifelse(and(u(%va/HAS_ACCESS,##),u(%va/FN_ACCESSCHECK,%q0,##)),name(##),),|,|),|),b,|)],15,|,21)]
+&DISPLAY_BUCKET2 Job Database <JD>=
+	[rjust(ansi(h,Players:),20)] %(Connected players with access to this bucket)%r
+	[columns(
+		[trim(
+			squish(
+				iter(
+					edit(
+						objeval(%#,lwho()),
+						%b,|
+					),
+					ifelse(
+						and(
+							u(%va/HAS_ACCESS,##),
+							u(%va/FN_ACCESSCHECK,%q0,##)
+						),
+						name(##),
+					),
+					|,|
+				),
+				|
+			),
+			b,|
+		)],
+		15,|,21
+	)]
+-
 
 &FIL_ACCESS Job Database <JD>=[u(%va/FN_ACCESSCHECK,%0,%#)]
+-
 
 &FIL_BROADCAST Job Database <JD>=[ifelse(hasattrp(%0,JOBS_SILENCE),0,u(%va/FN_ACCESSCHECK,%q0,%0))]
+-
 
 &FIL_COMMENTS Job Database <JD>=[gt(member(get(%va/LIST_VISCOMMENTS),first(get(%q0/%0),|)),0)]
+-
 
 &FIL_DELETE Job Database <JD>=[switch(parent(%0,%q0,1,0)]
+-
 
 &FIL_GOING Job Database <JD>=[not(default(%0/GOING,0))]
+-
 
 &FIL_MINE Job Database <JD>=[gt(member([get(%0/assigned_to)] [get(%0/tagged_for)],%#),0)]
+-
 
 &FIL_NEW Job Database <JD>=[gt(get(%0/MODIFIED_ON),get(%q0/LAST_CONN))]
+-
 
 &FIL_NEW0 Job Database <JD>=[gt(get(%0/MODIFIED_ON),get(%q0/LAST_CONN))]
+-
 
 &FIL_NEW1 Job Database <JD>=[gt(dec(get(%0/NUM_COMMENT)),last(grab(get(%0/LIST_READERS),%q0|*),|))]
+-
 
-&FIL_NEWCOMMENTS0 Job Database <JD>=[and(gt(extract(get(%q0/%0),2,1,|),%q1),gt(member(get(%va/LIST_VISCOMMENTS),first(get(%q0/%0),|)),0))]
+&FIL_NEWCOMMENTS0 Job Database <JD>=
+	[and(
+		gt(
+			extract(get(%q0/%0),2,1,|),
+			%q1
+		),
+		gt(
+			member(
+				get(%va/LIST_VISCOMMENTS),
+				first(get(%q0/%0),|)
+			),
+			0
+		)
+	)]
+-
 
-&FIL_NEWCOMMENTS1 Job Database <JD>=[and(gt(dec(get(%q0/NUM_COMMENT)),last(grab(get(%q0/LIST_READERS),%#|*),|)),gt(member(get(%va/LIST_VISCOMMENTS),first(get(%q0/%0),|)),0))]
+&FIL_NEWCOMMENTS1 Job Database <JD>=
+	[and(
+		gt(
+			dec(get(%q0/NUM_COMMENT)),
+			last(
+				grab(get(%q0/LIST_READERS),%#|*),|
+			)
+		),
+		gt(
+			member(
+				get(%va/LIST_VISCOMMENTS),
+				first(get(%q0/%0),|)
+			),
+			0
+		)
+	)]
+-
 
 &FIL_NOSPAM Job Database <JD>=[not(hasattr(%0,JOBS_NOSPAM))]
+-
 
 &FIL_OVERDUE Job Database <JD>=ifelse(get(%0/DUE_ON),gt(secs(),get(%0/DUE_ON)),0)
+-
 
 &FIL_WHO Job Database <JD>=[switch(get(%0/ASSIGNED_TO),%1,1,0)]
+-
 
-&FN_ACCESSCHECK Job Database <JD>=[and(or(u(%va/FN_WIZONLY,%1),switch([elock(%0/speech,%1)][gt(member(get(%1/JOBSB),%0),0)],01,1,10,1,11,0,0)),u(%va/HAS_ACCESS,%1))]
+&FN_ACCESSCHECK Job Database <JD>=
+	[and(
+		or(
+			u(%va/FN_WIZONLY,%1),
+			switch(
+				[elock(%0/speech,%1)][gt(member(get(%1/JOBSB),%0),0)],
+				01,1,
+				10,1,
+				11,0,
+				0
+			)
+		),
+		u(%va/HAS_ACCESS,%1)
+	)]
+-
 
-&FN_ADDSTAT Job Database <JD>=[localize([setq(x,ifelse(hasattr(%1,LIST_STATS),get(%1/LIST_STATS),))][setq(0,match(%qx,%0|*))][setq(1,grab(%qx,%0|*))][ifelse(gt(%q0,0),[set(%1,LIST_STATS:[setunion(ldelete(%qx,%q0),[first(%q1,|)]|[inc(rest(%q1,|))])])],[set(%1,LIST_STATS:[setunion(%qx,%0|1)])])])]
+&FN_ADDSTAT Job Database <JD>=
+	[localize(
+		[setq(x,
+			ifelse(
+				hasattr(%1,LIST_STATS),
+					get(%1/LIST_STATS),
+			)
+		)]
+		[setq(0,match(%qx,%0|*))]
+		[setq(1,grab(%qx,%0|*))]
+		[ifelse(
+			gt(%q0,0),
+				[set(%1,
+					LIST_STATS:[setunion(
+						ldelete(%qx,%q0),
+						[first(%q1,|)]|
+						[inc(rest(%q1,|))]
+					)]
+				)],
+			[set(%1,
+				LIST_STATS:[setunion(%qx,%0|1)]
+			)]
+		)]
+	)]
+-
 
-&FN_ADDSTAT_ART Job Database <JD>=[set(%0,STAT_ART:[add(first(get(%0/STAT_ART)),sub(secs(),get(%1/OPENED_ON)))] [inc(last(get(%0/STAT_ART)))])]
+&FN_ADDSTAT_ART Job Database <JD>=
+	[set(%0,
+		STAT_ART:[add(
+			first(get(%0/STAT_ART)),
+			sub(
+				secs(),
+				get(%1/OPENED_ON)
+			)
+		)] 
+		[inc(last(get(%0/STAT_ART)))]
+	)]
+-
 
 &FN_ANSIFY Job Database <JD>=foreach(map_ansify,%0)
+-
 
 &FN_ART Job Database <JD>=u(FN_TIME,fdiv(first(get(%0/STAT_ART)),rest(get(%0/STAT_ART))))
+-
 
-&FN_ASSEMBLEPIE Job Database <JD>=[localize([setq(1,%1)][setq(0,0)][map(%va/MAP_PIEDATA,%0,switch(%2,,%b,%2),|)])]
+&FN_ASSEMBLEPIE Job Database <JD>=
+	[localize(
+		[setq(1,%1)]
+		[setq(0,0)]
+		[map(%va/MAP_PIEDATA,%0,switch(%2,,%b,%2),|)]
+	)]
+-
 
 &FN_BANNER Job Database <JD>=[u(FN_SKIN,BANNER,%0,%1,%2,%3)]
+-
 
-&FN_BARGRAPH Job Database <JD>=localize([setq(4,ifelse(%5,%5, ))][setq(5,ifelse(%2,%2,2))][setq(6,ifelse(%3,ifelse(gt(%3,16),16,%3),1))][setq(7,switch(%4,,#,%4))][setq(1,ifelse(%1,%1,18))][setq(2,%q1)][setq(0,last(sort(%0,n,%q4,%q4),%q4))][setq(3,fdiv(%q1,%q0))][setq(x,list(lnum(%q1),[setq(9,0)][switch(%q2,%q1,rjust(%q0,3),ifelse(mod(%q1,2),inc(div(%q1,2)),div(%q1,2)),[rjust(div(%q0,2),3)],[space(3)])]|[map(MAP_GRAPH,%0,%q4,%b)][setq(2,sub(%q2,1))]))]%qx[space(2)]0+[repeat(-,dec(add(mul(words(%0,%q4),%q5),words(%0,%q4))))])
+&FN_BARGRAPH Job Database <JD>=
+	localize(
+		[setq(4,ifelse(%5,%5, ))]
+		[setq(5,ifelse(%2,%2,2))]
+		[setq(6,ifelse(%3,ifelse(gt(%3,16),16,%3),1))]
+		[setq(7,switch(%4,,#,%4))]
+		[setq(1,ifelse(%1,%1,18))]
+		[setq(2,%q1)]
+		[setq(0,last(sort(%0,n,%q4,%q4),%q4))]
+		[setq(3,fdiv(%q1,%q0))]
+		[setq(x,
+			list(
+				lnum(%q1),
+				[setq(9,0)]
+				[switch(
+					%q2,
+					%q1,rjust(%q0,3),
+					ifelse(
+						mod(%q1,2),
+							inc(div(%q1,2)),
+						div(%q1,2)
+					),[rjust(div(%q0,2),3)],
+					[space(3)]
+				)]|
+				[map(MAP_GRAPH,%0,%q4,%b)]
+				[setq(2,sub(%q2,1))]
+			)
+		)]%qx
+		[space(2)]0+
+		[repeat(-,dec(add(mul(words(%0,%q4),%q5),words(%0,%q4))))]
+	)
+-
 
 &FN_BREAK Job Database <JD>=[u(FN_SKIN,BREAK,%0,%1,%2,%3)]
+-
 
 &FN_BUCKETHEADER Job Database <JD>=[u(FN_SKIN,BUCKETHEADER,%0,%1,%2,%3)]
+-
 
 &FN_BUCKETLIST Job Database <JD>=[u(FN_SKIN,BUCKETLIST,%0,%1,%2,%3)]
+-
 
-&FN_BUCKETNAME Job Database <JD>=[ifelse(get(%0/GOING),GOING,ifelse(isdbref(parent(%0)),name(parent(%0)),ERROR))]
+&FN_BUCKETNAME Job Database <JD>=
+	[ifelse(
+		get(%0/GOING),
+			GOING,
+		ifelse(
+			isdbref(parent(%0)),
+				name(parent(%0)),
+			ERROR
+		)
+	)]
+-
 
 &FN_COLORPIE Job Database <JD>=setq(0,u(fn_equalizepie,%1,%2))[setq(p,%0)][setq(1,u(fn_rotatestr,setr(1,v(data_chars)),mod(round(fdiv(mul(%3,strlen(%q1)),360),0),360)))][setq(a,%]%])][setq(b,%qa%qa)][setq(c,%qb%qb)][map(map_colorpie,%q0,%2,@@)][edit(edit(%qp,%b,%%b),\\,%%r)]
+-
 
 &FN_COORD2ANG Job Database <JD>=switch(%0:%1,-*:-*,add(180,atan(fdiv(%1,%0),deg)),-*:*,add(180,atan(fdiv(%1,%0),deg)),*:-*,add(360,atan(fdiv(%1,%0),deg)),0:0,0,atan(fdiv(%1,%0),deg))
+-
 
 &FN_CUTPIE Job Database <JD>=setq(0,inc(%2))[setq(1,fdiv(%1,%2))][setq(2,power(%3,2))][setq(5,iter(lnum(0,dec(%3)),round(mul(sqrt(sub(%q2,power(add(##,.7),2))),%q1),0)))][setq(5,revwords(%q5) [setr(8,inc(ceil(mul(%3,2))))] %q5)][iter(lnum(-%3,%3),space(sub(%q8,setr(9,extract(%q5,#@,1))))[mid(extract(%0,add(##,%q0),1),shl(sub(%1,%q9),1),shl(%q9,2))],,\\)]
+-
 
 &FN_EASYPIE Job Database <JD>=u(fn_pielegend,eval(edit(u(fn_colorpie,u(fn_cutpie,v(data_31-15),31,15,%0),map(map_easypie,%1,%2),%2,%4),%%r,%\%\)),map(map_easypie2,%1,%2),%2,%3)
+-
 
 &FN_EQUALIZEPIE Job Database <JD>=setq(0,ladd(map(map_equalizepie,%0,%1),%1))[setq(1,strlen(v(data_chars)))][map(map_equalizepie2,%0,%1)]
+-
 
 &FN_FLAG Job Database <JD>=[ansi(h,%[)][ansi(switch(%1,,hy,%1),%0)][ansi(h,%])]
+-
 
 &FN_FLAGS Job Database <JD>=[u(FN_SKIN,FLAGS,%0,%1,%2,%3)]
+-
 
 &FN_FOOTER Job Database <JD>=[u(FN_SKIN,FOOTER,%0,%1,%2,%3)]
+-
 
 &FN_GENDATA Job Database <JD>=setq(0,%0)[setq(z,fdiv(inc(shl(%1,1)),inc(shl(%0,1))))][setq(9,fdiv(dec(setr(m,strlen(setr(8,v(data_charS))))),360))][setq(s,%2)][map(map_gendata,lnum(-%1,%1))]
 
