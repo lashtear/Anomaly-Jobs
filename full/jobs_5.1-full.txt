@@ -674,33 +674,379 @@ $+job/esc *=*:
 		}
 -
 
-&CMD_JOB/LAST Job Global Object <JGO>=$+job/last *=*:@switch [u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %0,i))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no job by that name. Please type '+jobs/all' for all jobs or '+jobs/<type>' to list by type.},110*,{@pemit %#=You do not have access to that job.},{@pemit %#=[u(%va/FN_HEADER,View [name(%q0)])]%r[ulocal(%va/FN_BANNER,%q0)];@dolist [extract(setr(1,filter(%va/FIL_COMMENTS,lattr(%q0/COMMENT_*))),ifelse(lt(sub(words(%q1),%1),1),1,inc(sub(words(%q1),%1))),inc(%1))]={@pemit %#=[u(%va/FN_READJOB,##,%q0)]};@wait me={@pemit %#=[u(%va/FN_FOOTER,u(%va/FN_FLAGS,%q0))]};@notify me}
+&CMD_JOB/LAST Job Global Object <JGO>=
+$+job/last *=*:
+	@switch 
+		[u(%va/HAS_ACCESS,%#)]
+		[setq(0,locate(%va,Job %0,i))]
+		[isdbref(%q0)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		=
+		0*,{@pemit %#=Permission denied.},
+		10*,{@pemit %#=There is no job by that name. Please type '+jobs/all' for all jobs or '+jobs/<type>' to list by type.},
+		110*,{@pemit %#=You do not have access to that job.},
+		{
+			@pemit %#=[u(%va/FN_HEADER,View [name(%q0)])]%r[ulocal(%va/FN_BANNER,%q0)];
+			@dolist 
+				[extract(
+					setr(1,
+						filter(
+							%va/FIL_COMMENTS,
+							lattr(%q0/COMMENT_*)
+						)
+					),
+					ifelse(
+						lt(sub(words(%q1),%1),1),
+						1,
+						inc(sub(words(%q1),%1))
+					),
+					inc(%1)
+				)]
+				={
+					@pemit %#=[u(%va/FN_READJOB,##,%q0)]
+				 };
+			@wait me={@pemit %#=[u(%va/FN_FOOTER,u(%va/FN_FLAGS,%q0))]};
+			@notify me
+		}
+-
 
-&CMD_JOB/LOCK Job Global Object <JGO>=$+job/lock *:@switch [u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %0,i))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)][not(hasattr(%q0,LOCKED))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That is an invalid job number.},110*,{@pemit %#=You do not have access to that job.},1110*,{@pemit %#=That job is already locked.},{@pemit %#=You have locked job %0. No further modifications can be made to this job until it is unlocked.;&LOCKED_BY %q0=%#;&LOCKED %q0=1;@trigger %va/TRIG_ADD=%q0,Locked by %n.,%#,LOK;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 locked by %n.}
+&CMD_JOB/LOCK Job Global Object <JGO>=
+$+job/lock *:
+	@switch 
+		[u(%va/HAS_ACCESS,%#)]
+		[setq(0,locate(%va,Job %0,i))]
+		[isdbref(%q0)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[not(hasattr(%q0,LOCKED))]
+		=
+		0*,{@pemit %#=Permission denied.},
+		10*,{@pemit %#=That is an invalid job number.},
+		110*,{@pemit %#=You do not have access to that job.},
+		1110*,{@pemit %#=That job is already locked.},
+		{
+			@pemit %#=You have locked job %0. No further modifications can be made to this job until it is unlocked.;
+			&LOCKED_BY %q0=%#;
+			&LOCKED %q0=1;
+			@trigger %va/TRIG_ADD=%q0,Locked by %n.,%#,LOK;
+			@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 locked by %n.
+		}
+-
 
-&CMD_JOB/LOG Job Global Object <JGO>=$+job/log *:@switch [and(u(%va/HAS_ACCESS,%#),u(%va/LOG_ACCESS,%#))][setq(0,locate(%va,Job %0,i))][isdbref(%q0)][or(u(%va/FN_STAFFALL,%#),u(%va/ACCESS_[parent(%q0)],%#))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no job by that name. Please type '+jobs/all' for all jobs or '+jobs/<type>' to list by type.},110*,{@pemit %#=You do not have access to that job.},{@pemit %#=Logging Job %0 to game/logs/M-[get(%q0/LOGFILE)].log%rNote that if the log file does not exist, then it did not get logged.;@trigger %va/TRIG_LOG=%q0,%#}
+&CMD_JOB/LOG Job Global Object <JGO>=
+$+job/log *:
+	@switch 
+		[and(
+			u(%va/HAS_ACCESS,%#),
+			u(%va/LOG_ACCESS,%#)
+		)]
+		[setq(0,locate(%va,Job %0,i))]
+		[isdbref(%q0)]
+		[or(
+			u(%va/FN_STAFFALL,%#),
+			u(%va/ACCESS_[parent(%q0)],%#)
+		)]
+		=
+		0*,{@pemit %#=Permission denied.},
+		10*,{@pemit %#=There is no job by that name. Please type '+jobs/all' for all jobs or '+jobs/<type>' to list by type.},
+		110*,{@pemit %#=You do not have access to that job.},
+		{
+			@pemit %#=Logging Job %0 to game/logs/M-[get(%q0/LOGFILE)].log%rNote that if the log file does not exist, then it did not get logged.;
+			@trigger %va/TRIG_LOG=%q0,%#
+		}
+-
 
-&CMD_JOB/MAIL Job Global Object <JGO>=$+job/mail *=*:@switch [setq(0,locate(%va,Job %0,i))][isdbref(%q0)][u(%va/HAS_ACCESS,%#)][u(%va/MAIL_ACCESS,%#)][not(u(%va/IS_LOCKED,%q0))]=0*,{@pemit %#=There is no job by that number.},10*,{@pemit %#=Permission denied.},110*,{@pemit %#=Permission denied.},1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@pemit %#=You have mailed [u(%va/FN_PLAYERLIST,%q0)] about job #%0, with the comments: %1;@trigger %va/TRIG_ADD=%q0,[strtrunc(ansi(h,Mail sent to [u(%va/FN_PLAYERLIST,%q0)]:)%r%r%1,get(%va/BUFFER))],%#,MAI;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Mail sent about job #%0 by %n.}
+&CMD_JOB/MAIL Job Global Object <JGO>=
+$+job/mail *=*:
+	@switch 
+		[setq(0,locate(%va,Job %0,i))]
+		[isdbref(%q0)]
+		[u(%va/HAS_ACCESS,%#)]
+		[u(%va/MAIL_ACCESS,%#)]
+		[not(u(%va/IS_LOCKED,%q0))]
+		=
+		0*,{@pemit %#=There is no job by that number.},
+		10*,{@pemit %#=Permission denied.},
+		110*,{@pemit %#=Permission denied.},
+		1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},
+		{
+			@pemit %#=You have mailed [u(%va/FN_PLAYERLIST,%q0)] about job #%0, with the comments: %1;
+			@trigger %va/TRIG_ADD=%q0,[strtrunc(ansi(h,Mail sent to [u(%va/FN_PLAYERLIST,%q0)]:)%r%r%1,get(%va/BUFFER))],%#,MAI;
+			@trigger %va/TRIG_BROADCAST=[parent(%q0)],Mail sent about job #%0 by %n.
+		}
+-
 
-&CMD_JOB/MERGE Job Global Object <JGO>=$+job/merge *=*:@switch [u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %1,i))][setq(1,locate(%va,Job %0,i))][isdbref(%q1)][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)][u(%va/FN_ACCESSCHECK,parent(%q1),%#)][setq(2,u(%q0/NUM_COMMENT))][setq(3,u(%q1/NUM_COMMENT))][and(not(u(%va/IS_LOCKED,%q0)),not(hasattrp(%q1,LOCKED)))][not(eq(%0,%1))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no job number %0.},110*,{@pemit %#=There is no job number %1.},1110*,{@pemit %#=You do not have access to [name(%q0)].},11110*,{@pemit %#=You do not have access to [name(%q1)].},111110*,{@pemit %#=One of the jobs is locked. It must be unlocked before modifications can be made.},1111110*,{@pemit %#=Sort of like a Klein bottle, eh?},{@trigger %va/TRIG_ADD=%q0,Job [secure(%0)] merged into this one.,%#,MRG;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 has been merged into Job %1 by %n;@wait me={@dolist [lattr(%q1/COMMENT_*)]={@cpattr %q1/##=%q0/COMMENT_[get(%q0/NUM_COMMENT)];&NUM_COMMENT %q0=[inc(get(%q0/NUM_COMMENT))]};@trigger %va/TRIG_DESTROY=%q1}};@notify me
+&CMD_JOB/MERGE Job Global Object <JGO>=
+$+job/merge *=*:
+	@switch 
+		[u(%va/HAS_ACCESS,%#)]
+		[setq(0,locate(%va,Job %1,i))]
+		[setq(1,locate(%va,Job %0,i))]
+		[isdbref(%q1)]
+		[isdbref(%q0)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q1),%#)]
+		[setq(2,u(%q0/NUM_COMMENT))]
+		[setq(3,u(%q1/NUM_COMMENT))]
+		[and(
+			not(u(%va/IS_LOCKED,%q0)),
+			not(hasattrp(%q1,LOCKED))
+		)]
+		[not(eq(%0,%1))]
+		=
+		0*,{@pemit %#=Permission denied.},
+		10*,{@pemit %#=There is no job number %0.},
+		110*,{@pemit %#=There is no job number %1.},
+		1110*,{@pemit %#=You do not have access to [name(%q0)].},
+		11110*,{@pemit %#=You do not have access to [name(%q1)].},
+		111110*,{@pemit %#=One of the jobs is locked. It must be unlocked before modifications can be made.},
+		1111110*,{@pemit %#=Sort of like a Klein bottle, eh?},
+		{
+			@trigger %va/TRIG_ADD=%q0,Job [secure(%0)] merged into this one.,%#,MRG;
+			@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 has been merged into Job %1 by %n;
+			@wait me=
+			{
+				@dolist 
+					[lattr(%q1/COMMENT_*)]
+					={
+						@cpattr %q1/##=%q0/COMMENT_[get(%q0/NUM_COMMENT)];
+						&NUM_COMMENT %q0=[inc(get(%q0/NUM_COMMENT))]
+					 };
+				@trigger %va/TRIG_DESTROY=%q1
+			}
+		};
+		@notify me
+-
 
-&CMD_JOB/NAME Job Global Object <JGO>=$+job/name *=*:@switch [u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %0,i))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)][not(u(%va/IS_LOCKED,%q0))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no job by that name.},110*,{@pemit %#=You do not have access to that job.},1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@pemit %#=You have changed the name of Job %0 to %1.;&TITLE %q0=[secure(%1)];@trigger %va/TRIG_ADD=%q0,Renamed to '[secure(%1)]'.,%#,NAM;@trigger %va/TRIG_BROADCAST=[parent(%q0)],%n has renamed job %0.}
+&CMD_JOB/NAME Job Global Object <JGO>=
+$+job/name *=*:
+	@switch 
+		[u(%va/HAS_ACCESS,%#)]
+		[setq(0,locate(%va,Job %0,i))]
+		[isdbref(%q0)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[not(u(%va/IS_LOCKED,%q0))]
+		=
+		0*,{@pemit %#=Permission denied.},
+		10*,{@pemit %#=There is no job by that name.},
+		110*,{@pemit %#=You do not have access to that job.},
+		1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},
+		{
+			@pemit %#=You have changed the name of Job %0 to %1.;
+			&TITLE %q0=[secure(%1)];@trigger %va/TRIG_ADD=%q0,Renamed to '[secure(%1)]'.,%#,NAM;
+			@trigger %va/TRIG_BROADCAST=[parent(%q0)],%n has renamed job %0.
+		}
+-
 
-&CMD_JOB/NEW Job Global Object <JGO>=$+job/new *:@switch [u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %0,i))][setq(1,default(%#/LAST_CONN,0))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no job by that name. Please type '+jobs/all' for all jobs or '+jobs/<type>' to list jobs by type.},110*,{@pemit %#=You do not have access to that job.},{@pemit %#=[u(%va/FN_HEADER,View Job Number %0)]%r[ulocal(%va/FN_BANNER,%q0)][ifelse(hasattrp(%q0,SUMMARY),[ulocal(%va/FN_SUMMARY,%q0)],)];@dolist [filter(%va/FIL_NEWCOMMENTS[default(%#/JOBSN,0)],lattr(%q0/COMMENT_*))]={@pemit %#=[u(%va/FN_READJOB,##,%q0)]};@wait me={@pemit %#=[ifelse(u(%va/IS_LOCKED,%q0),u(%va/FN_FOOTER,u(%va/FN_FLAGS,%q0)),[u(%va/FN_FOOTER,New Activity on Job %0 since [convsecs(%q1)])])][u(%va/FN_READERS,%q0,%#)]};@notify me}
+&CMD_JOB/NEW Job Global Object <JGO>=
+$+job/new *:
+	@switch 
+		[u(%va/HAS_ACCESS,%#)]
+		[setq(0,locate(%va,Job %0,i))]
+		[setq(1,default(%#/LAST_CONN,0))]
+		[isdbref(%q0)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		=
+		0*,{@pemit %#=Permission denied.},
+		10*,{@pemit %#=There is no job by that name. Please type '+jobs/all' for all jobs or '+jobs/<type>' to list jobs by type.},
+		110*,{@pemit %#=You do not have access to that job.},
+		{
+			@pemit %#=
+				[u(%va/FN_HEADER,View Job Number %0)]%r
+				[ulocal(%va/FN_BANNER,%q0)]
+				[ifelse(
+					hasattrp(%q0,SUMMARY),
+					[ulocal(%va/FN_SUMMARY,%q0)],
+				)];
+			@dolist 
+				[filter(
+					%va/FIL_NEWCOMMENTS[default(%#/JOBSN,0)],
+					lattr(%q0/COMMENT_*)
+				)]
+				=
+				{
+					@pemit %#=[u(%va/FN_READJOB,##,%q0)]};
+					@wait me={
+						@pemit %#=
+							[ifelse(
+								u(%va/IS_LOCKED,%q0),
+								u(%va/FN_FOOTER,u(%va/FN_FLAGS,%q0)),
+								[u(%va/FN_FOOTER,New Activity on Job %0 since [convsecs(%q1)])])][u(%va/FN_READERS,%q0,%#
+							)]
+				};
+				@notify me}
+-
 
-&CMD_JOB/PUBLISH Job Global Object <JGO>=$+job/publish *:@switch [eq(words(%0,=),1)][setq(0,locate(%va,Job %0,i))][u(%va/HAS_ACCESS,%#)][isdbref(%q0)][u(%q0/ACCESS,%#)][hasattrp(%q0,PUBLIC)][not(u(%q0/LOCKED))][eq(u(%q0/PUBLISH),1)]=0*,@@,10*,{@pemit %#=Permission denied.},110*,{@pemit %#=There is no job by that number.},1110*,{@pemit %#=You do not have access to that job.},11110*,{@pemit %#=That job is not in a bucket that is accessible to +myjobs, so publication is moot.},111110*,{@pemit %#=That job must be unlocked before it can be modified.},1111110*,{@pemit %#=You have published Job %0.;&PUBLISH %q0=1;@trigger %va/TRIG_ADD=%q0,Published by %n.,%#,PUB;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 published by %n.},{@pemit %#=Job %0 will now no longer be published.;&PUBLISH %q0=0;@trigger %va/TRIG_ADD=%q0,Unpublished by %n.,%#,UNP;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 unpublished by %n.}
+&CMD_JOB/PUBLISH Job Global Object <JGO>=
+$+job/publish *:
+	@switch 
+		[eq(words(%0,=),1)]
+		[setq(0,locate(%va,Job %0,i))]
+		[u(%va/HAS_ACCESS,%#)]
+		[isdbref(%q0)][u(%q0/ACCESS,%#)]
+		[hasattrp(%q0,PUBLIC)]
+		[not(u(%q0/LOCKED))]
+		[eq(u(%q0/PUBLISH),1)]
+		=
+		0*,@@,
+		10*,{@pemit %#=Permission denied.},
+		110*,{@pemit %#=There is no job by that number.},
+		1110*,{@pemit %#=You do not have access to that job.},
+		11110*,{@pemit %#=That job is not in a bucket that is accessible to +myjobs, so publication is moot.},
+		111110*,{@pemit %#=That job must be unlocked before it can be modified.},
+		1111110*,
+		{
+			@pemit %#=You have published Job %0.;
+			&PUBLISH %q0=1;
+			@trigger %va/TRIG_ADD=%q0,Published by %n.,%#,PUB;
+			@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 published by %n.
+		},
+		{
+			@pemit %#=Job %0 will now no longer be published.;
+			&PUBLISH %q0=0;
+			@trigger %va/TRIG_ADD=%q0,Unpublished by %n.,%#,UNP;
+			@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 unpublished by %n.
+		}
+-
 
-&CMD_JOB/PUBLISH2 Job Global Object <JGO>=$+job/publish *=*:@switch [setq(0,locate(%va,Job %0,i))][and(u(%va/HAS_ACCESS,%#),u(%va/EDIT_ACCESS,%#))][isdbref(%q0)][u(%q0/ACCESS,%#)][not(u(%va/IS_LOCKED,%q0))][u(%va/IS_PUBLIC,%q0)][hasattrp(%q0,COMMENT_%1)][hasflag(%q0/COMMENT_%1,no_inherit)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no job by that number.},110*,{@pemit %#=You do not have access to that job.},1110*,{@pemit %#=That job must be unlocked before modifications can be made.},11110*,{@pemit %#=That job is not in a bucket that is accessible to +myjobs, so publication is moot.},111110*,{@pemit %#=That is not a valid comment number.},1111110*,{@pemit %#=You have published Comment %1 on Job %0.;@set %q0/COMMENT_%1=no_inherit;@trigger %va/TRIG_ADD=%q0,Comment [secure(%1)] published by %n.,%#,PUB;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job [secure(%0)]/Comment [secure(%1)] published by %n.},{@pemit %#=Job %0/Comment %1 will no longer be published.;@set %q0/COMMENT_%1=!no_inherit;@trigger %va/TRIG_ADD=%q0,Comment [secure(%1)] Unpublished by %n.,%#,UNP;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job [secure(%0)]/Comment [secure(%1)] unpublished by %n.}
+&CMD_JOB/PUBLISH2 Job Global Object <JGO>=
+$+job/publish *=*:
+	@switch 
+		[setq(0,locate(%va,Job %0,i))]
+		[and(
+			u(%va/HAS_ACCESS,%#),
+			u(%va/EDIT_ACCESS,%#)
+		)]
+		[isdbref(%q0)]
+		[u(%q0/ACCESS,%#)]
+		[not(u(%va/IS_LOCKED,%q0))]
+		[u(%va/IS_PUBLIC,%q0)]
+		[hasattrp(%q0,COMMENT_%1)]
+		[hasflag(%q0/COMMENT_%1,no_inherit)]
+		=
+		0*,{@pemit %#=Permission denied.},
+		10*,{@pemit %#=There is no job by that number.},
+		110*,{@pemit %#=You do not have access to that job.},
+		1110*,{@pemit %#=That job must be unlocked before modifications can be made.},
+		11110*,{@pemit %#=That job is not in a bucket that is accessible to +myjobs, so publication is moot.},
+		111110*,{@pemit %#=That is not a valid comment number.},
+		1111110*,
+		{
+			@pemit %#=You have published Comment %1 on Job %0.;
+			@set %q0/COMMENT_%1=no_inherit;
+			@trigger %va/TRIG_ADD=%q0,Comment [secure(%1)] published by %n.,%#,PUB;
+			@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job [secure(%0)]/Comment [secure(%1)] published by %n.
+		},
+		{
+			@pemit %#=Job %0/Comment %1 will no longer be published.;
+			@set %q0/COMMENT_%1=!no_inherit;
+			@trigger %va/TRIG_ADD=%q0,Comment [secure(%1)] Unpublished by %n.,%#,UNP;
+			@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job [secure(%0)]/Comment [secure(%1)] unpublished by %n.
+		}
+-
 
-&CMD_JOB/QUERY Job Global Object <JGO>=$+job/query */*=*:@switch [and(u(%va/HAS_ACCESS,%#),u(%va/MAIL_ACCESS,%#))]=0*,{@pemit %#=Permission denied.},{@switch [map(%va/MAP_ISPLAYER,%0)]=*0*,{@pemit %#=There is a problem with the player list.},{@pemit %#=[setq(a,map(%va/MAP_PMATCH,%0,%b,|))]You have sent a query to '%0' regarding '%1'.;@trigger %va/TRIG_CREATE=%#,locate(%vc,QUERY,i),2,[strtrunc(secure(%1),30)],Queried [u(%va/FN_PRETTY,map(%va/MAP_NAME,%qa,|,|),|)]:%r%r[strtrunc(%2,get(%va/BUFFER))],[edit(%qa,|,%b)],,0}}
+&CMD_JOB/QUERY Job Global Object <JGO>=
+$+job/query */*=*:
+	@switch 
+		[and(
+			u(%va/HAS_ACCESS,%#),
+			u(%va/MAIL_ACCESS,%#)
+		)]
+		=
+		0*,{@pemit %#=Permission denied.},
+		{
+			@switch 
+				[map(%va/MAP_ISPLAYER,%0)]
+				=
+				*0*,{@pemit %#=There is a problem with the player list.},
+				{
+					@pemit %#=[setq(a,map(%va/MAP_PMATCH,%0,%b,|))]You have sent a query to '%0' regarding '%1'.;
+					@trigger %va/TRIG_CREATE=%#,locate(%vc,QUERY,i),2,[strtrunc(secure(%1),30)],Queried [u(%va/FN_PRETTY,map(%va/MAP_NAME,%qa,|,|),|)]:%r%r[strtrunc(%2,get(%va/BUFFER))],[edit(%qa,|,%b)],,0
+				}
+		}
+-
 
-&CMD_JOB/SET Job Global Object <JGO>=$+job/set *=*:@switch [u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %0,i))][setq(2,dec(member(setr(a,HOLD NEW UNDERWAY 25 50 75 100),ucstr(%1))))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)][and(isnum(%q2),gt(%q2,-1),lt(%q2,7))][not(u(%va/IS_LOCKED,%q0))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That is not a valid job.},110*,{@pemit %#=You do not have access to that job.},1110*,{@pemit %#=That is an invalid setting. Valid job settings are:%r[itemize(lcstr(%qa))].},11110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@pemit %#=You set Job Number [secure(%0)] to [setq(1,switch(%q2,0,ON HOLD,1,NEW,2,UNDERWAY,3,1/4 COMPLETE,4,1/2 COMPLETE,5,3/4 COMPLETE,COMPLETE))]%q1 status.;&STATUS %q0=%q2;@trigger %va/TRIG_ADD=%q0,Set to %q1.,%#,STA;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Status set to %q1 on Job %0.}
+&CMD_JOB/SET Job Global Object <JGO>=
+$+job/set *=*:
+	@switch 
+		[u(%va/HAS_ACCESS,%#)]
+		[setq(0,locate(%va,Job %0,i))]
+		[setq(2,dec(member(setr(a,HOLD NEW UNDERWAY 25 50 75 100),ucstr(%1))))]
+		[isdbref(%q0)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[and(isnum(%q2),gt(%q2,-1),lt(%q2,7))]
+		[not(u(%va/IS_LOCKED,%q0))]
+		=
+		0*,{@pemit %#=Permission denied.},
+		10*,{@pemit %#=That is not a valid job.},
+		110*,{@pemit %#=You do not have access to that job.},
+		1110*,{@pemit %#=That is an invalid setting. Valid job settings are:%r[itemize(lcstr(%qa))].},
+		11110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},
+		{
+			@pemit %#=You set Job Number [secure(%0)] to [setq(1,switch(%q2,0,ON HOLD,1,NEW,2,UNDERWAY,3,1/4 COMPLETE,4,1/2 COMPLETE,5,3/4 COMPLETE,COMPLETE))]%q1 status.;
+			&STATUS %q0=%q2;
+			@trigger %va/TRIG_ADD=%q0,Set to %q1.,%#,STA;
+			@trigger %va/TRIG_BROADCAST=[parent(%q0)],Status set to %q1 on Job %0.
+		}
+-
 
-&CMD_JOB/SOURCE Job Global Object <JGO>=$+job/source *=*:@switch [setq(0,locate(%va,Job %0,i))][isdbref(%q0)][u(%va/HAS_ACCESS,%#)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)][not(u(%va/IS_LOCKED,%q0))][setq(1,map(%va/MAP_SOURCE,secure(%1)))][setq(2,member(%q1,#-1))][ifelse(gt(%q2,0),0,1)]=0*,{@pemit %#=There is no job by that number.},10*,{@pemit %#=Permission denied.},110*,{@pemit %#=Permission denied.},1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},11110*,{@pemit %#='[extract(secure(%1),%q2,1)]' is not a valid player.},{&opened_by %q0=%q1;@pemit %#=You have set job #%0 to have a source of [u(%va/FN_PLAYERLIST,%q0)].;@trigger %va/TRIG_ADD=%q0,Source changed to [u(%va/FN_PLAYERLIST,%q0)].,%#,SRC;@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 source changed by %n.}
+&CMD_JOB/SOURCE Job Global Object <JGO>=
+$+job/source *=*:
+	@switch 
+		[setq(0,locate(%va,Job %0,i))]
+		[isdbref(%q0)]
+		[u(%va/HAS_ACCESS,%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[not(u(%va/IS_LOCKED,%q0))]
+		[setq(1,map(%va/MAP_SOURCE,secure(%1)))]
+		[setq(2,member(%q1,#-1))]
+		[ifelse(gt(%q2,0),0,1)]
+		=
+		0*,{@pemit %#=There is no job by that number.},
+		10*,{@pemit %#=Permission denied.},
+		110*,{@pemit %#=Permission denied.},
+		1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},
+		11110*,{@pemit %#='[extract(secure(%1),%q2,1)]' is not a valid player.},
+		{
+			&opened_by %q0=%q1;
+			@pemit %#=You have set job #%0 to have a source of [u(%va/FN_PLAYERLIST,%q0)].;
+			@trigger %va/TRIG_ADD=%q0,Source changed to [u(%va/FN_PLAYERLIST,%q0)].,%#,SRC;
+			@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 source changed by %n.
+		}
+-
 
-&CMD_JOB/SUMMARY Job Global Object <JGO>=$+job/summary *:@switch [u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %0,i))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no job by that name. Please type '[ansi(h,+jobs/all)]' for all jobs or '[ansi(h,+jobs/list <bucket>)]' to list by bucket.},110*,{@pemit %#=You do not have access to that job.},{@pemit %#=[u(%va/FN_HEADER,View [name(%q0)])]%r[ulocal(%va/FN_BANNER,%q0)][ifelse(hasattrp(%q0,SUMMARY),[ulocal(%va/FN_SUMMARY,%q0)],)][ifelse(u(%va/FN_WIZONLY,%#),[ulocal(%va/FN_STAFFSUM,%q0)],)];@wait me={@pemit %#=[u(%va/FN_FOOTER,u(%va/FN_FLAGS,%q0))]};@notify me}
+&CMD_JOB/SUMMARY Job Global Object <JGO>=
+$+job/summary *:
+	@switch 
+		[u(%va/HAS_ACCESS,%#)]
+		[setq(0,locate(%va,Job %0,i))]
+		[isdbref(%q0)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		=
+		0*,{@pemit %#=Permission denied.},
+		10*,{@pemit %#=There is no job by that name. Please type '[ansi(h,+jobs/all)]' for all jobs or '[ansi(h,+jobs/list <bucket>)]' to list by bucket.},
+		110*,{@pemit %#=You do not have access to that job.},
+		{
+			@pemit %#=
+				[u(%va/FN_HEADER,View [name(%q0)])]%r
+				[ulocal(%va/FN_BANNER,%q0)]
+				[ifelse(
+					hasattrp(%q0,SUMMARY),
+					[ulocal(%va/FN_SUMMARY,%q0)],
+				)]
+				[ifelse(
+					u(%va/FN_WIZONLY,%#),
+					[ulocal(%va/FN_STAFFSUM,%q0)],
+				)];
+			@wait me=
+			{
+				@pemit %#=[u(%va/FN_FOOTER,u(%va/FN_FLAGS,%q0))]
+			};
+			@notify me
+		}
+-
 
-&CMD_JOB/SUMSET Job Global Object <JGO>=$+job/sumset */*=*:@switch [setq(5,0)][setq(0,locate(%va,Job %0,i))][u(%va/HAS_ACCESS,%#)][isdbref(%q0)][hasattrp(%q0,ACCESS_%1)][and(u(%va/CONFIG_ACCESS,%#),u(%q0/ACCESS_%1,%#))][not(u(%va/IS_LOCKED,%q0))][u(%q0/PROCESS_%1,%2,%q0,%#)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no such job. See '[ansi(h,+jobs)]' for a list of valid jobs.},110*,{@pemit %#='%1' is not a valid parameter. Valid parameters for [name(%q0)] are [u(%va/FN_PRETTY,map(%va/MAP_PARAMS,lattr(parent(%q0)/PROCESS_*)))].},1110*,{@pemit %#=You either can not use the +job/sumset command, or set that parameter.},11110*,{@pemit %#=That job is locked. It cannot be modified until it is unlocked.},111110*,{@pemit %#=[u(%q0/ERROR_%1%q2)]},{@trigger %va/TRIG_BROADCAST=[parent(%q0)],[name(%q0)]'s [ucstr(%1)] parameter updated by %n.;&%q3 %q0=%q1;@trigger %va/TRIG_ADD=%q0,[ucstr(%1)] parameter updated to '%2',%#,SUM}
+&CMD_JOB/SUMSET Job Global Object <JGO>=
+$+job/sumset */*=*:@switch [setq(5,0)][setq(0,locate(%va,Job %0,i))][u(%va/HAS_ACCESS,%#)][isdbref(%q0)][hasattrp(%q0,ACCESS_%1)][and(u(%va/CONFIG_ACCESS,%#),u(%q0/ACCESS_%1,%#))][not(u(%va/IS_LOCKED,%q0))][u(%q0/PROCESS_%1,%2,%q0,%#)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no such job. See '[ansi(h,+jobs)]' for a list of valid jobs.},110*,{@pemit %#='%1' is not a valid parameter. Valid parameters for [name(%q0)] are [u(%va/FN_PRETTY,map(%va/MAP_PARAMS,lattr(parent(%q0)/PROCESS_*)))].},1110*,{@pemit %#=You either can not use the +job/sumset command, or set that parameter.},11110*,{@pemit %#=That job is locked. It cannot be modified until it is unlocked.},111110*,{@pemit %#=[u(%q0/ERROR_%1%q2)]},{@trigger %va/TRIG_BROADCAST=[parent(%q0)],[name(%q0)]'s [ucstr(%1)] parameter updated by %n.;&%q3 %q0=%q1;@trigger %va/TRIG_ADD=%q0,[ucstr(%1)] parameter updated to '%2',%#,SUM}
 
 &CMD_JOB/TAG Job Global Object <JGO>=$+job/tag *:@switch [switch(strmatch(%0,*=*),1,[setq(8,secure(first(%0,=)))][setq(9,secure(rest(%0,=)))],[setq(8,secure(%0))][setq(9,%#)])][setq(7,iter(%q9,pmatch(##)))][setq(6,trim(squish(iter(%q9,if(not(isdbref(pmatch(##))),I don't recognize '##' as a player.)))))][u(%va/HAS_ACCESS,%#)][setq(0,locate(%va,Job %q8,i))][isdbref(%q0)][u(%va/FN_ACCESSCHECK,parent(%q0),%#)][not(u(%va/IS_LOCKED,%q0))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That is an invalid job number.},110*,{@pemit %#=You do not have access to that job.},1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@switch gt(strlen(%q6),0)=1,@pemit %#=%q6,{@switch [strlen(setdiff(%q7,get(%q0/tagged_for)))]=0,{@pemit %#={[name(%q0)] is already tagged for the named player(s): [iter(%q7,name(##))]}},{&tagged_for %q0=[setunion(get(%q0/tagged_for),%q7)];@trigger %va/TRIG_ADD=%q0,Added tags for [setr(5,iter(%q7,name(##)))],%#,TAG,%q7;@trigger %va/TRIG_BROADCAST=[parent(%q0)],[name(%q0)] updated - tagged by %n for %q5.;@pemit %#={Job %q8 updated - tags added. Now tagged for: [iter(get(%q0/tagged_for),name(##))]}}}}
 
@@ -1258,167 +1604,204 @@ $+job/esc *=*:
 
 &CHROME_SUMMARY Job Database <JD>=%r[repeat(_,79)]%r[u(parent(%0)/SUMMARY,%0)]
 
-@@ -------------------------------------------------------------------
 
-@@ Version/Etc
 
-@@
 
-@@ -------------------------------------------------------------------
+# Version/Etc
 
 &CREDITS Job Database <JD>=Starfleet@Anomaly (eye1movies@aol.com)
+-
 
 &MAINTAINER Job Database <JD>=Halmar@Gamma One (grey419@gmail.com)
+-
 
 &LICENSE Job Database <JD>=Contributors: Firestorm@Ephemera, Grey@Anomaly, Ian@MUX%r%rYou may port this code to any game provided that these credits remain intact. Please report any and all bugs, feedback or whatnot to the email address provided above. The most recent version of this code can be found at project's home: http://code.google.com/p/anomalyjobs/
+-
 
 &RELEASE Job Database <JD>=Jan 9, 2007
+-
 
 &VERSION Job Database <JD>=v5.2
+-
 
 &VERSION Job Parent Object <JPO>=v5.2
+-
 
-@@
 
-@@ -------------------------------------------------------------------
 
-@@ Job Tracker
 
-@@
+#
+Job Tracker Setup
 
-@@ Please do not rename this object. It will break future patches.
+@desc Job Tracker=%r[columns(sort(lattr(me/*)),18)]%r%r[center(Please do not rename this object.,79)]
+0
 
-@@
-
-@@ -------------------------------------------------------------------
-
-@Desc Job Tracker=%r[columns(sort(lattr(me/*)),18)]%r%r[center(Please do not rename this object.,79)]
-
-@swi first(version())=RhostMUSH,{&TRIG_MAIL Job Tracker=mail %[remove%(%%0,owner%(me%)%)%]=%%1//%%2},{&TRIG_MAIL Job Tracker=@mail/quick %[remove%(%%0,owner%(me%)%)%]/%%1=%%2}
+@swich 
+	first(version())
+	=
+	RhostMUSH,{&TRIG_MAIL Job Tracker=mail %[remove%(%%0,owner%(me%)%)%]=%%1//%%2},
+	{&TRIG_MAIL Job Tracker=@mail/quick %[remove%(%%0,owner%(me%)%)%]/%%1=%%2}
+-
 
 &TRIG_POST Job Tracker=+bbpost %0/%1=%2
+-
 
-@@
 
-@@ -------------------------------------------------------------------
 
-@@ Job Parent Object <JPO>
-
-@@
-
-@@ Please do not rename this object. It will break future patches.
-
-@@
-
-@@ -------------------------------------------------------------------
+# Job Parent Object <JPO> Setup
 
 @pemit %#=[ansi(hc,ANOMALY JOBS:)] Setting up master parent.
+-
 
-@@
+@daily Job Parent Object <JPO>=
+	@dolist 
+		lcon(me)
+		={
+			@switch 
+				[hasattr(##,HOOK_AUT)]
+				=1,{@trigger ##/HOOK_AUT=[trim(## [children(##)],b)],[owner(%va)]}
+		 }
+-
 
-@Daily Job Parent Object <JPO>=@dolist lcon(me)={@switch [hasattr(##,HOOK_AUT)]=1,{@trigger ##/HOOK_AUT=[trim(## [children(##)],b)],[owner(%va)]}}
-
-@@
 
 &ACCESS Job Parent Object <JPO>=[u(%va/FN_STAFFALL,%#)]
+-
 
 &ACCESS_DESC Job Parent Object <JPO>=[u(%va/FN_STAFFALL,%0)]
+-
 
 &ACCESS_HELP Job Parent Object <JPO>=[u(%va/FN_STAFFALL,%0)]
+-
 
 &ACCESS_HIDDEN Job Parent Object <JPO>=[u(%va/FN_WIZONLY,%0)]
+-
 
 &ACCESS_LOCKED Job Parent Object <JPO>=[u(%va/FN_WIZONLY,%0)]
+-
 
 &ACCESS_LOGFILE Job Parent Object <JPO>=[u(%va/FN_WIZONLY,%0)]
+-
 
 &ACCESS_MYJOBS Job Parent Object <JPO>=[u(%va/FN_WIZONLY,%0)]
+-
 
 &ACCESS_POST_APPROVE Job Parent Object <JPO>=[u(%va/FN_WIZONLY,%0)]
+-
 
 &ACCESS_POST_COMPLETE Job Parent Object <JPO>=[u(%va/FN_WIZONLY,%0)]
+-
 
 &ACCESS_POST_DENY Job Parent Object <JPO>=[u(%va/FN_WIZONLY,%0)]
+-
 
 &ACCESS_TURNAROUND Job Parent Object <JPO>=[u(%va/FN_WIZONLY,%0)]
+-
 
 &ERROR_HIDDEN Job Parent Object <JPO>=Valid options for the HIDDEN parameter are 'yes' and 'no'.
+-
 
 &ERROR_LOCKED Job Parent Object <JPO>=Valid settings for the LOCKED parameter are 'yes' and 'no'.
+-
 
 &ERROR_MYJOBS Job Parent Object <JPO>=Valid settings for the MYJOBS parameter are 'yes' and 'no'.
+-
 
 &ERROR_POST_APPROVE Job Parent Object <JPO>=The setting for the POST_APPROVE parameter must be a positive integer.
+-
 
 &ERROR_POST_COMPLETE Job Parent Object <JPO>=The setting for the POST_COMPLETE parameter must be a positive integer.
+-
 
 &ERROR_POST_DENY Job Parent Object <JPO>=The setting for the POST_DENY parameter must be a positive integer.
+-
 
 &ERROR_TURNAROUND Job Parent Object <JPO>=You must provide a turnaround time in hours.
+-
 
 &HELP Job Parent Object <JPO>=%rThere is no help available for that bucket. To set help information for the [name(me)] bucket, use:%r%r[space(5)]+bucket/set [lcstr(name(me))]/help=<information>%r
+-
 
-@@
-
-@@ The following hook is necessary so that /mail comments show up visible in +myjobs.
-
-@@
 
 &HOOK_MAI Job Parent Object <JPO>=@set %0/[last(lattr(%0/COMMENT_*))]=no_inherit
+-
 
-@@
-
-@@ The following are the letters that the system sends out to the player.
-
-@@
 
 &MLETTER_APR Job Parent Object <JPO>=[name(%0)] has been approved:%r%r[last(get(%0/COMMENT_1),|)]%r[repeat(-,75)]%r[ansi(h,Comments added by [name(%2)]:)] %3
+-
 
 &MLETTER_DNY Job Parent Object <JPO>=[name(%0)] has been denied:%r%r[last(get(%0/COMMENT_1),|)]%r[repeat(-,75)]%r[ansi(h,Comments added by [name(%2)]:)] %3
+-
 
 &MLETTER_MAI Job Parent Object <JPO>=[name(%2)] is mailing you regarding [name(%0)]:%r%r%3%r[repeat(-,75)]%rUnless this letter indicates otherwise%, you should respond with the following command:%r%r[space(5)]%xh+myjob/add [last(name(%0))]=<your comments>%xn
+-
 
-@@
+&PLETTER_APR Job Parent Object <JPO>=
+	[space(10)]%xhJob:%xn #[last(name(%0))]%r
+	[space(8)]%xhTitle:%xn [get(%0/TITLE)]%r
+	[space(4)]%xhOpened By:%xn [u(%va/FN_PLAYERLIST,%0)]%r
+	[space(4)]%xhOpened On:%xn [convsecs(get(%0/OPENED_ON))]%r
+	%b%xhCompleted By:%xn [name(%2)]%r%b%xhCompleted On:%xn [time()]%r%r
+	[last(get(%0/COMMENT_1),|)]%r
+	[repeat(-,78)]%r
+	[ansi(h,Comments from [name(%2)]:)] %3%r%r
+	This job was approved.
+-
 
-@@ The following are bbposts the system makes.
+&PLETTER_COM Job Parent Object <JPO>=
+	Job [last(name(%0))] has been completed by [name(%2)]:%r%r[last(get(%0/COMMENT_1),|)]%r[repeat(-,78)]%r[ansi(h,Comments from [name(%2)]:)] %3
+-
 
-@@
-
-&PLETTER_APR Job Parent Object <JPO>=[space(10)]%xhJob:%xn #[last(name(%0))]%r[space(8)]%xhTitle:%xn [get(%0/TITLE)]%r[space(4)]%xhOpened By:%xn [u(%va/FN_PLAYERLIST,%0)]%r[space(4)]%xhOpened On:%xn [convsecs(get(%0/OPENED_ON))]%r%b%xhCompleted By:%xn [name(%2)]%r%b%xhCompleted On:%xn [time()]%r%r[last(get(%0/COMMENT_1),|)]%r[repeat(-,78)]%r[ansi(h,Comments from [name(%2)]:)] %3%r%rThis job was approved.
-
-&PLETTER_COM Job Parent Object <JPO>=Job [last(name(%0))] has been completed by [name(%2)]:%r%r[last(get(%0/COMMENT_1),|)]%r[repeat(-,78)]%r[ansi(h,Comments from [name(%2)]:)] %3
-
-&PLETTER_DNY Job Parent Object <JPO>=[space(10)]%xhJob:%xn #[last(name(%0))]%r[space(8)]%xhTitle:%xn [get(%0/TITLE)]%r[space(4)]%xhOpened By:%xn [u(%va/FN_PLAYERLIST,%0)]%r[space(4)]%xhOpened On:%xn [convsecs(get(%0/OPENED_ON))]%r%b%xhCompleted By:%xn [name(%2)]%r%b%xhCompleted On:%xn [time()]%r%r[last(get(%0/COMMENT_1),|)]%r[repeat(-,78)]%r[ansi(h,Comments from [name(%2)]:)] %3%r%rThis job was denied.
-
-@@
+&PLETTER_DNY Job Parent Object <JPO>=
+	[space(10)]%xhJob:%xn #[last(name(%0))]%r
+	[space(8)]%xhTitle:%xn [get(%0/TITLE)]%r
+	[space(4)]%xhOpened By:%xn [u(%va/FN_PLAYERLIST,%0)]%r
+	[space(4)]%xhOpened On:%xn [convsecs(get(%0/OPENED_ON))]%r
+	%b%xhCompleted By:%xn [name(%2)]%r%b%xhCompleted On:%xn [time()]%r%r
+	[last(get(%0/COMMENT_1),|)]%r
+	[repeat(-,78)]%r
+	[ansi(h,Comments from [name(%2)]:)] %3%r%r
+	This job was denied.
+-
 
 &PROCESS_DESC Job Parent Object <JPO>=[setq(3,DESC)][setq(1,%0)]1
+-
 
 &PROCESS_HELP Job Parent Object <JPO>=[setq(3,HELP)][setq(1,%0)]1
+-
 
 &PROCESS_HIDDEN Job Parent Object <JPO>=[setq(3,HIDDEN)][setq(1,switch(lcstr(%0),yes,1,no,,0))][switch(%q1,,1,%q1)]
+-
 
 &PROCESS_LOCKED Job Parent Object <JPO>=[setq(3,LOCKED)][setq(1,switch(lcstr(%0),yes,1,no,,0))][switch(%q1,,1,%q1)]
+-
 
 &PROCESS_LOGFILE Job Parent Object <JPO>=[setq(3,LOGFILE)][setq(1,%0)]1
+-
 
 &PROCESS_MYJOBS Job Parent Object <JPO>=[setq(3,PUBLIC)][setq(1,switch(lcstr(%0),yes,1,no,,0))][switch(%q1,,1,%q1)]
+-
 
 &PROCESS_POST_APPROVE Job Parent Object <JPO>=[setq(3,POST_APPROVE)][setq(1,%0)][gt(%0,0)]
+-
 
 &PROCESS_POST_COMPLETE Job Parent Object <JPO>=[setq(3,POST_COMPLETE)][setq(1,%0)][gt(%0,0)]
+-
 
 &PROCESS_POST_DENY Job Parent Object <JPO>=[setq(3,POST_DENY)][setq(1,%0)][gt(%0,0)]
+-
 
 &PROCESS_TURNAROUND Job Parent Object <JPO>=[setq(3,TURNAROUND)][setq(1,%0)][isnum(%0)]
+-
 
-@@
 
 @cpattr %#/JOB_VA=Job Parent Object <JPO>/VA
+-
 
 @cpattr %#/JOB_VB=Job Parent Object <JPO>/VB
+-
 
 @cpattr %#/JOB_VC=Job Parent Object <JPO>/VC
+-
 
 
 # Bucket Setup
