@@ -30,3 +30,4 @@ Version 5.2
 - Changed the @aconnect. Issue 20.
 - Moved most of the installation instructions from the install file into the
   README files. 29.
+- Changed the install file name to remove version reference.

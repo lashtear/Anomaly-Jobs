@@ -24,3 +24,4 @@ Version 5.2
 - Updated version in README to 5.2
 - Updated version in install file t 5.2
 - Added +bucket/check with entries in the jhelp.txt file. Issue 15.
+- Changed the file name of the patch to remove version reference.
