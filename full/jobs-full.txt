@@ -2770,33 +2770,350 @@ $+typo *:
 	)]
 -
 
-&MAP_STAT_STATUS Job Database <JD>=[ifelse(u(%va/FIL_OVERDUE,%0),setq(7,inc(%q7)),switch(default(%0/STATUS,1),1,setq(1,inc(%q1)),2,setq(2,inc(%q2)),3,setq(3,inc(%q3)),4,setq(4,inc(%q4)),5,setq(5,inc(%q5)),6,setq(6,inc(%q6)),setq(0,inc(%q0))))]
+&MAP_STAT_STATUS Job Database <JD>=
+	[ifelse(
+		u(%va/FIL_OVERDUE,%0),
+		setq(7,inc(%q7)),
+		switch(
+			default(%0/STATUS,1),
+			1,setq(1,inc(%q1)),
+			2,setq(2,inc(%q2)),
+			3,setq(3,inc(%q3)),
+			4,setq(4,inc(%q4)),
+			5,setq(5,inc(%q5)),
+			6,setq(6,inc(%q6)),
+			setq(0,inc(%q0))
+		)
+	)]
+-
 
-&MYJOBS_HEADER Job Database <JD>=[center(| [ansi(hy,Anomaly Jobs [get(%va/VERSION)])] |,79,=)]%r[ansi(hc,*%b%b[ljust(Job#,5)][ljust(Description,41)][ljust(Assigned To,17)]Status)]%r[repeat(-,79)]
+&MYJOBS_HEADER Job Database <JD>=
+	[center(| [ansi(hy,Anomaly Jobs [get(%va/VERSION)])] |,79,=)]%r
+	[ansi(hc,*%b%b
+		[ljust(Job#,5)]
+		[ljust(Description,41)]
+		[ljust(Assigned To,17)]
+		Status
+	)]%r
+	[repeat(-,79)]
+-
 
-&REPORT_ACTBY Job Database <JD>=[switch(%0,,This report requires you to supply an action code.%r%rUse: '+jobs/reports ACTBY=<action code>'.%r,[setq(0,squish(iter(lcon(%vc),ifelse(eq(words(grab(u(##/LIST_STATS),%0|*)),0),,##))))][setq(1,squish(iter(%q0,rest(grab(u(##/LIST_STATS),%0|*),|))))][ifelse(lt(words(%q1),1),There is no action code '[ucstr(%0)]' presently in the system.%r,[ulocal(FN_BARGRAPH,%q1,10,2,16,#)]%r[space(4)][iter(%q0,[center(name(##),2)])]%r%r[center([ucstr(%0)] Actions by Bucket,79)])])]
+&REPORT_ACTBY Job Database <JD>=
+	[switch(
+		%0,
+		,This report requires you to supply an action code.%r%rUse: '+jobs/reports ACTBY=<action code>'.%r,
+		[setq(0,
+			squish(
+				iter(
+					lcon(%vc),
+					ifelse(
+						eq(words(grab(u(##/LIST_STATS),%0|*)),0),
+						,##
+					)
+				)
+			)
+		)]
+		[setq(1,
+			squish(
+				iter(
+					%q0,
+					rest(grab(u(##/LIST_STATS),%0|*),|)
+				)
+			)
+		)]
+		[ifelse(
+			lt(words(%q1),1),
+			There is no action code '[ucstr(%0)]' presently in the system.%r,
+			[ulocal(FN_BARGRAPH,%q1,10,2,16,#)]%r
+				[space(4)]
+				[iter(
+					%q0,
+					[center(name(##),2)]
+				)]
+				%r%r[center([ucstr(%0)] Actions by Bucket,79)]
+		)]
+	)]
+-
 
-&REPORT_ACTIONS Job Database <JD>=[localize([ulocal(FN_BARGRAPH,map(MAP_ACTIONS,v(LIST_STATS)),15,2,16,#)]%r[space(4)][setq(1,map(MAP_ACTIONS2,sort(v(LIST_STATS))))][iter(%q1,[mid(##,0,1)]%b)]%r[space(4)][iter(%q1,[mid(##,1,1)]%b)]%r[space(4)][iter(%q1,[mid(##,2,1)]%b)])]%r%r[center(Number of Actions Performed Since [v(INSTALL_DATE)],79)]
+&REPORT_ACTIONS Job Database <JD>=
+	[localize(
+		[ulocal(FN_BARGRAPH,
+			map(MAP_ACTIONS,v(LIST_STATS)),
+			15,
+			2,
+			16,
+			#
+		)]%r
+		[space(4)]
+		[setq(1,map(MAP_ACTIONS2,sort(v(LIST_STATS))))]
+		[iter(
+			%q1,
+			[mid(##,0,1)]%b
+		)]%r
+		[space(4)]
+		[iter(
+			%q1,
+			[mid(##,1,1)]%b
+		)]%r
+		[space(4)]
+		[iter(
+			%q1,
+			[mid(##,2,1)]%b
+		)]
+	)]
+	%r%r
+	[center(Number of Actions Performed Since [v(INSTALL_DATE)],79)]
+-
 
-&REPORT_ARTS Job Database <JD>=[list(sortby(%va/SORTBY_NAME,lcon(%vc)),[ifelse(hasattr(##,STAT_ART),u(%va/FN_TIME,fdiv(first(get(##/STAT_ART)),rest(get(##/STAT_ART)))),[rjust(-,11)])]%b[ljust(ansi(hc,[name(##)]),20)])][rjust(u(%va/FN_TIME,fdiv(first(get(%vc/STAT_ART)),rest(get(%vc/STAT_ART)))),11)] [ansi(hy,Total ART)]%r[center(Average Resolution Times by Bucket,79)]
+&REPORT_ARTS Job Database <JD>=
+	[list(
+		sortby(
+			%va/SORTBY_NAME,
+			lcon(%vc)
+		),
+		[ifelse(
+			hasattr(##,STAT_ART),
+			u(%va/FN_TIME,
+				fdiv(first(get(##/STAT_ART)),rest(get(##/STAT_ART)))
+			),
+			[rjust(-,11)]
+		)]%b
+		[ljust(ansi(hc,[name(##)]),20)]
+	)]
+	[rjust(
+		u(%va/FN_TIME,
+			fdiv(first(get(%vc/STAT_ART)),rest(get(%vc/STAT_ART)))
+		),
+		11
+	)]%b
+	[ansi(hy,Total ART)]%r
+	[center(Average Resolution Times by Bucket,79)]
+-
 
-&REPORT_ARTSGRAPH Job Database <JD>=[setq(0,iter(setr(1,sortby(%va/SORTBY_NAME,lcon(%vc))),ifelse(hasattr(##,STAT_ART),[div(fdiv(first(get(##/STAT_ART)),rest(get(##/STAT_ART))),86400)],0)))][ulocal(%va/FN_BARGRAPH,%q0,15,2,16,#)]%r[space(4)][iter(%q1,mid(name(##),0,2))]%r%r[center(Average Resolution Time by Bucket %(in days%),79)]
+&REPORT_ARTSGRAPH Job Database <JD>=
+	[setq(0,
+		iter(
+			setr(1,sortby(%va/SORTBY_NAME,lcon(%vc))),
+			ifelse(
+				hasattr(##,STAT_ART),
+				[div(
+					fdiv(
+						first(get(##/STAT_ART)),
+						rest(get(##/STAT_ART))
+					),
+					86400
+				)],
+				0
+			)
+		)
+	)]
+	[ulocal(%va/FN_BARGRAPH,%q0,15,2,16,#)]%r
+	[space(4)]
+	[iter(
+		%q1,
+		mid(name(##),0,2)
+	)]%r%r
+	[center(Average Resolution Time by Bucket %(in days%),79)]
+-
 
-&REPORT_BACT Job Database <JD>=[switch(%0,,This report requires you to supply a bucket name.%r%rUse: '+jobs/reports BACT=<bucket name>' to specify a bucket.%r,[setq(0,locate(%vc,%0,i))][ifelse(isdbref(%q0),[localize([ulocal(FN_BARGRAPH,map(MAP_ACTIONS,get(%q0/LIST_STATS)),15,1,16,#)]%r[space(4)][setq(1,map(MAP_ACTIONS2,sort(get(%q0/LIST_STATS))))][iter(%q1,mid(##,0,1))]%r[space(4)][iter(%q1,mid(##,1,1))]%r[space(4)][iter(%q1,mid(##,2,1))])]%r%r[center(Number of Actions Performed on Bucket [name(%q0)],79)],That is not a valid bucket name. See '+buckets' for a list of valid buckets.)])]
+&REPORT_BACT Job Database <JD>=
+	[switch(
+		%0,
+		,This report requires you to supply a bucket name.%r%rUse: '+jobs/reports BACT=<bucket name>' to specify a bucket.%r,
+		[setq(0,locate(%vc,%0,i))]
+		[ifelse(
+			isdbref(%q0),
+			[localize(
+				[ulocal(FN_BARGRAPH,map(MAP_ACTIONS,get(%q0/LIST_STATS)),15,1,	16,#)]%r
+				[space(4)]
+				[setq(1,
+					map(MAP_ACTIONS2,sort(get(%q0/LIST_STATS)))
+				)]
+				[iter(
+					%q1,
+					mid(##,0,1)
+				)]%r
+				[space(4)]
+				[iter(
+					%q1,
+					mid(##,1,1)
+				)]%r
+				[space(4)]
+				[iter(
+					%q1,
+					mid(##,2,1)
+				)]
+			)]%r%r
+			[center(Number of Actions Performed on Bucket [name(%q0)],79)],
+			That is not a valid bucket name. See '+buckets' for a list of valid buckets.
+		)]
+	)]
+-
 
-&REPORT_BUCKETS Job Database <JD>=[localize([ulocal(FN_BARGRAPH,iter(sortby(SORTBY_NAME,lcon(%vc)),words(children(##))),15,2,16,#)])]%r[space(4)][iter(sortby(SORTBY_NAME,lcon(%vc)),mid(name(##),0,2))]%r%r[center(# of Jobs in Buckets,79)]
+&REPORT_BUCKETS Job Database <JD>=
+	[localize(
+		[ulocal(
+			FN_BARGRAPH,
+			iter(
+				sortby(SORTBY_NAME,lcon(%vc)),
+				words(children(##))
+			)
+			,15,2,16,#
+		)]
+	)]%r
+	[space(4)]
+	[iter(
+		sortby(SORTBY_NAME,lcon(%vc)),
+		mid(name(##),0,2)
+	)]%r%r
+	[center(# of Jobs in Buckets,79)]
+-
 
-&REPORT_CLOSURE Job Database <JD>=[localize([setq(0,iter(APR DNY COM DEL,grab(get(%va/LIST_STATS),##|*)))][u(%va/FN_EASYPIE,10,u(%va/FN_ASSEMBLEPIE,map(MAP_ACTIONS,%q0),iter(map(MAP_ACTIONS2,%q0),case(##,APR,Approved,DNY,Denied,COM,Completed,Deleted))),|,10)])]
+&REPORT_CLOSURE Job Database <JD>=
+	[localize(
+		[setq(0,
+			iter(
+				APR DNY COM DEL,
+				grab(get(%va/LIST_STATS),##|*)
+			)
+		)]
+		[u(%va/FN_EASYPIE,
+			10,
+			u(%va/FN_ASSEMBLEPIE,
+				map(MAP_ACTIONS,%q0)
+				,iter(
+					map(MAP_ACTIONS2,%q0),
+					case(##,APR,Approved,DNY,Denied,COM,Completed,Deleted)
+				)
+			),
+			|,
+			10
+		)]
+	)]
+-
 
-&REPORT_CODES Job Database <JD>=[center(List of Action Codes:,79)]%r%r[setq(0,sort(get(%va/LIST_ACTIONS),b,|,|))][columns(%q0,25,|,2)]%r
+&REPORT_CODES Job Database <JD>=
+	[center(List of Action Codes:,79)]%r%r
+	[setq(0,sort(get(%va/LIST_ACTIONS),b,|,|))]
+	[columns(%q0,25,|,2)]%r
+-
 
-&REPORT_ESC Job Database <JD>=[localize([setq(z,[iter(lnum(1,3),setq(##,0))][map(%va/MAP_STAT_ESC,lcon(%va))])][u(FN_EASYPIE,10,@Gg:%q1:Green|#Yy:%q2:Yellow|.Rr:%q3:Red,|,16,45)])]%r%r[center(Job Escalation Colors,79)]%r
+&REPORT_ESC Job Database <JD>=
+	[localize(
+		[setq(z,
+			[iter(
+				lnum(1,3),
+				setq(##,0)
+			)]
+			[map(
+				%va/MAP_STAT_ESC,
+				lcon(%va)
+			)]
+		)]
+		[u(FN_EASYPIE,10,@Gg:%q1:Green|#Yy:%q2:Yellow|.Rr:%q3:Red,|,16,45)]
+	)]%r%r
+	[center(Job Escalation Colors,79)]%r
+-
 
-&REPORT_JACT Job Database <JD>=[switch(%0,,This report requires you to supply a job.%r%rUse: +jobs/reports JACT=<#>%r,[setq(0,locate(%va,Job %0,i))][ifelse(isdbref(%q0),[localize([ulocal(FN_BARGRAPH,map(MAP_ACTIONS,get(%q0/LIST_STATS)),15,1,16,#)]%r[space(4)][setq(1,map(MAP_ACTIONS2,sort(get(%q0/LIST_STATS))))][iter(%q1,mid(##,0,1))]%r[space(4)][iter(%q1,mid(##,1,1))]%r[space(4)][iter(%q1,mid(##,2,1))])]%r%r[center(Actions Performed on [name(%q0)],79)],That is not a valid job.%r)])]
+&REPORT_JACT Job Database <JD>=
+	[switch(
+		%0,
+		,This report requires you to supply a job.%r%rUse: +jobs/reports JACT=<#>%r,
+		[setq(0,locate(%va,Job %0,i))]
+		[ifelse(
+			isdbref(%q0),
+			[localize(
+				[ulocal(FN_BARGRAPH,map(MAP_ACTIONS,get(%q0/LIST_STATS)),15,1,16,#)]%r
+				[space(4)]
+				[setq(1,map(MAP_ACTIONS2,sort(get(%q0/LIST_STATS))))]
+				[iter(
+					%q1,
+					mid(##,0,1)
+				)]%r
+				[space(4)]
+				[iter(
+					%q1,
+					mid(##,1,1)
+				)]%r
+				[space(4)]
+				[iter(
+					%q1,
+					mid(##,2,1)
+				)]
+			)]%r%r
+			[center(Actions Performed on [name(%q0)],79)],
+			That is not a valid job.%r
+		)]	
+	)]
+-
 
-&REPORT_STATS Job Database <JD>=[rjust(ansi(hc,Install:),20)] [get(%va/INSTALL_DATE)]%r[rjust(ansi(hc,Version:),20)] Anomaly Jobs [get(%va/VERSION)][space(5)]%r[rjust(ansi(hc,Release:),20)] [get(%va/RELEASE)]%r[rjust(ansi(hc,Memory:),20)] [setr(a,fold(%va/FOLD_ADD,iter(setr(b,[num(me)] [loc(me)] %vb %vc [lcon(%vc)] [lcon(me)]),objmem(##))))] %([round(fdiv(%qa,1024),1)]k in [words(%qb)] objects%)%r[rjust(ansi(hc,Open Jobs:),20)] [setr(0,words(lcon(%va)))]%r[rjust(ansi(hc,Capacity:),20)] [setr(1,u(%va/MAX_JOBS))] %([mul(round(fdiv(%q0,%q1),2),100)]%% Full%)%r[rjust(ansi(hc,Next Job:),20)] [inc(u(%va/JOBS_NUM))]%r[rjust(ansi(hc,Buckets:),20)] [words(lcon(%vc))]%r[rjust(ansi(hc,Opened:),20)] [last(grab(get(%va/LIST_STATS),CRE|*),|)][setq(x,iter(APR DNY COM DEL,grab(get(%va/LIST_STATS),##|*)))][setq(y,map(%va/MAP_ACTIONS,%qx))]%r[rjust(ansi(hc,Closed:),20)] [fold(%va/FOLD_ADD,%qy)]%r[rjust(ansi(hc,ART:),20)] [u(%va/FN_ART,%vc)][space(10)] ART=Average Resolution Time%r[rjust(ansi(hc,REQ ART:),20)] [u(%va/FN_ART,locate(%vc,REQ,i))][space(18)]DD:HH:MM:SS%r[rjust(ansi(hc,CODE ART:),20)] [u(%va/FN_ART,locate(%vc,CODE,i))]%r[rjust(ansi(hc,TPS ART:),20)] [u(%va/FN_ART,locate(%vc,TPS,i))]%r[rjust(ansi(hc,BUILD ART:),20)] [u(%va/FN_ART,locate(%vc,BUILD,i))]%r
+&REPORT_STATS Job Database <JD>=
+	[rjust(ansi(hc,Install:),20)]%b
+		[get(%va/INSTALL_DATE)]%r
+	[rjust(ansi(hc,Version:),20)a]%b
+		Anomaly Jobs [get(%va/VERSION)][space(5)]%r
+	[rjust(ansi(hc,Release:),20)]%b
+		[get(%va/RELEASE)]%r
+	[rjust(ansi(hc,Memory:),20)]%b
+		[setr(a,
+			fold(
+				%va/FOLD_ADD,
+				iter(
+					setr(b,[num(me)] [loc(me)] %vb %vc [lcon(%vc)] [lcon(me)]),
+					objmem(##)
+				)
+			)
+		)]%b
+		%([round(fdiv(%qa,1024),1)]k in [words(%qb)] objects%)%r
+	[rjust(ansi(hc,Open Jobs:),20)]%b
+		[setr(0,words(lcon(%va)))]%r
+	[rjust(ansi(hc,Capacity:),20)]%b
+		[setr(1,u(%va/MAX_JOBS))]%b
+		%([mul(round(fdiv(%q0,%q1),2),100)]%% Full%)%r
+	[rjust(ansi(hc,Next Job:),20)]%b
+		[inc(u(%va/JOBS_NUM))]%r
+	[rjust(ansi(hc,Buckets:),20)]%b
+		[words(lcon(%vc))]%r
+	[rjust(ansi(hc,Opened:),20)]%b
+		[last(grab(get(%va/LIST_STATS),CRE|*),|)]
+		[setq(x,iter(APR DNY COM DEL,grab(get(%va/LIST_STATS),##|*)))]
+		[setq(y,map(%va/MAP_ACTIONS,%qx))]%r
+	[rjust(ansi(hc,Closed:),20)]%b
+		[fold(%va/FOLD_ADD,%qy)]%r
+	[rjust(ansi(hc,ART:),20)]%b
+		[u(%va/FN_ART,%vc)][space(10)] ART=Average Resolution Time%r
+	[rjust(ansi(hc,REQ ART:),20)]%b
+		[u(%va/FN_ART,locate(%vc,REQ,i))][space(18)]DD:HH:MM:SS%r
+	[rjust(ansi(hc,CODE ART:),20)]%b
+		[u(%va/FN_ART,locate(%vc,CODE,i))]%r
+	[rjust(ansi(hc,TPS ART:),20)]%b
+		[u(%va/FN_ART,locate(%vc,TPS,i))]%r
+	[rjust(ansi(hc,BUILD ART:),20)]%b
+		[u(%va/FN_ART,locate(%vc,BUILD,i))]%r
+-
 
-&REPORT_STATUS Job Database <JD>=[localize([setq(x,[iter(lnum(10),setq(##,0))][map(%va/MAP_STAT_STATUS,lcon(%va))])][u(FN_EASYPIE,12,XRr:%q7:Overdue|-Bb:%q0:Hold|xGg:%q1:New|+Cc:%q2:Begun|*Ww:%q3:1/4|oYy:%q4:1/2|@Mm:%q5:3/4|/Xh:%q6:Done,|,10,45)])]
+&REPORT_STATUS Job Database <JD>=
+	[localize(
+		[setq(x,
+			[iter(
+				lnum(10),
+				setq(##,0)
+			)]
+			[map(
+				%va/MAP_STAT_STATUS,
+				lcon(%va)
+			)]
+		)]
+		[u(
+			FN_EASYPIE,
+			12,
+			XRr:%q7:Overdue|-Bb:%q0:Hold|xGg:%q1:New|+Cc:%q2:Begun|*Ww:%q3:1/4|oYy:%q4:1/2|@Mm:%q5:3/4|/Xh:%q6:Done,
+			|,
+			10,
+			45
+		)]
+	)]
+-
 
 &RTITLE_ACTBY Job Database <JD>=BAR|Graph of one action across all buckets
 -
@@ -2852,24 +3169,216 @@ $+typo *:
 &SORTBY_SORT Job Database <JD>=[comp(parent(%0),parent(%1))]
 -
 
-&TRIG_ADD Job Database <JD>=think [setq(0,default(%0/NUM_COMMENT,1))][u(FN_ADDSTAT,%3,%va)][u(FN_ADDSTAT,%3,%0)][u(FN_ADDSTAT,%3,parent(%0))];&COMMENT_%q0 %0=%3|[secs()]|%2|[name(%2)]|[ifelse(hasattrp(%0,ALETTER_%3),strtrunc(u(%0/ALETTER_%3,%0,%2,edit(%1,|,@@PIPE@@)),get(%va/BUFFER)),strtrunc(edit(%1,|,@@PIPE@@),get(%va/BUFFER)))];&NUM_COMMENT %0=[inc(%q0)];&MODIFIED_ON %0=[secs()];&MODIFIED_BY %0=%2;@trigger parent(%0)/HOOK_%3=%0,%2,[parent(%0)];@trigger %va/TRIG_POST=%0,%3,%2,%1;@trigger %va/TRIG_MAIL=%0,%3,%2,%1
-
-&TRIG_APPLY Job Database <JD>=@trigger %va/TRIG_CREATE=%0,[locate(%vc,APPS,i)],Application by [name(%0)],Character Application
+&TRIG_ADD Job Database <JD>=
+	think 
+		[setq(0,default(%0/NUM_COMMENT,1))]
+		[u(FN_ADDSTAT,%3,%va)][u(FN_ADDSTAT,%3,%0)]
+		[u(FN_ADDSTAT,%3,parent(%0))];
+	&COMMENT_%q0 %0=
+		%3|
+		[secs()]|
+		%2|
+		[name(%2)]|
+		[ifelse(
+			hasattrp(%0,ALETTER_%3),
+			strtrunc(u(%0/ALETTER_%3,%0,%2,edit(%1,|,@@PIPE@@)),get(%va/BUFFER)),
+			strtrunc(edit(%1,|,@@PIPE@@),get(%va/BUFFER))
+		)];
+	&NUM_COMMENT %0=[inc(%q0)];
+	&MODIFIED_ON %0=[secs()];
+	&MODIFIED_BY %0=%2;
+	@trigger parent(%0)/HOOK_%3=%0,%2,[parent(%0)];
+	@trigger %va/TRIG_POST=%0,%3,%2,%1;
+	@trigger %va/TRIG_MAIL=%0,%3,%2,%1
 -
 
-&TRIG_BROADCAST Job Database <JD>=@pemit/list [setq(0,%0)][filter(%va/FIL_BROADCAST,setunion(lwho(),))]=[ansi(hc,JOBS:)] %1
+&TRIG_APPLY Job Database <JD>=
+	@trigger %va/TRIG_CREATE=
+		%0,
+		[locate(%vc,APPS,i)],
+		Application by [name(%0)],
+		Character Application
 -
 
-&TRIG_CREATE Job Database <JD>=@switch gt(words(lcon(%va)),u(%va/MAX_JOBS))=1,{@pemit %0=[ansi(hr,JOBS ERROR:)] Creation failed. The +jobs system is full. Contact staff immediately.;@trigger #1430/TRIG_BROADCAST=%1,JOBS SYSTEM IS FULL! Please complete jobs or boost your MAX_JOBS configuration.},{think [setq(0,inc(u(%va/JOBS_NUM)))][setq(1,create(Job %q0,10))][setq(y,case(%7,1,CRE,OTH))];@tel %q1=%va;@link %q1=%va;&OPENED_BY %q1=[switch(%5,,%0,%5)];&OPENED_ON %q1=[secs()];&MODIFIED_ON %q1=[secs()];&STATUS %q1=1;&TITLE %q1=%3;@parent %q1=[locate(%vc,%1,i)];&NUM_COMMENT %q1=2;&PRIORITY %q1=%2;&COMMENT_1 %q1=CRE|[secs()]|%0|[name(%0)]|[ifelse(hasattrp(%q0,ALETTER_%qy),strtrunc(u(%q0/ALETTER_%qy,%q1,%0,edit(%4,|,@@PIPE@@)),get(%va/BUFFER)),strtrunc(edit(%4,|,@@PIPE@@),get(%va/BUFFER)))];&ASSIGNED_TO %q1=%6;&JOBS_NUM %va=%q0;&DUE_ON %q1=[ifelse(hasattrp(%q1,TURNAROUND),add(secs(),mul(60,60,get(%q1/TURNAROUND))),)];@trigger %va/TRIG_BROADCAST=%1,New [name(%1)] job # %q0 submitted by [name(%0)]: %3;@trigger %1/HOOK_%qy=%q1,%0,%1;@trigger %va/TRIG_POST=%q1,%qy,%0,%4;@trigger %va/TRIG_MAIL=%q1,%qy,%0,%4;think [u(FN_ADDSTAT,CRE,%va)][u(FN_ADDSTAT,CRE,parent(%q1))]}
-
-&TRIG_DESTROY Job Database <JD>=&going %0=1;@wait 60={@swi get(%0/GOING)=1,{@parent %0;@dest/instant %0}}
+&TRIG_BROADCAST Job Database <JD>=
+	@pemit/list 
+		[setq(0,%0)][filter(%va/FIL_BROADCAST,setunion(lwho(),))]=
+		[ansi(hc,JOBS:)] %1
 -
 
-&TRIG_LOG Job Database <JD>=@switch [hasattrp(%va,JOB_LOGGING)][setq(0,%0)][setq(1,parent(%q0))][setq(x,itemize(map(MAP_NAME,get(%q0/OPENED_BY),%b,|),|))]=0,{@@},{@log [u(%q1/LOGFILE)]=[center(| [name(%q0)] |,79,=)];@log [u(%q1/LOGFILE)]=[ljust([rjust(ansi(hc,Bucket:),10)] [u(FN_BUCKETNAME,%q0)],40)][rjust(ansi(hc,Due On:),12)] [ifelse(get(%q0/DUE_ON),ifelse(gt(secs(),get(%q0/DUE_ON)),OVERDUE!,convsecs(get(%q0/DUE_ON))),-)];@log [u(%q1/LOGFILE)]=[ljust([rjust(ansi(hc,Title:),10)] [get(%q0/TITLE)],40)][rjust(ansi(hc,Assigned To:),12)] [ifelse(isdbref(get(%q0/ASSIGNED_TO)),name(get(%q0/ASSIGNED_TO)),Nobody)];@log [u(%q1/LOGFILE)]=[ljust([rjust(ansi(hc,Opened On:),10)] [convsecs(get(%q0/OPENED_ON))],40)][rjust(ansi(hc,Status:),12)] [switch(get(%q0/PRIORITY),1,Green,2,Yellow,3,Red)] %([switch(get(%q0/STATUS),0,On Hold,1,New,2,Underway,3,25%%,4,50%%,5,75%%,6,100%%,?)]%);@log [u(%q1/LOGFILE)]=[rjust(ansi(hc,Opened By:),10)] %qx;@dolist lattr(%q0/COMMENT_*)={@log [u(%q1/LOGFILE)]=[repeat(-,79)];@log [u(%q1/LOGFILE)]=[extract(get(%q0/##),4,1,|)] added on [convsecs(extract(get(%q0/##),2,1,|))]: [edit(last(get(%q0/##),|),@@PIPE@@,|)]};@wait .5={@log [u(%q1/LOGFILE)]=[repeat(=,79)]}}
+&TRIG_CREATE Job Database <JD>=
+	@switch 
+		gt(words(lcon(%va)),u(%va/MAX_JOBS))
+		=
+		1,
+		{
+			@pemit %0=[ansi(hr,JOBS ERROR:)] Creation failed. The +jobs system is full. Contact staff immediately.;
+			@trigger #1430/TRIG_BROADCAST=%1,JOBS SYSTEM IS FULL! Please complete jobs or boost your MAX_JOBS configuration.
+		},
+		{
+			think [setq(0,inc(u(%va/JOBS_NUM)))][setq(1,create(Job %q0,10))][setq(y,case(%7,1,CRE,OTH))];
+			@tel %q1=%va;
+			@link %q1=%va;
+			&OPENED_BY %q1=[switch(%5,,%0,%5)];
+			&OPENED_ON %q1=[secs()];
+			&MODIFIED_ON %q1=[secs()];
+			&STATUS %q1=1;
+			&TITLE %q1=%3;
+			@parent %q1=[locate(%vc,%1,i)];
+			&NUM_COMMENT %q1=2;
+			&PRIORITY %q1=%2;
+			&COMMENT_1 %q1=CRE|[secs()]|%0|[name(%0)]|[ifelse(hasattrp(%q0,ALETTER_%qy),strtrunc(u(%q0/ALETTER_%qy,%q1,%0,edit(%4,|,@@PIPE@@)),get(%va/BUFFER)),strtrunc(edit(%4,|,@@PIPE@@),get(%va/BUFFER)))];
+			&ASSIGNED_TO %q1=%6;
+			&JOBS_NUM %va=%q0;
+			&DUE_ON %q1=[ifelse(hasattrp(%q1,TURNAROUND),add(secs(),mul(60,60,get(%q1/TURNAROUND))),)];
+			@trigger %va/TRIG_BROADCAST=%1,New [name(%1)] job # %q0 submitted by [name(%0)]: %3;
+			@trigger %1/HOOK_%qy=%q1,%0,%1;
+			@trigger %va/TRIG_POST=%q1,%qy,%0,%4;
+			@trigger %va/TRIG_MAIL=%q1,%qy,%0,%4;
+			think [u(FN_ADDSTAT,CRE,%va)][u(FN_ADDSTAT,CRE,parent(%q1))]
+		}
+-
 
-&TRIG_MAIL Job Database <JD>=@switch [hasattrp(%0,MLETTER_%1)]=1,{@wait me={@trigger %vb/TRIG_MAIL=[switch(%1,MAI,[get(%0/OPENED_BY)],APR,[get(%0/OPENED_BY)],DNY,[get(%0/OPENED_BY)],filter(%va/FIL_NOSPAM,setunion(get(%0/OPENED_BY),)))],[switch(%1,APR,Approved:,DEL,Deleted:,DNY,Denied:,COM,Complete:,[name(%0)]:)] [get(%0/TITLE)],[u(parent(%0)/MLETTER_%1,%0,%1,%2,%3)]};@notify me}
+&TRIG_DESTROY Job Database <JD>=
+	&going %0=1;
+	@wait 60=
+	{
+		@switch 
+			get(%0/GOING)
+			=
+			1,{@parent %0;@dest/instant %0}
+	}
+-
 
-&TRIG_POST Job Database <JD>=@switch [hasattrp(%0,PLETTER_%1)]=1,{@wait me={@trigger %vb/TRIG_POST=[u(%0/POST_[case(%1,APR,APPROVE,DEL,DELETE,DNY,DENY,COM,COMPLETE,APPROVE)])],[switch(%1,APR,A:,DNY,D:,COM,C:,[name(%0)]:)] [get(%0/TITLE)],[u(parent(%0)/PLETTER_%1,%0,%1,%2,%3)]};@notify me}
+&TRIG_LOG Job Database <JD>=
+	@switch 
+		[hasattrp(%va,JOB_LOGGING)]
+		[setq(0,%0)]
+		[setq(1,parent(%q0))]
+		[setq(x,itemize(map(MAP_NAME,get(%q0/OPENED_BY),%b,|),|))]
+		=
+		0,{@@},
+		{
+			@log [u(%q1/LOGFILE)]=[center(| [name(%q0)] |,79,=)];
+			@log [u(%q1/LOGFILE)]=
+				[ljust([rjust(ansi(hc,Bucket:),10)]%b
+					[u(FN_BUCKETNAME,%q0)],40)]
+					[rjust(ansi(hc,Due On:),12)]%b
+					[ifelse(
+						get(%q0/DUE_ON),
+						ifelse(
+							gt(secs(),get(%q0/DUE_ON)),
+							OVERDUE!,
+							convsecs(get(%q0/DUE_ON))),-
+					)];
+			@log [u(%q1/LOGFILE)]=
+				[ljust([rjust(ansi(hc,Title:),10)]%b
+					[get(%q0/TITLE)],40)]
+					[rjust(ansi(hc,Assigned To:),12)]%b
+					[ifelse(
+						isdbref(get(%q0/ASSIGNED_TO)),
+						name(get(%q0/ASSIGNED_TO)),
+						Nobody
+					)];
+			@log [u(%q1/LOGFILE)]=
+				[ljust([rjust(ansi(hc,Opened On:),10)]%b
+					[convsecs(get(%q0/OPENED_ON))],40)]
+					[rjust(ansi(hc,Status:),12)]%b
+					[switch(
+						get(%q0/PRIORITY),
+						1,Green,
+						2,Yellow,
+						3,Red
+					)]%b%(
+					[switch(
+						get(%q0/STATUS),
+						0,On Hold,
+						1,New,
+						2,Underway,
+						3,25%%,
+						4,50%%,
+						5,75%%,
+						6,100%%,
+						?
+					)]%);
+			@log [u(%q1/LOGFILE)]=[rjust(ansi(hc,Opened By:),10)] %qx;
+			@dolist lattr(%q0/COMMENT_*)=
+			{
+				@log [u(%q1/LOGFILE)]=[repeat(-,79)];
+				@log [u(%q1/LOGFILE)]=
+					[extract(get(%q0/##),4,1,|)]%b
+					added on%b
+					[convsecs(extract(get(%q0/##),2,1,|))]:%b
+					[edit(last(get(%q0/##),|),@@PIPE@@,|)]
+			};
+			@wait .5={@log [u(%q1/LOGFILE)]=[repeat(=,79)]}
+		}
+-
+
+&TRIG_MAIL Job Database <JD>=
+	@switch 
+		[hasattrp(%0,MLETTER_%1)]
+		=
+		1,
+		{
+			@wait me=
+			{
+				@trigger %vb/TRIG_MAIL=
+					[switch(
+						%1,
+						MAI,[get(%0/OPENED_BY)],
+						APR,[get(%0/OPENED_BY)],
+						DNY,[get(%0/OPENED_BY)],
+						filter(
+							%va/FIL_NOSPAM,
+							setunion(get(%0/OPENED_BY),)
+						)
+					)],
+					[switch(
+						%1,
+						APR,Approved:,
+						DEL,Deleted:,
+						DNY,Denied:,
+						COM,Complete:,
+						[name(%0)]:
+					)]%b[get(%0/TITLE)],
+					[u(parent(%0)/MLETTER_%1,%0,%1,%2,%3)]
+			};
+			@notify me
+		}
+-
+
+&TRIG_POST Job Database <JD>=
+	@switch 
+		[hasattrp(%0,PLETTER_%1)]
+		=
+		1,
+		{
+			@wait me=
+			{
+				@trigger %vb/TRIG_POST=
+					[u(%0/POST_
+						[case(
+							%1,
+							APR,APPROVE,
+							DEL,DELETE,
+							DNY,DENY,
+							COM,COMPLETE,
+							APPROVE
+						)]
+					)],
+					[switch(
+						%1,
+						APR,A:,
+						DNY,D:,
+						COM,C:,
+						[name(%0)]:
+					)]%b[get(%0/TITLE)],
+					[u(parent(%0)/PLETTER_%1,%0,%1,%2,%3)]
+				};
+			@notify me
+		}
+-
 
 @cpattr %#/JOB_VA=Job Database <JD>/VA
 -
@@ -2887,51 +3396,526 @@ $+typo *:
 &DEFAULT_SKIN Job Database <JD>=1
 -
 
-&DEFAULT_BANNER Job Database <JD>=[setq(0,%0)][setq(x,itemize(map(MAP_NAME,get(%q0/OPENED_BY),%b,|),|))][ljust([rjust(ansi(hc,Bucket:),10)] [u(%va/FN_BUCKETNAME,%q0)],40)][rjust(ansi(hc,Due On:),12)] [ifelse(get(%q0/DUE_ON),ifelse(gt(secs(),get(%q0/DUE_ON)),OVERDUE!,convsecs(get(%q0/DUE_ON))),-)]%r[ljust([rjust(ansi(hc,Title:),10)] [get(%q0/TITLE)],40)][rjust(ansi(hc,Status:),12)] [switch(get(%q0/PRIORITY),1,Green,2,Yellow,3,Red)] %([switch(get(%q0/STATUS),0,On Hold,1,New,2,Underway,3,25%%,4,50%%,5,75%%,6,100%%,?)]%)%r[ljust([rjust(ansi(hc,Opened On:),10)] [convsecs(get(%q0/OPENED_ON))],40)][rjust(ansi(hc,Assigned To:),12)] [ifelse(isdbref(get(%q0/ASSIGNED_TO)),name(get(%q0/ASSIGNED_TO)),Nobody)]%r[rjust(ansi(hc,Opened By:),10)] %qx
+&DEFAULT_BANNER Job Database <JD>=
+	[setq(0,%0)]
+	[setq(x,
+		itemize(
+			map(
+				MAP_NAME,
+				get(%q0/OPENED_BY),
+				%b,
+				|
+			),
+		|)
+	)]
+	[ljust(
+		[rjust(
+			ansi(hc,Bucket:),
+			10
+		)]%b
+		[u(%va/FN_BUCKETNAME,%q0)],
+		40
+	)]
+	[rjust(ansi(hc,Due On:),12)]%b
+	[ifelse(
+		get(%q0/DUE_ON),
+		ifelse(
+			gt(secs(),get(%q0/DUE_ON)),
+			OVERDUE!,
+			convsecs(get(%q0/DUE_ON))
+		),
+		-
+	)]%r
+	[ljust(
+		[rjust(ansi(hc,Title:),10)]%b
+		[get(%q0/TITLE)]
+		,40
+	)]
+	[rjust(ansi(hc,Status:),12)]%b
+	[switch(
+		get(%q0/PRIORITY),
+		1,Green,
+		2,Yellow,
+		3,Red
+	)]%b%(
+	[switch(
+		get(%q0/STATUS),
+		0,On Hold,
+		1,New,
+		2,Underway,
+		3,25%%,
+		4,50%%,
+		5,75%%,
+		6,100%%,
+		?
+	)]%)%r
+	[ljust(
+		[rjust(ansi(hc,Opened On:),10)] [convsecs(get(%q0/OPENED_ON))],
+		40
+	)]
+	[rjust(ansi(hc,Assigned To:),12)]%b
+	[ifelse(
+		isdbref(get(%q0/ASSIGNED_TO)),
+		name(get(%q0/ASSIGNED_TO)),
+		Nobody
+	)]%r
+	[rjust(ansi(hc,Opened By:),10)]%b%qx
+-
 
-&DEFAULT_BREAK Job Database <JD>=switch(%0,,repeat(-,79),rjust(%[%0%],79,-))
+&DEFAULT_BREAK Job Database <JD>=
+	switch(
+		%0,
+		,repeat(-,79),
+		rjust(%[%0%],79,-)
+	)
+-
 
-&DEFAULT_BUCKETHEADER Job Database <JD>=[u(FN_HEADER,Bucket List)]%r[ifelse(u(%va/FN_WIZONLY,%#),[ansi(hc,[ljust(Name,9)][ljust(Flags,6)]%b%b[ljust(Description,30)][rjust(#Jobs,5)][rjust(Pct,5)][space(3)]C%b%bA%b%bD%b%bDue[space(3)]ARTS)],[ansi(hc,[ljust(NAME,8)][ljust(Description,50)]%b[rjust(Viewing,20)])])]%r[u(FN_BREAK)]
+&DEFAULT_BUCKETHEADER Job Database <JD>=
+	[u(FN_HEADER,Bucket List)]%r
+	[ifelse(
+		u(%va/FN_WIZONLY,%#),
+		[ansi(hc,
+			[ljust(Name,9)]
+			[ljust(Flags,6)]%b%b
+			[ljust(Description,30)]
+			[rjust(#Jobs,5)]
+			[rjust(Pct,5)]
+			[space(3)]C%b%bA%b%bD%b%bDue
+			[space(3)]
+			ARTS
+		)],
+		[ansi(hc,
+			[ljust(NAME,8)]
+			[ljust(Description,50)]%b
+			[rjust(Viewing,20)]
+		)]
+	)]%r
+	[u(FN_BREAK)]
+-
 
-&DEFAULT_BUCKETLIST Job Database <JD>=[ifelse(u(%va/FN_WIZONLY,%#),[ljust(name(%0),6)]%b%b[ifelse(u(%va/FN_MONITORCHECK,%0,%#),V,-)][ifelse(u(%va/IS_HIDDEN,%0),H,-)][ifelse(u(%va/IS_LOCKED,%0),L,-)][ifelse(u(%va/IS_TAGGED,%0),T,-)][ifelse(u(%va/IS_PUBLIC,%0),M,-)][ifelse(u(%va/IS_PUBLISHED,%0),P,-)][ifelse(u(%va/IS_SUMMARY,%0),S,-)]%b%b[strtrunc(ljust(get(%0/DESC),40),30)][rjust(words(children(%0)),5)][rjust(mul(round(fdiv(words(children(%0)),words(lcon(%va))),2),100)%%,5)]%b%b[rjust(get(%0/POST_COMPLETE),2)]%b[rjust(get(%0/POST_APPROVE),2)]%b[rjust(get(%0/POST_DENY),2)][rjust(default(%0/TURNAROUND,0),5)][rjust([ifelse(hasattr(%0,STAT_ART),[div(fdiv(first(get(%0/STAT_ART)),rest(get(%0/STAT_ART))),86400)]d,-)],7)],[ljust(name(%0),6)]%b%b[strtrunc(ljust(get(%0/DESC),50),50)]%b[rjust(ifelse(u(%va/FN_MONITORCHECK,%0,%#),Yes,-),20)])]
+&DEFAULT_BUCKETLIST Job Database <JD>=
+	[ifelse(
+		u(%va/FN_WIZONLY,%#),
+		[ljust(name(%0),6)]%b%b
+			[ifelse(u(%va/FN_MONITORCHECK,%0,%#),V,-)]
+			[ifelse(u(%va/IS_HIDDEN,%0),H,-)]
+			[ifelse(u(%va/IS_LOCKED,%0),L,-)]
+			[ifelse(u(%va/IS_TAGGED,%0),T,-)]
+			[ifelse(u(%va/IS_PUBLIC,%0),M,-)]
+			[ifelse(u(%va/IS_PUBLISHED,%0),P,-)]
+			[ifelse(u(%va/IS_SUMMARY,%0),S,-)]%b%b
+			[strtrunc(ljust(get(%0/DESC),40),30)]
+			[rjust(words(children(%0)),5)]
+			[rjust(
+				mul(
+					round(
+						fdiv(
+							words(children(%0)),
+							words(lcon(%va))
+						),
+						2
+					),
+					100
+				)%%,
+				5
+			)]%b%b
+			[rjust(get(%0/POST_COMPLETE),2)]%b
+			[rjust(get(%0/POST_APPROVE),2)]%b
+			[rjust(get(%0/POST_DENY),2)]
+			[rjust(default(%0/TURNAROUND,0),5)]
+			[rjust(
+				[ifelse(
+					hasattr(%0,STAT_ART),
+					[div(
+						fdiv(
+							first(get(%0/STAT_ART)),
+							rest(get(%0/STAT_ART))
+						),
+						86400
+					)]d,
+					-
+				)],
+				7
+			)],
+		[ljust(name(%0),6)]%b%b
+			[strtrunc(ljust(get(%0/DESC),50),50)]%b
+			[rjust(
+				ifelse(
+					u(%va/FN_MONITORCHECK,%0,%#),
+					Yes,
+					-
+				),
+				20
+			)]
+	)]
+-
 
-&DEFAULT_FLAGS Job Database <JD>=[ifelse(u(me/IS_LOCKED,%0),u(me/FN_FLAG,LOCKED,hr),)][ifelse(u(me/IS_PUBLIC,%0),u(me/FN_FLAG,Myjobs),)][ifelse(u(me/IS_PUBLISHED,%0),u(me/FN_FLAG,Published),)][ifelse(u(me/IS_TAGGED,%0),u(me/FN_FLAG,Tags),)]
+&DEFAULT_FLAGS Job Database <JD>=
+	[ifelse(
+		u(me/IS_LOCKED,%0),
+		u(me/FN_FLAG,LOCKED,hr),
+	)]
+	[ifelse(
+		u(me/IS_PUBLIC,%0),
+		u(me/FN_FLAG,Myjobs),
+	)]
+	[ifelse(
+		u(me/IS_PUBLISHED,%0),
+		u(me/FN_FLAG,Published),
+	)]
+	[ifelse(
+		u(me/IS_TAGGED,%0),
+		u(me/FN_FLAG,Tags),
+	)]
+-
 
-&DEFAULT_FOOTER Job Database <JD>=[switch(%0,,repeat(=,79),center(| %0 |,79,=))]
+&DEFAULT_FOOTER Job Database <JD>=
+	[switch(
+		%0,
+		,repeat(=,79),
+		center(| %0 |,79,=)
+	)]
+-
 
-&DEFAULT_HEADER Job Database <JD>=[switch(%0,,[repeat(=,79)],[center(| [ansi(hy,%0)] |,79,=)])]
+&DEFAULT_HEADER Job Database <JD>=
+	[switch(
+		%0,
+		,[repeat(=,79)],
+		[center(| [ansi(hy,%0)] |,79,=)]
+	)]
+-
 
-&DEFAULT_JOBLIST Job Database <JD>=[setq(0,secure(ifelse(hasattrp(%1,JOBS),lcstr(mid(get(%1/JOBS),0,20)),get(%va/JOBS_DEFAULT))))][setq(1,ifelse(get(%0/DUE_ON),ifelse(gt(secs(),get(%0/DUE_ON)),r,switch(get(%0/PRIORITY),1,g,2,y,3,r,g)),switch(get(%0/PRIORITY),1,g,2,y,3,r)))][ifelse(u(%va/FN_ISNEW,%0,%1),[ansi(hr,*)]%b,%b%b)][ansi(h%q1,[rjust([last(name(%0))],5)]%b[iter(lnum(strlen(%q0)),[u(%va/DISPLAY_[mid(%q0,##,1)],%0,%1)])])]
+&DEFAULT_JOBLIST Job Database <JD>=
+	[setq(0,
+		secure(
+			ifelse(
+				hasattrp(%1,JOBS),
+				lcstr(mid(get(%1/JOBS),0,20)),
+				get(%va/JOBS_DEFAULT)
+			)
+		)
+	)]
+	[setq(1,
+		ifelse(
+			get(%0/DUE_ON),
+			ifelse(
+				gt(secs(),get(%0/DUE_ON)),
+				r,switch(
+					get(%0/PRIORITY),
+					1,g,
+					2,y,
+					3,r,
+					g
+				)
+			),
+			switch(
+				get(%0/PRIORITY),
+				1,g,
+				2,y,
+				3,r
+			)
+		)
+	)]
+	[ifelse(
+		u(%va/FN_ISNEW,%0,%1),
+		[ansi(hr,*)]%b,
+		%b%b
+	)]
+	[ansi(h%q1,
+		[rjust(
+			[last(name(%0))],
+			5
+		)]%b
+		[iter(
+			lnum(strlen(%q0)),
+			[u(%va/DISPLAY_[mid(%q0,##,1)],%0,%1)]
+		)]
+	)]
+-
 
-&DEFAULT_JOBSHEADER Job Database <JD>=localize([u(FN_HEADER,Anomaly Jobs [u(VERSION)])]%r[setq(1,[secure(switch(hasattrp(%0,JOBS),1,lcstr(mid(get(%0/JOBS),0,20)),u(JOBS_DEFAULT)))])][ansi(hc,*%b%b[ljust(Job#,5)][iter(lnum(strlen(%q1)),u(HEADER_[mid(%q1,##,1)]))])]%r[u(FN_BREAK)])
+&DEFAULT_JOBSHEADER Job Database <JD>=
+	localize(
+		[u(FN_HEADER,Anomaly Jobs [u(VERSION)])]%r
+		[setq(1,
+			[secure(
+				switch(
+					hasattrp(%0,JOBS),
+					1,lcstr(mid(get(%0/JOBS),0,20)),
+					u(JOBS_DEFAULT)
+				)
+			)]
+		)]
+		[ansi(hc,*%b%b
+			[ljust(Job#,5)]
+			[iter(
+				lnum(strlen(%q1)),
+				u(HEADER_[mid(%q1,##,1)])
+			)]
+		)]%r
+		[u(FN_BREAK)])
+-
 
-&DEFAULT_READ Job Database <JD>=[repeat(-,79)]%r[ifelse(u(%va/EDIT_ACCESS,%#),[ansi(h,%[)][ifelse(and(or(u(%va/IS_PUBLISHED,%1),switch(extract(get(%1/%0),3,1,|),u(%1/OPENED_BY),1,0),hasflag(%1/%0,no_inherit)),u(%va/IS_PUBLIC,%1)),ansi(hc,[rest(%0,_)]+),ansi(hc,[rest(%0,_)]-))][ansi(h,%])]%b,)][ansi(h,[extract(get(%1/%0),4,1,|)] added on [convsecs(extract(get(%1/%0),2,1,|))]:%b )][edit(last(get(%1/%0),|),@@PIPE@@,|)]
+&DEFAULT_READ Job Database <JD>=
+	[repeat(-,79)]%r
+	[ifelse(
+		u(%va/EDIT_ACCESS,%#),
+		[ansi(h,%[)]
+			[ifelse(
+				and(
+					or(
+						u(%va/IS_PUBLISHED,%1),
+						switch(
+							extract(get(%1/%0),3,1,|),
+							u(%1/OPENED_BY),1,
+							0),
+						hasflag(%1/%0,no_inherit)
+					),
+					u(%va/IS_PUBLIC,%1)
+				),
+				ansi(hc,[rest(%0,_)]+),
+				ansi(hc,[rest(%0,_)]-)
+			)]
+			[ansi(h,%])]%b,
+	)]
+	[ansi(h,[extract(get(%1/%0),4,1,|)]%b
+		added on%b
+		[convsecs(
+			extract(
+				get(%1/%0),2,1,|)
+		)]:%b 
+	)]
+	[edit(last(get(%1/%0),|),@@PIPE@@,|)]
+-
 
-&DEFAULT_STAFFSUM Job Database <JD>=[localize(%r[repeat(-,79)]%r[rjust(ansi(hc,DB#:),10)] %0[space(10)][rjust(ansi(hc,Comments:),10)] [setr(z,words(lattr(%0/COMMENT_*)))]%r%r[rjust(ansi(hc,Players:),10)] %(Players contributing to this job%)%r[setq(y,setunion(iter(lattr(%0/COMMENT_*),extract(get(%0/##),4,1,|),%b,|),,|))][columns(%qy,20,|,11)][ifelse(hasattr(%0,LIST_READERS),%r[rjust(ansi(hc,Readers:),10)] %(Players who have read this job in the past%)%r[setq(z,iter(get(%0/LIST_READERS),first(##,|)))][columns(map(%va/MAP_NAME,%qz,%b,|),20,|,11)],)][ifelse(hasattr(%0,TAGGED_FOR),%r[rjust(ansi(hc,Tags:),10)] %(Players this job has been tagged for%)%r[columns(map(%va/MAP_NAME,get(%0/TAGGED_FOR),%b,|),20,|,11)],)]%r[rjust(ansi(hc,Stats:),10)]%r[columns(iter(ifelse(hasattr(%0,LIST_STATS),sort(get(%0/LIST_STATS)),),[first(##,|)] [last(##,|)],%b,|),20,|,11)]%r)]
+&DEFAULT_STAFFSUM Job Database <JD>=
+	[localize(
+		%r
+		[repeat(-,79)]%r
+		[rjust(ansi(hc,DB#:),10)] %0[space(10)]
+			[rjust(ansi(hc,Comments:),10)] [setr(z,words(lattr(%0/COMMENT_*)))]%r%r
+		[rjust(ansi(hc,Players:),10)] %(Players contributing to this job%)%r
+		[setq(y,
+			setunion(
+				iter(
+					lattr(%0/COMMENT_*),
+					extract(get(%0/##),4,1,|),%b,|
+				),,|
+			)
+		)]
+		[columns(%qy,20,|,11)]
+		[ifelse(
+			hasattr(%0,LIST_READERS),
+			%r[rjust(ansi(hc,Readers:),10)]%b
+				%(Players who have read this job in the past%)%r
+			[setq(z,
+				iter(
+					get(%0/LIST_READERS),
+					first(##,|)
+				)
+			)]
+			[columns(map(%va/MAP_NAME,%qz,%b,|),20,|,11)],
+		)]
+		[ifelse(
+			hasattr(%0,TAGGED_FOR),
+			%r[rjust(ansi(hc,Tags:),10)]%b
+				%(Players this job has been tagged for%)%r
+				[columns(map(%va/MAP_NAME,get(%0/TAGGED_FOR),%b,|),20,|,11)],)]%r
+				[rjust(ansi(hc,Stats:),10)]%r
+				[columns(
+					iter(
+						ifelse(
+							hasattr(%0,LIST_STATS),
+							sort(get(%0/LIST_STATS)),
+						),
+						[first(##,|)]%b[last(##,|)],%b,|
+					),20,|,11
+				)]%r
+	)]
+-
 
 &DEFAULT_SUMMARY Job Database <JD>=%r[repeat(-,79)]%r[u(parent(%0)/SUMMARY,%0)]
+-
 
-@@
 
-@@ Chrome Skin
-
-@@
+# Chrome Skin Setup
 
 &CHROME_SKIN Job Database <JD>=1
+-
 
-&CHROME_BANNER Job Database <JD>=%r[setq(0,%0)][setq(x,itemize(map(MAP_NAME,get(%q0/OPENED_BY),%b,|),|))][ljust([rjust(ansi(hc,Bucket:),10)] [u(%va/FN_BUCKETNAME,%q0)],40)][rjust(ansi(hc,Due On:),12)] [ifelse(get(%q0/DUE_ON),ifelse(gt(secs(),get(%q0/DUE_ON)),OVERDUE!,convsecs(get(%q0/DUE_ON))),-)]%r[ljust([rjust(ansi(hc,Title:),10)] [get(%q0/TITLE)],40)][rjust(ansi(hc,Status:),12)] [switch(get(%q0/PRIORITY),1,Green,2,Yellow,3,Red)] %([switch(get(%q0/STATUS),0,On Hold,1,New,2,Underway,3,25%%,4,50%%,5,75%%,6,100%%,?)]%)%r[ljust([rjust(ansi(hc,Opened On:),10)] [convsecs(get(%q0/OPENED_ON))],40)][rjust(ansi(hc,Assigned To:),12)] [ifelse(isdbref(get(%q0/ASSIGNED_TO)),name(get(%q0/ASSIGNED_TO)),Nobody)]%r[rjust(ansi(hc,Opened By:),10)] %qx
+&CHROME_BANNER Job Database <JD>=
+	%r
+	[setq(0,%0)]
+	[setq(x,
+		itemize(
+			map(
+				MAP_NAME,
+				get(%q0/OPENED_BY),
+				%b,
+				|
+			),
+		|)
+	)]
+	[ljust(
+		[rjust(ansi(hc,Bucket:),10)]%b
+		[u(%va/FN_BUCKETNAME,%q0)]
+		,40
+	)]
+	[rjust(ansi(hc,Due On:),12)]%b
+	[ifelse(
+		get(%q0/DUE_ON),
+		ifelse(
+			gt(secs(),get(%q0/DUE_ON)),
+			OVERDUE!,
+			convsecs(get(%q0/DUE_ON))
+		),
+		-
+	)]%r
+	[ljust(
+		[rjust(ansi(hc,Title:),10)]%b
+		[get(%q0/TITLE)]
+		,40
+	)]
+	[rjust(ansi(hc,Status:),12)]%b
+	[switch(
+		get(%q0/PRIORITY),
+		1,Green,
+		2,Yellow,
+		3,Red
+	)]%b
+	%([switch(
+		get(%q0/STATUS),
+		0,On Hold,
+		1,New,
+		2,Underway,
+		3,25%%,
+		4,50%%,
+		5,75%%,
+		6,100%%,?
+	)]%)%r
+	[ljust(
+		[rjust(ansi(hc,Opened On:),10)]%b
+		[convsecs(get(%q0/OPENED_ON))]
+		,40
+	)]
+	[rjust(ansi(hc,Assigned To:),12)]%b
+	[ifelse(
+		isdbref(get(%q0/ASSIGNED_TO)),
+		name(get(%q0/ASSIGNED_TO)),
+		Nobody
+	)]%r
+	[rjust(ansi(hc,Opened By:),10)]%b%qx
+-
 
 &CHROME_BREAK Job Database <JD>=[repeat(_,79)]
+-
 
-&CHROME_FLAGS Job Database <JD>=[edit(trim(squish([ifelse(u(me/IS_LOCKED,%0),%b[ansi(hr,LOCKED)]%b,)][ifelse(u(me/IS_PUBLIC,%0),%bMYJOBS%b,)][ifelse(u(me/IS_PUBLISHED,%0),%bPUBLISHED%b,)][ifelse(u(me/IS_TAGGED,%0),%bTAGS%b,)])),%b,%b-%b)]
+&CHROME_FLAGS Job Database <JD>=
+	[edit(
+		trim(
+			squish(
+				[ifelse(
+					u(me/IS_LOCKED,%0),
+					%b[ansi(hr,LOCKED)]%b,
+				)]
+				[ifelse(
+					u(me/IS_PUBLIC,%0),
+					%bMYJOBS%b,
+				)]
+				[ifelse(
+					u(me/IS_PUBLISHED,%0),
+					%bPUBLISHED%b,
+				)]
+				[ifelse(
+					u(me/IS_TAGGED,%0),
+					%bTAGS%b,
+				)]
+			)
+		),%b,%b-%b
+	)]
+-
 
-&CHROME_FOOTER Job Database <JD>=%r[switch(%0,,[repeat(~,79)],[repeat(~,sub(73,strlen(%0)))]|[ansi(Chw,%b[stripansi(%0)]%b)]|~~)]
+&CHROME_FOOTER Job Database <JD>=
+	%r
+	[switch(
+		%0,
+		,[repeat(~,79)],
+		[repeat(~,sub(73,strlen(%0)))]|[ansi(Chw,%b[stripansi(%0)]%b)]|~~
+	)]
+-
 
-&CHROME_HEADER Job Database <JD>=[switch(%0,,[repeat(_,79)],__|[ansi(Chw,%b%0%b)]|[repeat(_,sub(73,strlen(%0)))])]
+&CHROME_HEADER Job Database <JD>=
+	[switch(
+		%0,
+		,[repeat(_,79)],
+		__|[ansi(Chw,%b%0%b)]|[repeat(_,sub(73,strlen(%0)))]
+	)]
+-
 
-&CHROME_JOBLIST Job Database <JD>=[setq(0,secure(ifelse(hasattrp(%1,JOBS),lcstr(mid(get(%1/JOBS),0,20)),get(%va/JOBS_DEFAULT))))][setq(1,ifelse(get(%0/DUE_ON),ifelse(gt(secs(),get(%0/DUE_ON)),h,switch(get(%0/PRIORITY),1,hx,2,n,3,h,hx)),switch(get(%0/PRIORITY),1,hx,2,n,3,h)))][ifelse(gt(get(%0/MODIFIED_ON),get(%#/LAST_CONN)),[ansi(hr,*)]%b,%b%b)][ansi(h%q1,[rjust([last(name(%0))],5)]%b[iter(lnum(strlen(%q0)),[u(%va/DISPLAY_[mid(%q0,##,1)],%0,%1)])])]
+&CHROME_JOBLIST Job Database <JD>=
+	[setq(0,
+		secure(
+			ifelse(
+				hasattrp(%1,JOBS),
+				lcstr(mid(get(%1/JOBS),0,20)),
+				get(%va/JOBS_DEFAULT)
+			)
+		)
+	)]
+	[setq(1,
+		ifelse(
+			get(%0/DUE_ON),
+			ifelse(
+				gt(secs(),get(%0/DUE_ON)),
+				h,
+				switch(
+					get(%0/PRIORITY),
+					1,hx,
+					2,n,
+					3,h,hx
+				)
+			),
+			switch(
+				get(%0/PRIORITY),
+				1,hx,
+				2,n,
+				3,h
+			)
+		)
+	)]
+	[ifelse(
+		gt(get(%0/MODIFIED_ON),get(%#/LAST_CONN)),
+		[ansi(hr,*)]%b,
+		%b%b
+	)]
+	[ansi(h%q1,
+		[rjust([last(name(%0))],5)]%b
+		[iter(
+			lnum(strlen(%q0)),
+			[u(%va/DISPLAY_[mid(%q0,##,1)],%0,%1)]
+		)]
+	)]
+-
 
-&CHROME_JOBSHEADER Job Database <JD>=localize([u(FN_HEADER,Anomaly Jobs [u(VERSION)])]%r[setq(1,[secure(switch(hasattrp(%0,JOBS),1,lcstr(mid(get(%0/JOBS),0,20)),u(JOBS_DEFAULT)))])][ansi(Chcu,*%b%b[ljust(Job#,5)][iter(lnum(strlen(%q1)),u(HEADER_[mid(%q1,##,1)]))])])%r
+&CHROME_JOBSHEADER Job Database <JD>=
+	localize(
+		[u(FN_HEADER,Anomaly Jobs [u(VERSION)])]%r
+		[setq(1,
+			[secure(
+				switch(
+					hasattrp(%0,JOBS),
+					1,lcstr(mid(get(%0/JOBS),0,20)),
+					u(JOBS_DEFAULT)
+				)
+			)]
+		)]
+		[ansi(Chcu,*%b%b
+			[ljust(Job#,5)]
+			[iter(
+				lnum(strlen(%q1)),
+				u(HEADER_[mid(%q1,##,1)])
+			)]
+		)])%r
+-
 
 &CHROME_READ Job Database <JD>=
 	%r[ansi(u,
@@ -2962,6 +3946,7 @@ $+typo *:
 				[convsecs(extract(get(%1/%0),2,1,|))]%b
 			)]
 # What is this 43? Maybe I am tired, but I am confused. -Grey			
+# Double checking its clearly after the other stuff and on its own in the ansi.
 			,43,
 		)]%r
 		
