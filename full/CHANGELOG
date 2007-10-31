@@ -32,3 +32,4 @@ Version 5.2
   README files. 29.
 - Changed the install file name to remove version reference.
 - Formatted the install.
+- Fixed errors in CMD_JOB/DUE2. Issue 30.
