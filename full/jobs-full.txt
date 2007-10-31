@@ -1049,9 +1049,8 @@ $+job/summary *:
 $+job/sumset */*=*:
 	@switch 
 		[setq(5,0)]
-		[setq(0,locate(%va,Job %0,i))]
 		[u(%va/HAS_ACCESS,%#)]
-		[isdbref(%q0)]
+		[isdbref(setr(0,locate(%va,Job %0,i)))]
 		[hasattrp(%q0,ACCESS_%1)]
 		[and(u(%va/CONFIG_ACCESS,%#),u(%q0/ACCESS_%1,%#))]
 		[not(u(%va/IS_LOCKED,%q0))]
@@ -1987,7 +1986,7 @@ $+typo *:
 
 &DISPLAY_BUCKET Job Database <JD>=
 	[rjust(ansi(h,Name:),20)] [name(%q0)] 
-	[ifelse(orflags(%#,WZ),%(%q0%),)] 
+	[ifelse(u(%va/FN_STAFFALL,%#),%(%q0%),)] 
 	%([words(children(%q0))] jobs in bucket%)%r
 	[rjust(ansi(h,Locked To:),20)] 
 	[ifelse(
@@ -3259,8 +3258,11 @@ $+typo *:
 		=
 		0,{@@},
 		{
-			@log [u(%q1/LOGFILE)]=[center(| [name(%q0)] |,79,=)];
-			@log [u(%q1/LOGFILE)]=
+			@trigger %va/TRIG_LOG_WRITE=
+				[u(%q1/LOGFILE)],
+				[center(| [name(%q0)] |,79,=)];
+			@trigger %va/TRIG_LOG_WRITE=
+				[u(%q1/LOGFILE)],
 				[ljust([rjust(ansi(hc,Bucket:),10)]%b
 					[u(FN_BUCKETNAME,%q0)],40)]
 					[rjust(ansi(hc,Due On:),12)]%b
@@ -3271,7 +3273,8 @@ $+typo *:
 							OVERDUE!,
 							convsecs(get(%q0/DUE_ON))),-
 					)];
-			@log [u(%q1/LOGFILE)]=
+			@trigger %va/TRIG_LOG_WRITE=
+				[u(%q1/LOGFILE)],
 				[ljust([rjust(ansi(hc,Title:),10)]%b
 					[get(%q0/TITLE)],40)]
 					[rjust(ansi(hc,Assigned To:),12)]%b
@@ -3280,7 +3283,8 @@ $+typo *:
 						name(get(%q0/ASSIGNED_TO)),
 						Nobody
 					)];
-			@log [u(%q1/LOGFILE)]=
+			@trigger %va/TRIG_LOG_WRITE=
+				[u(%q1/LOGFILE)],
 				[ljust([rjust(ansi(hc,Opened On:),10)]%b
 					[convsecs(get(%q0/OPENED_ON))],40)]
 					[rjust(ansi(hc,Status:),12)]%b
@@ -3301,18 +3305,29 @@ $+typo *:
 						6,100%%,
 						?
 					)]%);
-			@log [u(%q1/LOGFILE)]=[rjust(ansi(hc,Opened By:),10)] %qx;
+			@trigger %va/TRIG_LOG_WRITE=
+				[u(%q1/LOGFILE)],
+				[rjust(ansi(hc,Opened By:),10)] %qx;
 			@dolist lattr(%q0/COMMENT_*)=
 			{
-				@log [u(%q1/LOGFILE)]=[repeat(-,79)];
-				@log [u(%q1/LOGFILE)]=
+				@trigger %va/TRIG_LOG_WRITE=[u(%q1/LOGFILE)],[repeat(-,79)];
+				@trigger %va/TRIG_LOG_WRITE=
+					[u(%q1/LOGFILE)],
 					[extract(get(%q0/##),4,1,|)]%b
-					added on%b
-					[convsecs(extract(get(%q0/##),2,1,|))]:%b
-					[edit(last(get(%q0/##),|),@@PIPE@@,|)]
+						added on%b
+						[convsecs(extract(get(%q0/##),2,1,|))]:%b
+						[edit(last(get(%q0/##),|),@@PIPE@@,|)]
 			};
-			@wait .5={@log [u(%q1/LOGFILE)]=[repeat(=,79)]}
+			@wait .5={@trigger %va/TRIG_LOG_WRITE=[u(%q1/LOGFILE)],[repeat(=,79)]}
 		}
+-
+
+&TRIG_LOG_WRITE Job Database <JD>=
+	@switch 
+		[first(version())]
+		=
+		RhostMUSH,{@log/file %0=%1},
+		{@log %0=%1}
 -
 
 &TRIG_MAIL Job Database <JD>=
@@ -4921,6 +4936,7 @@ Job Tracker Setup
 	[first(version())]
 	=
 	TinyMUSH,{&BUFFER Job Database <JD>=4000},
+	RhostMUSH,{&BUFFER Job Database <JD>=3999},
 	{&BUFFER Job Database <JD>=8000}
 -
 
@@ -5084,9 +5100,9 @@ Job Tracker Setup
 			&POST_DENY Job Parent Object <JPO>=member(u(%q0/GROUPS),%q2);
 			&POST_DELETE Job Parent Object <JPO>=member(u(%q0/GROUPS),%q2);
 			&CANREAD %q1=1;
-			&CANWRITE %q1=%[or%(switch%(num%(%%#),[num(Job Tracker)],1,0%),orflags%(%%#,WZ%)%)%];
-			&CANREAD %q2=%[orflags(%%#,WZ)];
-			&CANWRITE %q2=%[or%(switch%(num%(%%#),[num(Job Tracker)],1,0%),orflags%(%%#,WZ%)%)%]
+			&CANWRITE %q1=%[or%(switch%(num%(%%#),[num(Job Tracker)],1,0%),u%(get%(me/JOB_VA%)/FN_STAFFALL,%%#%)%)%];
+			&CANREAD %q2=%[u%(get%(me/JOB_VA%)/FN_STAFFALL,%%#%)];
+			&CANWRITE %q2=%[or%(switch%(num%(%%#),[num(Job Tracker)],1,0%),u%(get%(me/JOB_VA%)/FN_STAFFALL,%%#%)%)%]
 		}
 	}
 -
