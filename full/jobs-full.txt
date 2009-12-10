@@ -428,6 +428,7 @@ $+job/clone *:
 	@switch 
 		[u(%va/HAS_ACCESS,%#)]
 		[setq(0,locate(%va,Job %0,i))]
+		[isdbref(%q0)]
 		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
 		=
 		0*,{@pemit %#=Permission denied.},
