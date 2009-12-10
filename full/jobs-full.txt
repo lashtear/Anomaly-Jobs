@@ -2579,7 +2579,7 @@ $+typo *:
 	[u(FN_BREAK)]
 -
 
-&JOBS_NUM Job Database <JD>=2
+&JOBS_NUM Job Database <JD>=1
 -
 
 &LIST_ACTIONS Job Database <JD>=
