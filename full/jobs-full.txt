@@ -4213,10 +4213,10 @@ Job Tracker Setup
 &MLETTER_OTH APPS=You have submitted an application for approval. Please give staff some time to process the application. You will hear back soon.
 -
 
-&MLETTER_APR APPS=You have been approved by [name(%1)].
+&MLETTER_APR APPS=You have been approved by [name(%2)].
 -
 
-&PLETTER_APR APPS=[name(%1)] has approved [name(get(%0/OPENED_BY))] for roleplay.
+&PLETTER_APR APPS=[name(%2)] has approved [name(get(%0/OPENED_BY))] for roleplay.
 -
 
 &ACCESS APPS=[u(%va/FN_STAFFALL,%#)]
