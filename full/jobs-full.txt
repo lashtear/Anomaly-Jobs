@@ -224,7 +224,6 @@ $+bucket/monitor *:
 &CMD_BUCKET/SET Job Global Object <JGO>=
 $+bucket/set */*=*:
 	@switch 
-		[setq(5,0)]
 		[setq(0,locate(%vc,%0,i))]
 		[and(
 			u(%va/HAS_ACCESS,%#),
@@ -1049,7 +1048,6 @@ $+job/summary *:
 &CMD_JOB/SUMSET Job Global Object <JGO>=
 $+job/sumset */*=*:
 	@switch 
-		[setq(5,0)]
 		[u(%va/HAS_ACCESS,%#)]
 		[isdbref(setr(0,locate(%va,Job %0,i)))]
 		[hasattrp(%q0,ACCESS_%1)]
