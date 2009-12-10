@@ -2964,7 +2964,7 @@ $+typo *:
 	[space(4)]
 	[iter(
 		sortby(SORTBY_NAME,lcon(%vc)),
-		mid(name(##),0,2)
+		mid([name(##)]%b,0,2)
 	)]%r%r
 	[center(# of Jobs in Buckets,79)]
 -
