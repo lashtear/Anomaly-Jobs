@@ -97,6 +97,14 @@
   This sorts all jobs by escalation code, red at top, then yellow, then green.
   Note that any jobs that have gone into OVERDUE status are not sorted as 'red'
   to keep sorting sane.
+& jobs/clean
+
+  [ansi(h,+jobs/clean)]
+  
+  This command will remove all non-players from job entries.
+  
+  A &TRIG_CLEAN trigger is provided on the Jobs Database object which may be
+  called from autonuke code to execute this function automatically.
 & jobs/compress
 
   [ansi(h,+jobs/compress)]
@@ -485,6 +493,7 @@
 
   [ansi(h,+jobs)]                                    : List jobs
   [ansi(h,+jobs/%[all|mine|pri%])]                     : List in <bucket>/all/yours/pri
+  [ansi(h,+jobs/clean)]                              : Removes non-players from job data
   [ansi(h,+jobs/compress)]                           : Compresses job list (Wiz)
   [ansi(h,+jobs/credits)]                            : Display credit information.
   [ansi(h,+jobs/list <bucket>)]                      : List all jobs in <bucket>.

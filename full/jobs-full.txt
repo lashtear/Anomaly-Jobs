@@ -1300,6 +1300,17 @@ $+jobs/all:
 	}
 -
 
+&CMD_JOBS/CLEAN Job Global Object <JGO>=
+$+jobs/clean:
+	@switch [u(%va/HAS_ACCESS,%#)]=0*,
+	{
+		@pemit %#=Permission denied.
+	},{
+		@trigger %va/TRIG_CLEAN;
+		@pemit %#=Removing all non-player entries from Job Data.
+	}
+-
+
 &CMD_JOBS/COMPRESS Job Global Object <JGO>=
 $+jobs/compress:
 	@switch [u(%va/FN_WIZONLY,%#)]=0*,
