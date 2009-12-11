@@ -3998,9 +3998,6 @@ $+typo *:
 			[ansi(Xhu,
 				[convsecs(extract(get(%1/%0),2,1,|))]%b
 			)]
-# What is this 43? Maybe I am tired, but I am confused. -Grey			
-# Double checking its clearly after the other stuff and on its own in the ansi.
-			,43,
 		)]%r
 		
 		[space(4)]
@@ -4012,6 +4009,203 @@ $+typo *:
 &CHROME_SUMMARY Job Database <JD>=%r[repeat(_,79)]%r[u(parent(%0)/SUMMARY,%0)]
 -
 
+# WhiteBG Skin Setup
+
+&WHITEBG_SKIN Job Database <JD>=
+  1
+-
+&WHITEBG_JOBLIST Job Database <JD>=
+  [setq(0,secure(ifelse(
+    hasattrp(%1,JOBS),
+    lcstr(mid(get(%1/JOBS),0,20)),
+    get(%va/JOBS_DEFAULT)
+  )))]
+  [setq(1,ifelse(
+    get(%0/DUE_ON),
+    ifelse(
+      gt(secs(),get(%0/DUE_ON)),
+      r,
+      switch(
+        get(%0/PRIORITY),
+        1,g,
+        2,y,
+        3,r,
+        g
+      )
+    ),
+    switch(
+      get(%0/PRIORITY),
+      1,g,
+      2,y,
+      3,r
+    )
+  ))]
+  [ifelse(
+    u(%va/FN_ISNEW,%0,%1),
+    [ansi(hr,*)]%b,
+    %b%b
+  )]
+  [ansi(%q1,
+    [rjust([last(name(%0))],5)]%b
+    [iter(
+      lnum(strlen(%q0)),
+      [u(%va/DISPLAY_[mid(%q0,##,1)],%0,%1)]
+    )]
+  )]
+-
+
+&WHITEBG_FOOTER Job Database <JD>=
+  [ansi(x,switch(%0,,repeat(=,79),center(| [stripansi(%0)] |,79,=)))]
+-
+
+&WHITEBG_JOBSHEADER Job Database <JD>=
+  [localize(
+    [u(FN_HEADER,Anomaly Jobs [u(VERSION)])]%r
+    [setq(1,[secure(switch(
+      hasattrp(%0,JOBS),
+      1,lcstr(mid(get(%0/JOBS),0,20)),
+      u(JOBS_DEFAULT)
+    ))])]
+    [ansi(c,
+      *%b%b[ljust(Job#,5)][iter(
+        lnum(strlen(%q1)),
+        u(HEADER_[mid(%q1,##,1)])
+      )]
+    )]%r
+    [u(FN_BREAK)]
+  )]
+-
+
+&WHITEBG_HEADER Job Database <JD>=
+  [ansi(x,switch(%0,,[repeat(=,79)],[center(| [stripansi(%0)] |,79,=)]))]
+-
+&WHITEBG_READ Job Database <JD>=
+  [repeat(-,79)]%r
+  [ifelse(
+    u(%va/EDIT_ACCESS,%#),
+    [ansi(x,%[)]
+    [ifelse(
+      and(
+        or(
+          u(%va/IS_PUBLISHED,%1),
+          switch(
+            extract(get(%1/%0),3,1,|),
+            u(%1/OPENED_BY),1,
+            0
+          ),
+          hasflag(%1/%0,no_inherit)
+        ),
+        u(%va/IS_PUBLIC,%1)
+      ),
+      ansi(c,[rest(%0,_)]+),
+      ansi(c,[rest(%0,_)]-)
+    )]
+    [ansi(x,%])]%b
+  ,)]
+  [ansi(x,
+    [extract(get(%1/%0),4,1,|)] added on [convsecs(extract(get(%1/%0),2,1,|))]: %b
+  )]
+  [edit(last(get(%1/%0),|),@@PIPE@@,|)]
+-
+
+&WHITEBG_BUCKETHEADER Job Database <JD>=
+  [u(FN_HEADER,Bucket List)]%r
+  [ifelse(
+    u(%va/FN_WIZONLY,%#),
+    [ansi(c,
+      [ljust(Name,9)]
+      [ljust(Flags,6)]%b%b
+      [ljust(Description,30)]
+      [rjust(#Jobs,5)]
+      [rjust(Pct,5)]
+      [space(3)]C%b%bA%b%bD%b%b
+      Due[space(3)]ARTS
+    )],
+    [ansi(c,
+      [ljust(NAME,8)]
+      [ljust(Description,50)]%b
+      [rjust(Viewing,20)]
+    )]
+  )]%r
+  [u(FN_BREAK)]
+-
+
+&WHITEBG_STAFFSUM Job Database <JD>=
+  [localize(
+    %r[repeat(-,79)]%r
+    [rjust(ansi(c,DB#:),10)] %0
+    [space(10)]
+    [rjust(ansi(c,Comments:),10)] [setr(z,words(lattr(%0/COMMENT_*)))]%r
+    %r[rjust(ansi(c,Players:),10)] %(Players contributing to this job%)%r
+    [setq(y,setunion(
+      iter(
+        lattr(%0/COMMENT_*),
+        extract(get(%0/##),4,1,|),
+        %b,|
+      ),,|
+    ))]
+    [columns(%qy,20,|,11)]
+    [ifelse(
+      hasattr(%0,LIST_READERS),
+      %r[rjust(ansi(c,Readers:),10)] %(Players who have read this job in the past%)%r
+      [setq(z,iter(get(%0/LIST_READERS),first(##,|)))]
+      [columns(map(%va/MAP_NAME,%qz,%b,|),20,|,11)],
+    )]
+    [ifelse(
+      hasattr(%0,TAGGED_FOR),
+      %r[rjust(ansi(c,Tags:),10)] %(Players this job has been tagged for%)%r
+      [columns(map(%va/MAP_NAME,get(%0/TAGGED_FOR),%b,|),20,|,11)],
+    )]%r
+    [rjust(ansi(c,Stats:),10)]%r
+    [columns(iter(
+      ifelse(
+        hasattr(%0,LIST_STATS),
+        sort(get(%0/LIST_STATS)),
+      ),
+      [first(##,|)] [last(##,|)],
+      %b,|
+    ),20,|,11)]%r
+  )]
+-
+
+&WHITEBG_BANNER Job Database <JD>=
+  [setq(0,%0)]
+  [setq(x,itemize(map(MAP_NAME,get(%q0/OPENED_BY),%b,|),|))]
+  [ljust([rjust(ansi(c,Bucket:),10)] [u(%va/FN_BUCKETNAME,%q0)],40)]
+  [rjust(ansi(c,Due On:),12)] [ifelse(
+    get(%q0/DUE_ON),
+    ifelse(
+      gt(secs(),get(%q0/DUE_ON)),
+      OVERDUE!,
+      convsecs(get(%q0/DUE_ON))
+    ),
+    -
+  )]%r
+  [ljust([rjust(ansi(c,Title:),10)] [get(%q0/TITLE)],40)]
+  [rjust(ansi(c,Status:),12)] [switch(
+    get(%q0/PRIORITY),
+    1,Green,
+    2,Yellow,
+    3,Red
+  )] %([switch(
+    get(%q0/STATUS),
+    0,On Hold,
+    1,New,
+    2,Underway,
+    3,25%%,
+    4,50%%,
+    5,75%%,
+    6,100%%,
+    ?
+  )]%)%r
+  [ljust([rjust(ansi(c,Opened On:),10)] [convsecs(get(%q0/OPENED_ON))],40)]
+  [rjust(ansi(c,Assigned To:),12)] [ifelse(
+    isdbref(get(%q0/ASSIGNED_TO)),
+    name(get(%q0/ASSIGNED_TO)),
+    Nobody
+  )]%r
+  [rjust(ansi(c,Opened By:),10)] %qx
+-
 
 # Version/Etc
 
