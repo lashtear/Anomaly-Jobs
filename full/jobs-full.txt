@@ -2293,17 +2293,17 @@ $+typo *:
 
 &FN_CLEANFIND Job Database <JD>=
 	t(words(
-    filter(FIL_NOTPLAYER,get(%0/%1))
-  ))
+		filter(FIL_NOTPLAYER,get(%0/%1))
+	))
 -
 
 &FN_CLEANFIX Job Database <JD>=
 	[setq(0,filter(FIL_ISPLAYER,get(%0/%1)))]
-  [ifelse(
-    words(%q0),
-    %q0,
-    owner(me)
-  )]
+	[ifelse(
+		words(%q0),
+		%q0,
+		owner(me)
+	)]
 -
 
 &FN_COLORPIE Job Database <JD>=
