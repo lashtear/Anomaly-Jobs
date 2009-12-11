@@ -2104,6 +2104,9 @@ $+typo *:
 &FIL_GOING Job Database <JD>=[not(default(%0/GOING,0))]
 -
 
+&FIL_ISPLAYER Job Database <JD>=[hastype(%0,player)]
+-
+
 &FIL_MINE Job Database <JD>=[gt(member([get(%0/assigned_to)] [get(%0/tagged_for)],%#),0)]
 -
 
@@ -2151,6 +2154,9 @@ $+typo *:
 -
 
 &FIL_NOSPAM Job Database <JD>=[not(hasattr(%0,JOBS_NOSPAM))]
+-
+
+&FIL_NOTPLAYER Job Database <JD>=[not(hastype(%0,player))]
 -
 
 &FIL_OVERDUE Job Database <JD>=ifelse(get(%0/DUE_ON),gt(secs(),get(%0/DUE_ON)),0)
@@ -2283,6 +2289,21 @@ $+typo *:
 			ERROR
 		)
 	)]
+-
+
+&FN_CLEANFIND Job Database <JD>=
+	t(words(
+    filter(FIL_NOTPLAYER,get(%0/%1))
+  ))
+-
+
+&FN_CLEANFIX Job Database <JD>=
+	[setq(0,filter(FIL_ISPLAYER,get(%0/%1)))]
+  [ifelse(
+    words(%q0),
+    %q0,
+    owner(me)
+  )]
 -
 
 &FN_COLORPIE Job Database <JD>=
@@ -3202,6 +3223,24 @@ $+typo *:
 	@pemit/list 
 		[setq(0,%0)][filter(%va/FIL_BROADCAST,setunion(lwho(),))]=
 		[ansi(hc,JOBS:)] %1
+-
+
+&TRIG_CLEAN Job Database <JD>=
+	@dolist 
+		lcon(me)
+		={
+			@switch 
+				[u(FN_CLEANFIND,##,OPENED_BY)]
+				[u(FN_CLEANFIND,##,ASSIGNED_TO)]
+				[u(FN_CLEANFIND,##,TAGGED_FOR)]
+				[u(FN_CLEANFIND,##,PLAYERS)]
+				[u(FN_CLEANFIND,##,WRITER)]
+				=1????,{&OPENED_BY ##=U(FN_CLEANFIX,##,OPENED_BY)},
+				 ?1???,{&ASSIGNED_TO ##=U(FN_CLEANFIX,##,ASSIGNED_TO)},
+				 ??1??,{&TAGGED_FOR ##=U(FN_CLEANFIX,##,TAGGED_FOR)},
+				 ???1?,{&PLAYERS ##=U(FN_CLEANFIX,##,PLAYERS)},
+				 ????1,{&WRITER ##=U(FN_CLEANFIX,##,WRITER)}
+		 }
 -
 
 &TRIG_CREATE Job Database <JD>=
