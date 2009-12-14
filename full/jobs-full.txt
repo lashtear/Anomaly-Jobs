@@ -343,7 +343,7 @@ $+job/add *=*:
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=That is an invalid job number.},
 		110*,{@pemit %#=You do not have access to that job.},
-		1110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
+		1110*,{@pemit %#=That job is presently [ifelse(u(%va/fn_hasattrp,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		{
 			@pemit %#=Comments to job number %0 added.;
 			&tagged_for %q0=[setdiff(get(%q0/tagged_for),%#)];
@@ -392,7 +392,7 @@ $+job/approve *=*:
 		0*,{@pemit %#=There is no job by that number.},
 		10*,{@pemit %#=Permission denied.},
 		110*,{@pemit %#=Permission denied.},
-		1110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
+		1110*,{@pemit %#=That job is presently [ifelse(u(%va/fn_hasattrp,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		{
 			@pemit %#=
 				[u(%va/FN_ADDSTAT_ART,parent(%q0),%q0)]
@@ -425,7 +425,7 @@ $+job/assign *=*:
 		10*,{@pemit %#=There is no player by that name.},
 		110*,{@pemit %#=That is not a valid job number.},
 		1110*,{@pemit %#=You do not have access to that job.},
-		11110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
+		11110*,{@pemit %#=That job is presently [ifelse(u(%va/fn_hasattrp,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		111110*,{@pemit %#=[name(%q1)] does not have access to that bucket.},
 		{
 			@pemit %#=You have assigned Job number %0 to [ifelse(isdbref(%q1),name(%q1),nobody)].;
@@ -454,7 +454,7 @@ $+job/checkout *:
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=There is no job by that name. Please type '[ansi(h,+jobs/all)]' for all jobs or '[ansi(h,+jobs/list <bucket>)]' to list by bucket.},
 		110*,{@pemit %#=You do not have access to that job.},
-		1110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)].},
+		1110*,{@pemit %#=That job is presently [ifelse(u(%va/fn_hasattrp,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)].},
 		11110*,{@pemit %#=That job is already checked out.},
 		{
 			@pemit %#=[u(%va/FN_READERS,%q0,%#)]%qa - You have checked out [name(%q0)]. Nobody but you will be able to modify it until you check it back in.;
@@ -521,7 +521,7 @@ $+job/complete *=*:
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=That is not a valid job #. See '+jobs/all' for valid jobs.},
 		110*,{@pemit %#=Permission denied.},
-		1110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
+		1110*,{@pemit %#=That job is presently [ifelse(u(%va/fn_hasattrp,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		{
 			@pemit %#=[u(%va/FN_ADDSTAT_ART,parent(%q0),%q0)][u(%va/FN_ADDSTAT_ART,%vc,%q0)]You have completed job # %0.;
 			@trigger %va/TRIG_ADD=%q0,[u(%va/fn_strtrunc,%1,get(%va/BUFFER))],%#,COM;
@@ -566,7 +566,7 @@ $+job/delete *:
 		=
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=That is not a valid job number.},
-		110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
+		110*,{@pemit %#=That job is presently [ifelse(u(%va/fn_hasattrp,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		{
 			@pemit %#=[u(%va/FN_ADDSTAT_ART,parent(%q0),%q0)][u(%va/FN_ADDSTAT_ART,%vc,%q0)]You have deleted job # %0.;
 			@trigger %va/TRIG_ADD=%q0,Job %0 Deleted,%#,DEL;
@@ -590,7 +590,7 @@ $+job/deny *=*:
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=There is no job by that number.},
 		110*,{@pemit %#=You cannot access that job.},
-		1110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
+		1110*,{@pemit %#=That job is presently [ifelse(u(%va/fn_hasattrp,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		{
 			@pemit %#=[u(%va/FN_ADDSTAT_ART,parent(%q0),%q0)][u(%va/FN_ADDSTAT_ART,%vc,%q0)]You have denied job #%0.;
 			@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 has been denied by %n.;
@@ -697,7 +697,7 @@ $+job/edit */*=*/*:
 		10*,{@pemit %#=Permission denied.},
 		110*,{@pemit %#=That is an invalid job number.},
 		1110*,{@pemit %#=You cannot modify that entry.},
-		11110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
+		11110*,{@pemit %#=That job is presently [ifelse(u(%va/fn_hasattrp,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		111110*,{@pemit %#=You can only edit entries that belong to you.},
 		{
 			&COMMENT_%1 %q0=[extract(%q1,1,4,|)]|[edit(last(%q1,|),edit(%2,|,@@PIPE@@),edit(%3,|,@@PIPE@@))];
@@ -732,7 +732,7 @@ $+job/esc *=*:
 		10*,{@pemit %#=That is not a valid job number.},
 		110*,{@pemit %#=You do not have access to that job.},
 		1110*,{@pemit %#=That is not a valid escalation code. Valid codes are red, yellow, and green.},
-		11110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
+		11110*,{@pemit %#=That job is presently [ifelse(u(%va/fn_hasattrp,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		{
 			@pemit %#=You have escalated job # %0 to %q2 status.;
 			&PRIORITY %q0=%q1;
@@ -837,7 +837,7 @@ $+job/mail *=*:
 		0*,{@pemit %#=There is no job by that number.},
 		10*,{@pemit %#=Permission denied.},
 		110*,{@pemit %#=Permission denied.},
-		1110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
+		1110*,{@pemit %#=That job is presently [ifelse(u(%va/fn_hasattrp,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		{
 			@pemit %#=You have mailed [u(%va/FN_PLAYERLIST,%q0)] about job #%0, with the comments: %1;
 			@trigger %va/TRIG_ADD=%q0,[u(%va/fn_strtrunc,ansi(h,Mail sent to [u(%va/FN_PLAYERLIST,%q0)]:)%r%r%1,get(%va/BUFFER))],%#,MAI;
@@ -898,7 +898,7 @@ $+job/name *=*:
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=There is no job by that name.},
 		110*,{@pemit %#=You do not have access to that job.},
-		1110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
+		1110*,{@pemit %#=That job is presently [ifelse(u(%va/fn_hasattrp,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		{
 			@pemit %#=You have changed the name of Job %0 to %1.;
 			&TITLE %q0=[secure(%1)];@trigger %va/TRIG_ADD=%q0,Renamed to '[secure(%1)]'.,%#,NAM;
@@ -963,7 +963,7 @@ $+job/publish *:
 		110*,{@pemit %#=There is no job by that number.},
 		1110*,{@pemit %#=You do not have access to that job.},
 		11110*,{@pemit %#=That job is not in a bucket that is accessible to +myjobs, so publication is moot.},
-		111110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
+		111110*,{@pemit %#=That job is presently [ifelse(u(%va/fn_hasattrp,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		1111110*,
 		{
 			@pemit %#=You have published Job %0.;
@@ -997,7 +997,7 @@ $+job/publish *=*:
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=There is no job by that number.},
 		110*,{@pemit %#=You do not have access to that job.},
-		1110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
+		1110*,{@pemit %#=That job is presently [ifelse(u(%va/fn_hasattrp,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		11110*,{@pemit %#=That job is not in a bucket that is accessible to +myjobs, so publication is moot.},
 		111110*,{@pemit %#=That is not a valid comment number.},
 		1111110*,
@@ -1051,7 +1051,7 @@ $+job/set *=*:
 		10*,{@pemit %#=That is not a valid job.},
 		110*,{@pemit %#=You do not have access to that job.},
 		1110*,{@pemit %#=That is an invalid setting. Valid job settings are:%r[u(%va/FN_ITEMIZE,lcstr(%qa))].},
-		11110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
+		11110*,{@pemit %#=That job is presently [ifelse(u(%va/fn_hasattrp,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		{
 			@pemit %#=You set Job Number [secure(%0)] to [setq(1,switch(%q2,0,ON HOLD,1,NEW,2,UNDERWAY,3,1/4 COMPLETE,4,1/2 COMPLETE,5,3/4 COMPLETE,COMPLETE))]%q1 status.;
 			&STATUS %q0=%q2;
@@ -1075,7 +1075,7 @@ $+job/source *=*:
 		0*,{@pemit %#=There is no job by that number.},
 		10*,{@pemit %#=Permission denied.},
 		110*,{@pemit %#=Permission denied.},
-		1110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
+		1110*,{@pemit %#=That job is presently [ifelse(u(%va/fn_hasattrp,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		11110*,{@pemit %#='[extract(secure(%1),%q2,1)]' is not a valid player.},
 		{
 			&opened_by %q0=%q1;
@@ -1136,7 +1136,7 @@ $+job/sumset */*=*:
 				)].
 		},
 		1110*,{@pemit %#=You either can not use the +job/sumset command, or set that parameter.},
-		11110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
+		11110*,{@pemit %#=That job is presently [ifelse(u(%va/fn_hasattrp,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		111110*,{@pemit %#=[u(%q0/ERROR_%1%q2)]},
 		{
 			@trigger %va/TRIG_BROADCAST=[parent(%q0)],[name(%q0)]'s [ucstr(%1)] parameter updated by %n.;
@@ -1176,7 +1176,7 @@ $+job/tag *:
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=That is an invalid job number.},
 		110*,{@pemit %#=You do not have access to that job.},
-		1110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
+		1110*,{@pemit %#=That job is presently [ifelse(u(%va/fn_hasattrp,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		{
 			@switch 
 			[gt(strlen(%q6),0)]=1,
@@ -1211,7 +1211,7 @@ $+job/trans *=*:
 	10*,{@pemit %#=There is no job by that number.},
 	110*,{@pemit %#=You do not have access to that job.},
 	1110*,{@pemit %#=There is no bucket by that name. Type '[ansi(h,+buckets)]' for a list of valid buckets.},
-	11110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
+	11110*,{@pemit %#=That job is presently [ifelse(u(%va/fn_hasattrp,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 	{
 		@pemit %#=You have transferred the job from [u(%va/FN_BUCKETNAME,%q0)] to [name(%q1)].;
 		@set %q0=!going;
@@ -1229,7 +1229,7 @@ $+job/unlock *:
 	[setq(0,u(%va/FN_FIND-JOB,%0))]
 	[isdbref(%q0)]
 	[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
-	[hasattrp(%q0,LOCKED)]
+	[u(%va/fn_hasattrp,%q0,LOCKED)]
 	=
 	0*,{@pemit %#=Permission denied.},
 	10*,{@pemit %#=That is an invalid job number.},
@@ -1275,7 +1275,7 @@ $+job/untag *:
 	0*,{@pemit %#=Permission denied.},
 	10*,{@pemit %#=That is an invalid job number.},
 	110*,{@pemit %#=You do not have access to that job.},
-	1110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
+	1110*,{@pemit %#=That job is presently [ifelse(u(%va/fn_hasattrp,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 	{
 		@switch 
 		[gt(strlen(%q6),0)]=1,
@@ -1925,7 +1925,7 @@ $+typo *:
 -
 
 &DISPLAY_F Job Database <JD>=
-	[ifelse(u(me/IS_LOCKED,%0),ifelse(hasattrp(%0,CHECKOUT),C,L),-)]
+	[ifelse(u(me/IS_LOCKED,%0),ifelse(u(%va/fn_hasattrp,%0,CHECKOUT),C,L),-)]
 	[ifelse(u(me/IS_PUBLIC,%0),M,-)]
 	[ifelse(u(me/IS_TAGGED,%0),T,-)]
 	[ifelse(u(me/IS_PUBLISHED,%0),P,-)]
@@ -1937,13 +1937,13 @@ $+typo *:
 &DISPLAY_O Job Database <JD>=[ljust(name(first(get(%0/OPENED_BY))),16)]
 -
 
-&DISPLAY_P Job Database <JD>=[ifelse(u(me/IS_LOCKED,%0),ifelse(hasattrp(%0,CHECKOUT),C,L),-)]
+&DISPLAY_P Job Database <JD>=[ifelse(u(me/IS_LOCKED,%0),ifelse(u(%va/fn_hasattrp,%0,CHECKOUT),C,L),-)]
 -
 
 &DISPLAY_S Job Database <JD>=
 	[center(
 		switch(
-			[hasattrp(%0,LOCKED)][hasattrp(%0,CHECKOUT)][get(%0/STATUS)],
+			[u(%va/fn_hasattrp,%0,LOCKED)][u(%va/fn_hasattrp,%0,CHECKOUT)][get(%0/STATUS)],
 			1*,LOCKED,
 			01*,CHECKED,
 			000,ON HOLD,
@@ -2683,7 +2683,7 @@ $+typo *:
 &IS_HIDDEN Job Database <JD>=[udefault(%0/HIDDEN,0)]
 -
 
-&IS_LOCKED Job Database <JD>=ifelse(hasattrp(%0,CHECKOUT),switch(first(get(%0/CHECKOUT)),%1,0,1),udefault(%0/LOCKED,0))
+&IS_LOCKED Job Database <JD>=ifelse(u(%va/fn_hasattrp,%0,CHECKOUT),switch(first(get(%0/CHECKOUT)),%1,0,1),udefault(%0/LOCKED,0))
 -
 
 &IS_PLAYER Job Database <JD>=[switch(type(%0),PLAYER,%0,)]
@@ -3694,7 +3694,7 @@ $+typo *:
 		[ljust(name(%0),6)]%b%b
 			[ifelse(u(%va/FN_MONITORCHECK,%0,%#),V,-)]
 			[ifelse(u(%va/IS_HIDDEN,%0),H,-)]
-			[ifelse(u(%va/IS_LOCKED,%0),ifelse(hasattrp(%0,CHECKOUT),C,L),-)]
+			[ifelse(u(%va/IS_LOCKED,%0),ifelse(u(%va/fn_hasattrp,%0,CHECKOUT),C,L),-)]
 			[ifelse(u(%va/IS_TAGGED,%0),T,-)]
 			[ifelse(u(%va/IS_PUBLIC,%0),M,-)]
 			[ifelse(u(%va/IS_PUBLISHED,%0),P,-)]
@@ -3751,7 +3751,7 @@ $+typo *:
 &DEFAULT_FLAGS Job Database <JD>=
 	[ifelse(
 		u(me/IS_LOCKED,%0),
-		u(me/FN_FLAG,ifelse(hasattrp(%0,CHECKOUT),CHECKED OUT,LOCKED),hr),
+		u(me/FN_FLAG,ifelse(u(%va/fn_hasattrp,%0,CHECKOUT),CHECKED OUT,LOCKED),hr),
 	)]
 	[ifelse(
 		u(me/IS_PUBLIC,%0),
@@ -4013,7 +4013,7 @@ $+typo *:
 			squish(
 				[ifelse(
 					u(me/IS_LOCKED,%0),
-					%b[ansi(hr,ifelse(hasattrp(%0,CHECKOUT),CHECKED_OUT,LOCKED))]%b,
+					%b[ansi(hr,ifelse(u(%va/fn_hasattrp,%0,CHECKOUT),CHECKED_OUT,LOCKED))]%b,
 				)]
 				[ifelse(
 					u(me/IS_PUBLIC,%0),
@@ -4053,7 +4053,7 @@ $+typo *:
 	[setq(0,
 		secure(
 			ifelse(
-				hasattrp(%1,JOBS),
+				u(%va/fn_hasattrp,%1,JOBS),
 				lcstr(mid(get(%1/JOBS),0,20)),
 				get(%va/JOBS_DEFAULT)
 			)
