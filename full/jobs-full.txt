@@ -2737,6 +2737,8 @@ $+typo *:
 &LIST_ACTIONS Job Database <JD>=
 	ADD Player input|
 	ASN Assignment|
+	CKI Check In|
+	CKO Check Out|
 	CLN Clone|
 	CRE Create|
 	DUE Due date|
