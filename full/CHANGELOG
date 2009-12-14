@@ -25,6 +25,7 @@ Major changes:
 - Added +jobs/clean command and associated TRIG_CLEAN trigger to remove non-players from the various jobs fields. This can be linked to autonuke code or hooked to @dest and/or @nuke commands. Issue 9.
 - Job numbers and bucket names must now be explicitly matched. Issue 16.
 - Added new WHITEBG skin. Issue 28.
+- Added /checkin and /checkout support. 
 Minor changes:
 - Various other changes for Rhost and Penn compatibility: functions, flags, @wait, null arguments, integer division, and piecharts affected.
 - Changed 5.0 to 5.2 in the jhelp.txt file. 
@@ -33,8 +34,7 @@ Minor changes:
 - Added +bucket/check with two entries in jhelp.txt. Issue 15.
 - Removed POST_COMPLETE from the REQ bucket. Issue 18.
 - Changed the @aconnect. Issue 20.
-- Moved most of the installation instructions from the install file into the
-  README files. 29.
+- Moved most of the installation instructions from the install file into the README files. 29.
 - Changed the install file name to remove version reference.
 - Formatted the install.
 - Fixed errors in CMD_JOB/DUE2. Issue 30.
@@ -43,3 +43,8 @@ Minor changes:
 - Removed stray POST_COMPLETE on the REQ bucket hardcoded to +bboard 11. Issue 51.
 - Fixed arguments for TRIG_APPLY. Issue 52.
 - One-character bucket name bargraph fix. Issue 53.
+- Fixed a FIL_NEWCOMMENT1 bug.
+- Fixed a CHROME_JOBLIST bug.
+- Added total Job Actions to STATS and ACTIONS reports.
+- IS_LOCKED references changed to accept a second parameter (Checkin support)
+
