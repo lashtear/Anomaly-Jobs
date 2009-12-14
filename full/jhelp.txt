@@ -237,6 +237,22 @@
   of the grid. Anything posted to the job's first comment and your <comments>
   then become public, so be careful when using /complete lest any secret
   player information become public.
+& job/checkout
+
+  [ansi(h,+job/checkout <#>)]
+  
+  This command allows you to check out job <#>. Checked out jobs can only be
+  modified by you until it is checked back in.
+  
+  See also: job/checkin
+& job/checkin
+
+  [ansi(h,+job/checkin <#>)]
+  
+  This command allows you to check in job <#>. Wizards and the person who
+  checked out the job are allowed to check them back in.
+  
+  See also: job/checkout
 & job/assign
 
   [ansi(h,+job/assign <#>=<player>)]
@@ -835,10 +851,13 @@
 
   [ansi(h,+job/lock <#>)]
   [ansi(h,+job/unlock <#>)]
+  [ansi(h,+job/checkout <#>)]
+  [ansi(h,+job/checkin <#>)]
   
   When a job is locked, it cannot be modified in any way until unlocked. It
   can, however, be transferred to another bucket. This behavior is allowed in
-  case administrators wish to impose a lockdown on a whole bucket.
+  case administrators wish to impose a lockdown on a whole bucket. If someone
+  has checked out a job, it cannot be modified until it is checked back in.
   
   [ansi(h,+job/edit <#>/<Entry #>=<Old>/<New>)]
   
@@ -1217,6 +1236,8 @@
   APR   +job/approve closing action.
   ASN   Assignment to a user.
   AUT   Automatic hook. If set, will run daily.
+  CKI   Checked In.
+  CKO   Checked Out.
   CLN   Clone action. Only appears on the newly created job.
   COM   +job/complete generates this closing action.
   CRE   Can only be first comment. Generated with +job/create.

@@ -338,12 +338,12 @@ $+job/add *=*:
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
 		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
-		[not(u(%va/IS_LOCKED,%q0))]
+		[not(u(%va/IS_LOCKED,%q0,%#))]
 		=
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=That is an invalid job number.},
 		110*,{@pemit %#=You do not have access to that job.},
-		1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},
+		1110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		{
 			@pemit %#=Comments to job number %0 added.;
 			&tagged_for %q0=[setdiff(get(%q0/tagged_for),%#)];
@@ -387,12 +387,12 @@ $+job/approve *=*:
 		[isdbref(%q0)]
 		[u(%va/HAS_ACCESS,%#)]
 		[u(%va/APPROVE_ACCESS,%#)]
-		[not(u(%va/IS_LOCKED,%q0))]
+		[not(u(%va/IS_LOCKED,%q0,%#))]
 		=
 		0*,{@pemit %#=There is no job by that number.},
 		10*,{@pemit %#=Permission denied.},
 		110*,{@pemit %#=Permission denied.},
-		1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},
+		1110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		{
 			@pemit %#=
 				[u(%va/FN_ADDSTAT_ART,parent(%q0),%q0)]
@@ -415,7 +415,7 @@ $+job/assign *=*:
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
 		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
-		[not(u(%va/IS_LOCKED,%q0))]
+		[not(u(%va/IS_LOCKED,%q0,%#))]
 		[ifelse(
 			%q2,
 			1,
@@ -425,7 +425,7 @@ $+job/assign *=*:
 		10*,{@pemit %#=There is no player by that name.},
 		110*,{@pemit %#=That is not a valid job number.},
 		1110*,{@pemit %#=You do not have access to that job.},
-		11110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},
+		11110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		111110*,{@pemit %#=[name(%q1)] does not have access to that bucket.},
 		{
 			@pemit %#=You have assigned Job number %0 to [ifelse(isdbref(%q1),name(%q1),nobody)].;
@@ -438,6 +438,52 @@ $+job/assign *=*:
 				)].,
 				%#,ASN,%q1;
 			@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 has been assigned to [ifelse(%q2,nobody,name(%q1))] by %n.
+		}
+-
+
+&CMD_JOB/CHECKOUT Job Global Object <JGO>=
+$+job/checkout *:
+	@switch 
+		[u(%va/HAS_ACCESS,%#)]
+		[setq(0,u(%va/FN_FINDJOB,secure(%0)))]
+		[isdbref(%q0)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[not(u(%va/IS_LOCKED,%q0,%#))]
+		[not(hasattr(%q0,CHECKOUT))]
+		=
+		0*,{@pemit %#=Permission denied.},
+		10*,{@pemit %#=There is no job by that name. Please type '[ansi(h,+jobs/all)]' for all jobs or '[ansi(h,+jobs/list <bucket>)]' to list by bucket.},
+		110*,{@pemit %#=You do not have access to that job.},
+		1110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)].},
+		11110*,{@pemit %#=That job is already checked out.},
+		{
+			@pemit %#=[u(%va/FN_READERS,%q0,%#)]%qa - You have checked out [name(%q0)]. Nobody but you will be able to modify it until you check it back in.;
+			&CHECKOUT %q0=%# [secs()];
+			@trigger %va/TRIG_ADD=%q0,Checked out by [name(%#)].,%#,CKO;
+			@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 checked out by [name(%#)].
+		}
+-
+
+&CMD_JOB/CHECKIN Job Global Object <JGO>=
+$+job/checkin *:
+	@switch 
+		[u(%va/HAS_ACCESS,%#)]
+		[setq(0,u(%va/FN_FINDJOB,secure(%0)))]
+		[isdbref(%q0)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[hasattr(%q0,CHECKOUT)]
+		[or(orflags(%#,W),switch(first(get(%q0/CHECKOUT)),%#,1,0))]
+		=
+		0*,{@pemit %#=Permission denied.},
+		10*,{@pemit %#=There is no job by that name. Please type '[ansi(h,+jobs/all)]' for all jobs or '[ansi(h,+jobs/list <bucket>)]' to list by bucket.},
+		110*,{@pemit %#=You do not have access to that job.},
+		1110*,{@pemit %#=That job is not checked out.},
+		11110*,{@pemit %#=You cannot check that job back in.},
+		{
+			@pemit %#=[u(%va/FN_READERS,%q0,%#)]You have checked [name(%q0)] back in.;
+			&CHECKOUT %q0=;
+			@trigger %va/TRIG_ADD=%q0,Checked in by [name(%#)].,%#,CKI;
+			@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 checked in by [name(%#)].
 		}
 -
 
@@ -459,7 +505,7 @@ $+job/clone *:
 			@pemit me=[setq(2,num(Job %q1))];
 			@tel %q2=%va;
 			@trigger %va/TRIG_ADD=%q2,Cloned job.,%#,CLN,%q0;
-			@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 Cloned by %n. New job is %q1.
+			@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 cloned by %n. New job is %q1.
 		}
 -
 
@@ -470,12 +516,12 @@ $+job/complete *=*:
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
 		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
-		[not(u(%va/IS_LOCKED,%q0))]
+		[not(u(%va/IS_LOCKED,%q0,%#))]
 		=
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=That is not a valid job #. See '+jobs/all' for valid jobs.},
 		110*,{@pemit %#=Permission denied.},
-		1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},
+		1110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		{
 			@pemit %#=[u(%va/FN_ADDSTAT_ART,parent(%q0),%q0)][u(%va/FN_ADDSTAT_ART,%vc,%q0)]You have completed job # %0.;
 			@trigger %va/TRIG_ADD=%q0,[u(%va/fn_strtrunc,%1,get(%va/BUFFER))],%#,COM;
@@ -516,11 +562,11 @@ $+job/delete *:
 		)]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
-		[not(u(%va/IS_LOCKED,%q0))]
+		[not(u(%va/IS_LOCKED,%q0,%#))]
 		=
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=That is not a valid job number.},
-		110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},
+		110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		{
 			@pemit %#=[u(%va/FN_ADDSTAT_ART,parent(%q0),%q0)][u(%va/FN_ADDSTAT_ART,%vc,%q0)]You have deleted job # %0.;
 			@trigger %va/TRIG_ADD=%q0,Job %0 Deleted,%#,DEL;
@@ -539,12 +585,12 @@ $+job/deny *=*:
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
 		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
-		[not(u(%va/IS_LOCKED,%q0))]
+		[not(u(%va/IS_LOCKED,%q0,%#))]
 		=
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=There is no job by that number.},
 		110*,{@pemit %#=You cannot access that job.},
-		1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},
+		1110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		{
 			@pemit %#=[u(%va/FN_ADDSTAT_ART,parent(%q0),%q0)][u(%va/FN_ADDSTAT_ART,%vc,%q0)]You have denied job #%0.;
 			@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 has been denied by %n.;
@@ -640,7 +686,7 @@ $+job/edit */*=*/*:
 		[isdbref(%q0)]
 		[setq(1,get(%q0/COMMENT_%1))]
 		[switch(first(%q1,|),ADD,1,CRE,1,0)]
-		[not(u(%va/IS_LOCKED,%q0))]
+		[not(u(%va/IS_LOCKED,%q0,%#))]
 		[switch(
 			extract(%q1,3,1,|),
 			%#,1,
@@ -651,7 +697,7 @@ $+job/edit */*=*/*:
 		10*,{@pemit %#=Permission denied.},
 		110*,{@pemit %#=That is an invalid job number.},
 		1110*,{@pemit %#=You cannot modify that entry.},
-		11110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},
+		11110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		111110*,{@pemit %#=You can only edit entries that belong to you.},
 		{
 			&COMMENT_%1 %q0=[extract(%q1,1,4,|)]|[edit(last(%q1,|),edit(%2,|,@@PIPE@@),edit(%3,|,@@PIPE@@))];
@@ -680,13 +726,13 @@ $+job/esc *=*:
 		[isdbref(%q0)]
 		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
 		[gt(%q1,0)]
-		[not(u(%va/IS_LOCKED,%q0))]
+		[not(u(%va/IS_LOCKED,%q0,%#))]
 		=
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=That is not a valid job number.},
 		110*,{@pemit %#=You do not have access to that job.},
 		1110*,{@pemit %#=That is not a valid escalation code. Valid codes are red, yellow, and green.},
-		11110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},
+		11110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		{
 			@pemit %#=You have escalated job # %0 to %q2 status.;
 			&PRIORITY %q0=%q1;
@@ -786,12 +832,12 @@ $+job/mail *=*:
 		[isdbref(%q0)]
 		[u(%va/HAS_ACCESS,%#)]
 		[u(%va/MAIL_ACCESS,%#)]
-		[not(u(%va/IS_LOCKED,%q0))]
+		[not(u(%va/IS_LOCKED,%q0,%#))]
 		=
 		0*,{@pemit %#=There is no job by that number.},
 		10*,{@pemit %#=Permission denied.},
 		110*,{@pemit %#=Permission denied.},
-		1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},
+		1110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		{
 			@pemit %#=You have mailed [u(%va/FN_PLAYERLIST,%q0)] about job #%0, with the comments: %1;
 			@trigger %va/TRIG_ADD=%q0,[u(%va/fn_strtrunc,ansi(h,Mail sent to [u(%va/FN_PLAYERLIST,%q0)]:)%r%r%1,get(%va/BUFFER))],%#,MAI;
@@ -812,7 +858,7 @@ $+job/merge *=*:
 		[setq(2,u(%q0/NUM_COMMENT))]
 		[setq(3,u(%q1/NUM_COMMENT))]
 		[and(
-			not(u(%va/IS_LOCKED,%q0)),
+			not(u(%va/IS_LOCKED,%q0,%#)),
 			not(u(%va/fn_hasattrp,%q1,LOCKED))
 		)]
 		[not(eq(%0,%1))]
@@ -822,7 +868,7 @@ $+job/merge *=*:
 		110*,{@pemit %#=There is no job number %1.},
 		1110*,{@pemit %#=You do not have access to [name(%q0)].},
 		11110*,{@pemit %#=You do not have access to [name(%q1)].},
-		111110*,{@pemit %#=One of the jobs is locked. It must be unlocked before modifications can be made.},
+		111110*,{@pemit %#=One of those jobs is locked or checked out.},
 		1111110*,{@pemit %#=Sort of like a Klein bottle, eh?},
 		{
 			@trigger %va/TRIG_ADD=%q0,Job [secure(%0)] merged into this one.,%#,MRG;
@@ -847,12 +893,12 @@ $+job/name *=*:
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
 		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
-		[not(u(%va/IS_LOCKED,%q0))]
+		[not(u(%va/IS_LOCKED,%q0,%#))]
 		=
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=There is no job by that name.},
 		110*,{@pemit %#=You do not have access to that job.},
-		1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},
+		1110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		{
 			@pemit %#=You have changed the name of Job %0 to %1.;
 			&TITLE %q0=[secure(%1)];@trigger %va/TRIG_ADD=%q0,Renamed to '[secure(%1)]'.,%#,NAM;
@@ -892,7 +938,7 @@ $+job/new *:
 				@wait 0={
 					@pemit %#=
 						[ifelse(
-							u(%va/IS_LOCKED,%q0),
+							u(%va/IS_LOCKED,%q0,%#),
 							u(%va/FN_FOOTER,u(%va/FN_FLAGS,%q0)),
 							[u(%va/FN_FOOTER,New Activity on Job %0 since [convsecs(%q1)])])][u(%va/FN_READERS,%q0,%#
 						)]
@@ -909,7 +955,7 @@ $+job/publish *:
 		[isdbref(%q0)]
 		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
 		[u(%va/fn_hasattrp,%q0,PUBLIC)]
-		[not(u(%q0/LOCKED))]
+		[not(u(%va/IS_LOCKED,%q0,%#))]
 		[eq(u(%q0/PUBLISH),1)]
 		=
 		0*,@@,
@@ -917,7 +963,7 @@ $+job/publish *:
 		110*,{@pemit %#=There is no job by that number.},
 		1110*,{@pemit %#=You do not have access to that job.},
 		11110*,{@pemit %#=That job is not in a bucket that is accessible to +myjobs, so publication is moot.},
-		111110*,{@pemit %#=That job must be unlocked before it can be modified.},
+		111110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		1111110*,
 		{
 			@pemit %#=You have published Job %0.;
@@ -943,7 +989,7 @@ $+job/publish *=*:
 		)]
 		[isdbref(%q0)]
 		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
-		[not(u(%va/IS_LOCKED,%q0))]
+		[not(u(%va/IS_LOCKED,%q0,%#))]
 		[u(%va/IS_PUBLIC,%q0)]
 		[u(%va/fn_hasattrp,%q0,COMMENT_%1)]
 		[hasflag(%q0/COMMENT_%1,no_inherit)]
@@ -951,7 +997,7 @@ $+job/publish *=*:
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=There is no job by that number.},
 		110*,{@pemit %#=You do not have access to that job.},
-		1110*,{@pemit %#=That job must be unlocked before modifications can be made.},
+		1110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		11110*,{@pemit %#=That job is not in a bucket that is accessible to +myjobs, so publication is moot.},
 		111110*,{@pemit %#=That is not a valid comment number.},
 		1111110*,
@@ -999,13 +1045,13 @@ $+job/set *=*:
 		[isdbref(%q0)]
 		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
 		[and(isnum(%q2),gt(%q2,-1),lt(%q2,7))]
-		[not(u(%va/IS_LOCKED,%q0))]
+		[not(u(%va/IS_LOCKED,%q0,%#))]
 		=
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=That is not a valid job.},
 		110*,{@pemit %#=You do not have access to that job.},
 		1110*,{@pemit %#=That is an invalid setting. Valid job settings are:%r[u(%va/FN_ITEMIZE,lcstr(%qa))].},
-		11110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},
+		11110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		{
 			@pemit %#=You set Job Number [secure(%0)] to [setq(1,switch(%q2,0,ON HOLD,1,NEW,2,UNDERWAY,3,1/4 COMPLETE,4,1/2 COMPLETE,5,3/4 COMPLETE,COMPLETE))]%q1 status.;
 			&STATUS %q0=%q2;
@@ -1021,7 +1067,7 @@ $+job/source *=*:
 		[isdbref(%q0)]
 		[u(%va/HAS_ACCESS,%#)]
 		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
-		[not(u(%va/IS_LOCKED,%q0))]
+		[not(u(%va/IS_LOCKED,%q0,%#))]
 		[setq(1,map(%va/MAP_SOURCE,secure(%1)))]
 		[setq(2,member(%q1,#-1))]
 		[ifelse(gt(%q2,0),0,1)]
@@ -1029,7 +1075,7 @@ $+job/source *=*:
 		0*,{@pemit %#=There is no job by that number.},
 		10*,{@pemit %#=Permission denied.},
 		110*,{@pemit %#=Permission denied.},
-		1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},
+		1110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		11110*,{@pemit %#='[extract(secure(%1),%q2,1)]' is not a valid player.},
 		{
 			&opened_by %q0=%q1;
@@ -1076,7 +1122,7 @@ $+job/sumset */*=*:
 		[isdbref(setr(0,u(%va/FN_FIND-JOB,%0)))]
 		[u(%va/fn_hasattrp,%q0,ACCESS_%1)]
 		[and(u(%va/CONFIG_ACCESS,%#),u(%q0/ACCESS_%1,%#))]
-		[not(u(%va/IS_LOCKED,%q0))]
+		[not(u(%va/IS_LOCKED,%q0,%#))]
 		[u(%q0/PROCESS_%1,%2,%q0,%#)]
 		=
 		0*,{@pemit %#=Permission denied.},
@@ -1090,7 +1136,7 @@ $+job/sumset */*=*:
 				)].
 		},
 		1110*,{@pemit %#=You either can not use the +job/sumset command, or set that parameter.},
-		11110*,{@pemit %#=That job is locked. It cannot be modified until it is unlocked.},
+		11110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		111110*,{@pemit %#=[u(%q0/ERROR_%1%q2)]},
 		{
 			@trigger %va/TRIG_BROADCAST=[parent(%q0)],[name(%q0)]'s [ucstr(%1)] parameter updated by %n.;
@@ -1125,12 +1171,12 @@ $+job/tag *:
 		[setq(0,u(%va/FN_FIND-JOB,%q8))]
 		[isdbref(%q0)]
 		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
-		[not(u(%va/IS_LOCKED,%q0))]
+		[not(u(%va/IS_LOCKED,%q0,%#))]
 		=
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=That is an invalid job number.},
 		110*,{@pemit %#=You do not have access to that job.},
-		1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},
+		1110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		{
 			@switch 
 			[gt(strlen(%q6),0)]=1,
@@ -1159,13 +1205,13 @@ $+job/trans *=*:
 	[isdbref(%q0)]
 	[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
 	[isdbref(setr(1,u(%va/FN_FIND-BUCKET,%1)))]
-	[not(u(%va/IS_LOCKED,%q0))]
+	[not(u(%va/IS_LOCKED,%q0,%#))]
 	=
 	0*,{@pemit %#=Permission denied.},
 	10*,{@pemit %#=There is no job by that number.},
 	110*,{@pemit %#=You do not have access to that job.},
 	1110*,{@pemit %#=There is no bucket by that name. Type '[ansi(h,+buckets)]' for a list of valid buckets.},
-	11110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},
+	11110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 	{
 		@pemit %#=You have transferred the job from [u(%va/FN_BUCKETNAME,%q0)] to [name(%q1)].;
 		@set %q0=!going;
@@ -1183,7 +1229,7 @@ $+job/unlock *:
 	[setq(0,u(%va/FN_FIND-JOB,%0))]
 	[isdbref(%q0)]
 	[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
-	[u(%va/IS_LOCKED,%q0)]
+	[hasattrp(%q0,LOCKED)]
 	=
 	0*,{@pemit %#=Permission denied.},
 	10*,{@pemit %#=That is an invalid job number.},
@@ -1224,12 +1270,12 @@ $+job/untag *:
 	[setq(0,u(%va/FN_FIND-JOB,%q8))]
 	[isdbref(%q0)]
 	[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
-	[not(u(%va/FN_ISLOCKED,%q0))]
+	[not(u(%va/IS_LOCKED,%q0,%#))]
 	=
 	0*,{@pemit %#=Permission denied.},
 	10*,{@pemit %#=That is an invalid job number.},
 	110*,{@pemit %#=You do not have access to that job.},
-	1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},
+	1110*,{@pemit %#=That job is presently [ifelse(hasattrp(%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 	{
 		@switch 
 		[gt(strlen(%q6),0)]=1,
@@ -1879,7 +1925,7 @@ $+typo *:
 -
 
 &DISPLAY_F Job Database <JD>=
-	[ifelse(u(me/IS_LOCKED,%0),L,-)]
+	[ifelse(u(me/IS_LOCKED,%0),ifelse(hasattrp(%0,CHECKOUT),C,L),-)]
 	[ifelse(u(me/IS_PUBLIC,%0),M,-)]
 	[ifelse(u(me/IS_TAGGED,%0),T,-)]
 	[ifelse(u(me/IS_PUBLISHED,%0),P,-)]
@@ -1891,25 +1937,23 @@ $+typo *:
 &DISPLAY_O Job Database <JD>=[ljust(name(first(get(%0/OPENED_BY))),16)]
 -
 
-&DISPLAY_P Job Database <JD>=[ifelse(u(me/IS_LOCKED,%0),L,-)]
+&DISPLAY_P Job Database <JD>=[ifelse(u(me/IS_LOCKED,%0),ifelse(hasattrp(%0,CHECKOUT),C,L),-)]
 -
 
 &DISPLAY_S Job Database <JD>=
 	[center(
-		ifelse(
-			u(%va/fn_hasattrp,%0,LOCKED),
-				LOCKED,
-			switch(
-				get(%0/STATUS),
-				0,ON HOLD,
-				1,NEW,
-				2,UNDERWAY,
-				3,1/4 DONE,
-				4,1/2 DONE,
-				5,3/4 DONE,
-				6,COMPLETE,
-				NEW
-			)
+		switch(
+			[hasattrp(%0,LOCKED)][hasattrp(%0,CHECKOUT)][get(%0/STATUS)],
+			1*,LOCKED,
+			01*,CHECKED,
+			000,ON HOLD,
+			001,NEW,
+			002,UNDERWAY,
+			003,1/4 DONE,
+			004,1/2 DONE,
+			005,3/4 DONE,
+			006,COMPLETE,
+			NEW
 		),
 		8
 	)]
@@ -2150,22 +2194,7 @@ $+typo *:
 	)]
 -
 
-&FIL_NEWCOMMENTS1 Job Database <JD>=
-	[and(
-		gt(
-			dec(get(%q0/NUM_COMMENT)),
-			last(
-				grab(get(%q0/LIST_READERS),%#|*),|
-			)
-		),
-		gt(
-			member(
-				get(%va/LIST_VISCOMMENTS),
-				first(get(%q0/%0),|)
-			),
-			0
-		)
-	)]
+&FIL_NEWCOMMENTS1 Job Database <JD>=gt(last(%0,_),last(grab(get(%q0/LIST_READERS),%#|*),|))
 -
 
 &FIL_NOSPAM Job Database <JD>=[not(u(%va/fn_hasattr,%0,JOBS_NOSPAM))]
@@ -2654,7 +2683,7 @@ $+typo *:
 &IS_HIDDEN Job Database <JD>=[udefault(%0/HIDDEN,0)]
 -
 
-&IS_LOCKED Job Database <JD>=[udefault(%0/LOCKED,0)]
+&IS_LOCKED Job Database <JD>=ifelse(hasattrp(%0,CHECKOUT),switch(first(get(%0/CHECKOUT)),%1,0,1),udefault(%0/LOCKED,0))
 -
 
 &IS_PLAYER Job Database <JD>=[switch(type(%0),PLAYER,%0,)]
@@ -2961,31 +2990,22 @@ $+typo *:
 &REPORT_ACTIONS Job Database <JD>=
 	[localize(
 		[ulocal(FN_BARGRAPH,
-			map(MAP_ACTIONS,v(LIST_STATS)),
+			setr(0,map(MAP_ACTIONS,v(LIST_STATS))),
 			15,
 			2,
 			16,
 			#
-		)]%r
+		)]
+		[setq(0,fold(FOLD_ADD,%q0))]%r
 		[space(4)]
 		[setq(1,map(MAP_ACTIONS2,sort(v(LIST_STATS))))]
-		[iter(
-			%q1,
-			[mid(##,0,1)]%b
-		)]%r
-		[space(4)]
-		[iter(
-			%q1,
-			[mid(##,1,1)]%b
-		)]%r
-		[space(4)]
-		[iter(
-			%q1,
-			[mid(##,2,1)]%b
-		)]
+		[iter(%q1,[mid(##,0,1)]%b)]%r[space(4)]
+		[iter(%q1,[mid(##,1,1)]%b)]%r[space(4)]
+		[iter(%q1,[mid(##,2,1)]%b)]
+		%r
+		%r
+		[center(%q0 Actions Performed Since [v(INSTALL_DATE)],79)]
 	)]
-	%r%r
-	[center(Number of Actions Performed Since [v(INSTALL_DATE)],79)]
 -
 
 &REPORT_ARTS Job Database <JD>=
@@ -3214,6 +3234,8 @@ $+typo *:
 		[setq(y,map(%va/MAP_ACTIONS,%qx))]%r
 	[rjust(ansi(hc,Closed:),20)]%b
 		[fold(%va/FOLD_ADD,%qy,0)]%r
+	[rjust(ansi(hc,Actions To Date:),20)]%b
+		[fold(FOLD_ADD,map(MAP_ACTIONS,v(LIST_STATS)))]%r
 	[rjust(ansi(hc,ART:),20)]%b
 		[u(%va/FN_ART,%vc)][space(10)] ART=Average Resolution Time%r
 	[rjust(ansi(hc,REQ ART:),20)]%b
@@ -3670,7 +3692,7 @@ $+typo *:
 		[ljust(name(%0),6)]%b%b
 			[ifelse(u(%va/FN_MONITORCHECK,%0,%#),V,-)]
 			[ifelse(u(%va/IS_HIDDEN,%0),H,-)]
-			[ifelse(u(%va/IS_LOCKED,%0),L,-)]
+			[ifelse(u(%va/IS_LOCKED,%0),ifelse(hasattrp(%0,CHECKOUT),C,L),-)]
 			[ifelse(u(%va/IS_TAGGED,%0),T,-)]
 			[ifelse(u(%va/IS_PUBLIC,%0),M,-)]
 			[ifelse(u(%va/IS_PUBLISHED,%0),P,-)]
@@ -3727,7 +3749,7 @@ $+typo *:
 &DEFAULT_FLAGS Job Database <JD>=
 	[ifelse(
 		u(me/IS_LOCKED,%0),
-		u(me/FN_FLAG,LOCKED,hr),
+		u(me/FN_FLAG,ifelse(hasattrp(%0,CHECKOUT),CHECKED OUT,LOCKED),hr),
 	)]
 	[ifelse(
 		u(me/IS_PUBLIC,%0),
@@ -3989,7 +4011,7 @@ $+typo *:
 			squish(
 				[ifelse(
 					u(me/IS_LOCKED,%0),
-					%b[ansi(hr,LOCKED)]%b,
+					%b[ansi(hr,ifelse(hasattrp(%0,CHECKOUT),CHECKED_OUT,LOCKED))]%b,
 				)]
 				[ifelse(
 					u(me/IS_PUBLIC,%0),
@@ -4029,7 +4051,7 @@ $+typo *:
 	[setq(0,
 		secure(
 			ifelse(
-				u(%va/fn_hasattrp,%1,JOBS),
+				hasattrp(%1,JOBS),
 				lcstr(mid(get(%1/JOBS),0,20)),
 				get(%va/JOBS_DEFAULT)
 			)
@@ -4444,10 +4466,14 @@ $+typo *:
 &HELP Job Parent Object <JPO>=%rThere is no help available for that bucket. To set help information for the [name(me)] bucket, use:%r%r[space(5)]+bucket/set [lcstr(name(me))]/help=<information>%r
 -
 
+&HOOK_CKO Job Parent Object <JPO>=@cpattr %0/ASSIGNED_TO=%0/TEMP_ASN;&ASSIGNED_TO %0=%1
+-
+
+&HOOK_CKI Job Parent Object <JPO>=&ASSIGNED_TO %0=[get(%0/TEMP_ASN)];&TEMP_ASN %0=
+-
 
 &HOOK_MAI Job Parent Object <JPO>=@set %0/[last(sortby(%va/SORTBY_COMMENTS,lattr(%0/COMMENT_*)))]=no_inherit
 -
-
 
 &MLETTER_APR Job Parent Object <JPO>=[name(%0)] has been approved:%r%r[last(get(%0/COMMENT_1),|)]%r[repeat(-,75)]%r[ansi(h,Comments added by [name(%2)]:)] %3
 -
