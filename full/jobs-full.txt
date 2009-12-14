@@ -2998,7 +2998,7 @@ $+typo *:
 			16,
 			#
 		)]
-		[setq(0,fold(FOLD_ADD,%q0))]%r
+		[setq(0,fold(FOLD_ADD,%q0,0))]%r
 		[space(4)]
 		[setq(1,map(MAP_ACTIONS2,sort(v(LIST_STATS))))]
 		[iter(%q1,[mid(##,0,1)]%b)]%r[space(4)]
@@ -3237,7 +3237,7 @@ $+typo *:
 	[rjust(ansi(hc,Closed:),20)]%b
 		[fold(%va/FOLD_ADD,%qy,0)]%r
 	[rjust(ansi(hc,Actions To Date:),20)]%b
-		[fold(FOLD_ADD,map(MAP_ACTIONS,v(LIST_STATS)))]%r
+		[fold(FOLD_ADD,map(MAP_ACTIONS,v(LIST_STATS)),0)]%r
 	[rjust(ansi(hc,ART:),20)]%b
 		[u(%va/FN_ART,%vc)][space(10)] ART=Average Resolution Time%r
 	[rjust(ansi(hc,REQ ART:),20)]%b
