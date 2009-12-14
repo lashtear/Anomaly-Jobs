@@ -16,15 +16,20 @@ Version 5.1
 - Udpated +job/set in jhelp.txt &commands2
 - Updated +myjob/view with missing @pemit.
 - More fixes and updates to +job/sumset. 
-- Pulled out the tagged_for check on +myjob/add for two reason. First, the intent is unclear consider the code is buggy. Two, removing it makes sure the job is only locked by +job/lock, making +myjob/add work like +job/add.
+- Pulled out the tagged_for check on +myjob/add for two reasons. First, the intent is unclear considering the code is buggy. Two, removing it makes sure the job is only locked by +job/lock, making +myjob/add work like +job/add.
 - Added Maintainer line to +job/credits.
 
 Version 5.2
-- Modified destruction behavior for Rhost compatibility and consistency across all code-bases; Jobs will now remain GOING for one minute after closure in which they may be saved by +job/trans.
-- Various other changes for Rhost compatibility.
+Major changes:
+- Modified destruction behavior for Rhost and Penn compatibility and consistency across all code-bases; Jobs will now remain GOING for one minute after closure in which they may be saved by +job/trans.
+- Added +jobs/clean command and associated TRIG_CLEAN trigger to remove non-players from the various jobs fields. This can be linked to autonuke code or hooked to @dest and/or @nuke commands. Issue 9.
+- Job numbers and bucket names must now be explicitly matched. Issue 16.
+- Added new WHITEBG skin. Issue 28.
+Minor changes:
+- Various other changes for Rhost and Penn compatibility: functions, flags, @wait, null arguments, integer division, and piecharts affected.
 - Changed 5.0 to 5.2 in the jhelp.txt file. 
 - Updated the manage2 helpfile to correct the +job/set syntax.
-- Updated version in install file t 5.2
+- Updated version in install file to 5.2
 - Added +bucket/check with two entries in jhelp.txt. Issue 15.
 - Removed POST_COMPLETE from the REQ bucket. Issue 18.
 - Changed the @aconnect. Issue 20.
@@ -33,3 +38,8 @@ Version 5.2
 - Changed the install file name to remove version reference.
 - Formatted the install.
 - Fixed errors in CMD_JOB/DUE2. Issue 30.
+- Various @switch fixes. Isssues 45-47.
+- Fixed JOBS_NUM on install, was skipping job 2 until compressed. Issue 50.
+- Removed stray POST_COMPLETE on the REQ bucket hardcoded to +bboard 11. Issue 51.
+- Fixed arguments for TRIG_APPLY. Issue 52.
+- One-character bucket name bargraph fix. Issue 53.
