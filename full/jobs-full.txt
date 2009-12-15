@@ -4548,6 +4548,11 @@ $+typo *:
 &PROCESS_TURNAROUND Job Parent Object <JPO>=[setq(3,TURNAROUND)][setq(1,%0)][isnum(%0)]
 -
 
+&STAT_ART Job Parent Object <JPO>=0 0
+-
+
+@set Job Parent Object <JPO>/STAT_ART=NO_INHERIT
+-
 
 @cpattr %#/JOB_VA=Job Parent Object <JPO>/VA
 -
