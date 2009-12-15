@@ -472,7 +472,7 @@ $+job/checkin *:
 		[isdbref(%q0)]
 		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
 		[u(%va/FN_HASATTR,%q0,CHECKOUT)]
-		[or(orflags(%#,W),switch(first(get(%q0/CHECKOUT)),%#,1,0))]
+		[or(u(%va/FN_WIZONLY,%#),switch(first(get(%q0/CHECKOUT)),%#,1,0))]
 		=
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=There is no job by that name. Please type '[ansi(h,+jobs/all)]' for all jobs or '[ansi(h,+jobs/list <bucket>)]' to list by bucket.},
