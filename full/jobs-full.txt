@@ -2412,7 +2412,7 @@ $+typo *:
 	)]
 -
 
-&FN_EASYPIE_PENN Job Database <JD>=[setq(0,lmath(add,setr(1,iter(%1,first(rest(%i0,:),:),|))))][setq(2,fdiv(58,%q0))][setq(2,iter(%q1,ceil(mul(%i0,%q2))))][setq(3,iter(%q2,repeat(left(extract(%1,#@,1,|),1),%i0),%B,))][setq(4,u(me/penn%0_pie))][foreach(#lambda/setq(4,edit(\%q4,\%0,mid(\%q3,\%1,1))),v(penn_pie))][setq(4,regeditall(%q4,(.)\\1*,ansi(left(after(|%1,|$1),2),$0)))][align([setr(5,inc(mul(%0,4)))] [sub(77,%q5)],edit(%q4,_,%B),[repeat(%R,%3)][iter(%1,[ansi(mid(%i0,1,2),left(%i0,1))] [ansi(h,last(%i0,:))],|,%R)])]
+&FN_EASYPIE_PENN Job Database <JD>=[setq(0,lmath(add,setr(1,iter(%1,first(rest(%i0,:),:),%2))))][setq(2,fdiv(58,%q0))][setq(2,iter(%q1,ceil(mul(%i0,%q2))))][setq(3,iter(%q2,repeat(left(extract(%1,#@,1,%2),1),%i0),%B,))][setq(4,u(me/penn%0_pie))][foreach(#lambda/setq(4,edit(\%q4,\%0,mid(\%q3,\%1,1))),v(penn_pie))][setq(4,regeditall(%q4,(.)\\1*,ansi(left(after(%2%1,%2$1),2),$0)))][align([setr(5,inc(mul(%0,4)))] [sub(77,%q5)],edit(%q4,_,%B),[repeat(%R,%3)][iter(%1,[ansi(mid(%i0,1,2),left(%i0,1))] [ansi(h,last(%i0,:))],%2,%R)])]
 -
 
 &PENN_PIE Job Database <JD>=0123456789abcdefghijklmnpqrstuvwyzABCDEFGHIJKLMNPQRSTUVWYZ
