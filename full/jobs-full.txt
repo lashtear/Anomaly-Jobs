@@ -2611,12 +2611,8 @@ $+typo *:
 &FN_SKIN Job Database <JD>=
 	[setq(z,default(%#/JOBSKIN,DEFAULT))]
 	[ifelse(
-		u(%va/fn_hasattr,me,%qz_SKIN),
-		ifelse(
-			u(%va/fn_hasattr,me,%qz_%0),
-			u(%qz_%0,%1,%2,%3,%4),
-			u(DEFAULT_%0,%1,%2,%3,%4)
-		),
+		and(u(fn_hasattr,me,%qz_SKIN),u(fn_hasattr,me,%qz_%0)),
+		u(%qz_%0,%1,%2,%3,%4),
 		u(DEFAULT_%0,%1,%2,%3,%4)
 	)]
 -
