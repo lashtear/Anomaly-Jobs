@@ -1399,6 +1399,7 @@ $+jobs/credits:
 		Version: [u(%va/VERSION)][space(5)]Release: [u(%va/RELEASE)]%r%r
 		Author: [u(%va/CREDITS)]%r%r
 		Maintainer: [u(%va/MAINTAINER)]%r%r
+		Contributors: [u(%va/CONTRIBUTORS)]%r%r
 		[u(%va/LICENSE)]%r%r
 		[u(%va/FN_FOOTER)]
 -
@@ -4360,10 +4361,13 @@ $+typo *:
 &MAINTAINER Job Database <JD>=Halmar@Gamma One (grey419@gmail.com)
 -
 
-&LICENSE Job Database <JD>=Contributors: Firestorm@Ephemera, Grey@Anomaly, Ian@MUX%r%rYou may port this code to any game provided that these credits remain intact. Please report any and all bugs, feedback or whatnot to the email address provided above. The most recent version of this code can be found at project's home: http://code.google.com/p/anomalyjobs/
+&CONTRIBUTORS Job Database <JD>=Firestorm@Ephemera, Grey@Anomaly, Ian@MUX, Minion@Crossroads
 -
 
-&RELEASE Job Database <JD>=Jan 9, 2007
+&LICENSE Job Database <JD>=You may port this code to any game provided that these credits remain intact. Please report any and all bugs, feedback or whatnot to the email address provided above. The most recent version of this code can be found at project's home: http://code.google.com/p/anomalyjobs/
+-
+
+&RELEASE Job Database <JD>=Dec ??, 2009
 -
 
 &VERSION Job Database <JD>=v5.2
