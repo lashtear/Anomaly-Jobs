@@ -843,8 +843,8 @@
   performed and by whom. +job/all reads an entire job, like an expanded /act
   command. Using /name allows you to change the <title> of Job <#>.
   
-  The /set value codes are: 0=ON HOLD, 1=NEW, 2=UNDERWAY, 3=1/4 COMPLETE, 
-  4=1/2 COMPLETE, 5=3/4 COMPLETE, 6=COMPLETE.
+  The /set value codes are: hold=ON HOLD, new=NEW, underway=UNDERWAY, 
+  25=1/4 COMPLETE, 50=1/2 COMPLETE, 75=3/4 COMPLETE, 100=COMPLETE.
   
   Continued in: manage3
 & manage3
