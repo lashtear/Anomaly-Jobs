@@ -457,7 +457,7 @@ $+job/checkout *:
 		1110*,{@pemit %#=That job is presently [ifelse(u(%va/fn_hasattrp,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)].},
 		11110*,{@pemit %#=That job is already checked out.},
 		{
-			@pemit %#=[u(%va/FN_READERS,%q0,%#)]%qa - You have checked out [name(%q0)]. Nobody but you will be able to modify it until you check it back in.;
+			@pemit %#=[u(%va/FN_READERS,%q0,%#)]You have checked out [name(%q0)]. Nobody but you will be able to modify it until you check it back in.;
 			&CHECKOUT %q0=%# [secs()];
 			@trigger %va/TRIG_ADD=%q0,Checked out by [name(%#)].,%#,CKO;
 			@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 checked out by [name(%#)].
