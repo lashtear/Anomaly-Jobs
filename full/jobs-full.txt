@@ -445,7 +445,7 @@ $+job/assign *=*:
 $+job/checkout *:
 	@switch 
 		[u(%va/HAS_ACCESS,%#)]
-		[setq(0,u(%va/FN_FINDJOB,secure(%0)))]
+		[setq(0,u(%va/FN_FIND-JOB,secure(%0)))]
 		[isdbref(%q0)]
 		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
 		[not(u(%va/IS_LOCKED,%q0,%#))]
@@ -468,7 +468,7 @@ $+job/checkout *:
 $+job/checkin *:
 	@switch 
 		[u(%va/HAS_ACCESS,%#)]
-		[setq(0,u(%va/FN_FINDJOB,secure(%0)))]
+		[setq(0,u(%va/FN_FIND-JOB,secure(%0)))]
 		[isdbref(%q0)]
 		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
 		[hasattr(%q0,CHECKOUT)]
