@@ -4078,7 +4078,7 @@ $+typo *:
 		)
 	)]
 	[ifelse(
-		gt(get(%0/MODIFIED_ON),get(%#/LAST_CONN)),
+		u(%va/FN_ISNEW,%0,%1),
 		[ansi(hr,*)]%b,
 		%b%b
 	)]
