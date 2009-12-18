@@ -54,9 +54,9 @@ This file must be installed with a Wizard character. It is best if the owner is
 not an account that is regularly logged into, as the code creates and destroys
 objects dynamically. This can get spammy for whomever owns the code.
 
-Objects and/or exits in your inventoroy or room which match the name of buckets 
-can interfere with a smooth install.  Installing from a "clean room" with no 
-inventory on the Wizard character is recommended.
+Objects and/or exits in your inventory and/or room which match the name of 
+buckets can interfere with a smooth install.  It is best to install from a 
+"clean room" with no inventory on the Wizard character.
 
 This code REQUIRES Myrddin's BBS to be installed, as it uses the BBS to post
 completed/approved/denied jobs to. So long as your BBS is unmodified it should
