@@ -1,0 +1,78 @@
+Developer notes on cross-platform compatibility
+-----------------------------------------------
+
+This document is intended to highlight differences in supported servers
+and identify standard coding practices to avoid compatibility issues.
+
+1. Treatment of empty attributes
+
+MUX evaluates hasattr() on an empty attribute (e.g., "&FOO me=") as 0, while
+Pennmush returns 1. Pennmush requires hasattrval() for the same behavior.
+%va/FN_HASATTR and %va/FN_HASATTRP resolve this difference.
+
+2. Math issues
+
+In many math functions, TinyMUSH and MUX treat a space as zero (e.g., 
+add(1,) --> 1); PennMUSH treats it as null (--> #-1 ARGUMENTS MUST BE NUMBERS).
+Always explicitly use 0 in math functions (or base case for fold.) 
+
+In MUX, div(foo,bar) accepts floating point arguments and returns an integer.
+In PennMUSH the arguments must also be integers. round(fdiv(foo,bar)) works,
+as does using round() or trunc() on the arguments before using div(), although
+the former is less subject to intermediate roundoff errors.
+
+3. String / space issues
+
+In sort(), iter(), and other functions with an output delimiter, TinyMUSH and 
+MUX treat a space as a real space (e.g., sort(3 2 1,n, , ) --> 1 2 3); 
+PennMUSH treats it as null (--> 123).  Always explicitly identify spaces used
+as delimiters with %b.
+
+PennMUSH and MUX operate identically on single-argument trim(foo), but have 
+different order of second and third arguments (delimiter & left or right).  
+While trim() will work cross-platform if only one argument is included, for 
+consistency use %va/FN_TRIM.
+
+4. Attribute sorting
+
+MUX stores attributes by creation time. Pennmush stores attributes in an
+alphabetically-sorted list.  When attribute order matters (e.g., list of 
+comments) use a sort.
+
+5. Non-existent functions
+
+MUX columns() --> no direct equivalent in Penn. Alternate code using align()
+is installed in %va/FN_COLUMNS
+
+MUX strtrunc() --> Penn left().  Installed in %va/FN_STRTRUNC
+
+MUX pack() --> no direct Penn equivalent. Baseconv() is probably sufficient
+but uses a different encoding string.  %va/FN_PACK implements MUX version.
+
+MUX & Penn itemize() --> Rhost elist() with different order of arguments.
+Installed in %va/FN_ITEMIZE which also calls FN_PRETTY as a final backup.
+
+6. Misc. functions/flags
+
+MUX: HALTED --> Penn: HALT (HALT is cross-platform)
+MUX: @lock/speechlock --> Penn: @lock/speech (@lock/speech is cross-platform)
+MUX: royalty flag = Z --> Penn: royalty flag = r.  Use hasflag(royalty)
+TinyMUSH: COMMANDS --> Penn: !NO_COMMAND; MUX: either.
+MUX: Colors with %x --> Penn: ansi()  (ansi() is cross-platform)
+Current servers: %i0.  --> Old servers: itext(0).
+
+7. Queue
+
+MUX: Permits fractional-second @wait. Processes @tr's (puts on queue with
+evaluation of current state of attributes) before processing additional 
+commands in the original thread which might change the attributes.
+
+Penn: @wait must be integer. @tr's take a queue cycle and might not be 
+processed before additional commands in the earlier thread change attributes.
+Use long enough @waits for the @tr's to propogate, or pass any needed values
+as arguments to the @tr.
+
+@wait me={foo};@notify me is subject to interference/mis-synchronization with
+multiple simultaneous uses of the same object during the @wait, and/or a
+coding error causing a stray @wait me (or several) eslewhere. Use semaphores
+with caution.
