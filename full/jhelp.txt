@@ -571,7 +571,7 @@
   [ansi(h,+bucket/create <bucket>=<description>)]
   [ansi(h,+bucket/delete <bucket>)]
   [ansi(h,+bucket/access <player>=<bucket>)]
-  [ansi(h,+bucket/check <player>=<bucket>)]
+  [ansi(h,+bucket/check <player>)]
   [ansi(h,+bucket/set <bucket>/<setting>=<value>)]
 
   You can get details on each command with '+jhelp <command>/<switch>' without
