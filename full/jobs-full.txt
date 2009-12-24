@@ -101,9 +101,9 @@ $+bucket/check *:
 			[ansi(h,[ljust(Bucket,15)]%bHas Access?)]%r
 			[iter(
 				lcon(%VC),
-				[ljust(name(itext()),15)]%b
+				[ljust(name(itext(0)),15)]%b
 					[ifelse(
-						u(%VA/fn_accesscheck,itext(),%q0),
+						u(%VA/fn_accesscheck,itext(0),%q0),
 						Yes,
 						No
 					)]
