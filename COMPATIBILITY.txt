@@ -76,3 +76,19 @@ as arguments to the @tr.
 multiple simultaneous uses of the same object during the @wait, and/or a
 coding error causing a stray @wait me (or several) eslewhere. Use semaphores
 with caution.
+
+8. Destroying objects
+
+TinyMUSH/MUX has @destroy (and @destroy/instant).  @nuke is an alias for 
+@dest; if an object is set DESTROY_OK it is destroyed instantly on @nuke.
+
+PennMUSH default configuration has @destroy disabled (in preference for the
+@recycle alias) and also @nuke (alias for @dest/override).  DESTROY_OK on 
+Penn changes permissions but does not speed destruction.  To destroy without 
+waiting for a purge cycle, use @nuke twice.
+
+Use @nuke for cross-platform compatibility.  If it is important to destroy
+immediately, use a combination of DESTROY_OK and two @nuke commands.
+
+
+
