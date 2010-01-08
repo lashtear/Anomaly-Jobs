@@ -4001,7 +4001,7 @@ $+typo *:
 	[rjust(ansi(hc,Opened By:),10)]%b%qx
 -
 
-&CHROME_BREAK Job Database <JD>=[repeat(_,79)]
+&CHROME_BREAK Job Database <JD>=switch(%0,,repeat(_,79),rjust(%[%0%],79,_))
 -
 
 &CHROME_FLAGS Job Database <JD>=

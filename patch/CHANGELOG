@@ -17,12 +17,32 @@ Verion 5.1
 - Added maintainer to +jobs/credits and file.
 
 Version 5.2
-- Modified destruction behavior for Rhost compatibility and consistency across all code-bases; Jobs will now remain GOING for one minute after closure in which they may be saved by +job/trans.
-- Various other changes for Rhost compatibility. 
-- Changed 5.0 to 5.2 in the jhelp.txt file.
+Major changes:
+- Modified destruction behavior for Rhost and Penn compatibility and consistency across all code-bases; Jobs will now remain GOING for one minute after closure in which they may be saved by +job/trans.
+- Added +jobs/clean command and associated TRIG_CLEAN trigger to remove non-players from the various jobs fields. This can be linked to autonuke code or hooked to @dest and/or @nuke commands. Issue 9.
+- Job numbers and bucket names must now be explicitly matched. Issue 16.
+- Added new WHITEBG skin. Issue 28.
+- Added /checkin and /checkout support. 
+Minor changes:
+- Various other changes for Rhost and Penn compatibility: functions, flags, @wait, null arguments, integer division, and piecharts affected.
+- Changed 5.0 to 5.2 in the jhelp.txt file. 
 - Updated the manage2 helpfile to correct the +job/set syntax.
-- Updated version in README to 5.2
-- Updated version in install file t 5.2
-- Added +bucket/check with entries in the jhelp.txt file. Issue 15.
-- Changed the file name of the patch to remove version reference.
+- Updated version in install file to 5.2
+- Added +bucket/check with two entries in jhelp.txt. Issue 15.
+- Removed POST_COMPLETE from the REQ bucket. Issue 18.
+- Changed the @aconnect. Issue 20.
+- Moved most of the installation instructions from the install file into the README files. 29.
+- Changed the install file name to remove version reference.
+- Formatted the install.
 - Fixed errors in CMD_JOB/DUE2. Issue 30.
+- Various @switch fixes. Isssues 45-47.
+- Fixed JOBS_NUM on install, was skipping job 2 until compressed. Issue 50.
+- Removed stray POST_COMPLETE on the REQ bucket hardcoded to +bboard 11. Issue 51.
+- Fixed arguments for TRIG_APPLY. Issue 52.
+- One-character bucket name bargraph fix. Issue 53.
+- Fixed a FIL_NEWCOMMENT1 bug.
+- Fixed a CHROME_JOBLIST bug.
+- Added total Job Actions to STATS and ACTIONS reports.
+- IS_LOCKED references changed to accept a second parameter (Checkin support)
+- Conformed behavior of CHROME_BREAK
+
