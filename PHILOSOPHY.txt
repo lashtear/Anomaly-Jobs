@@ -1,0 +1,61 @@
+Design Philosophy
+
+SECURITY: Security needs to be paramount over all other coding aspects.
+If there is a security flaw, then it can seriously affect the installations
+as well as trust in the Jobs project.
+
+COMPATIBILITY: Every effort should be made to make the system compatible
+with as many gaming platforms as possible. Jobs should be the standard
+on every game we can reach.
+
+FLEXIBILITY: A game should be able to tailor and scale Jobs for whatever
+their needs may be. This means that the system should be as flexible as
+possible.
+
+SCALABILITY: As our code grows, so does the 'spaghetti-like' aspect of its
+design. Users should not need to spend hours tracking our code and how it
+works, however. We should strive for a design that allows them to modify 
+the code simply and without the fear that their modifications will
+be wiped on the next upgrade.
+
+	For example: In SUMMARY stuff, there is no 'master list' of
+	settable options. All you need to do is create three new
+	attributes (explained in +jhelp) and you have a new settable
+	option independent of any other code changes.
+	
+Hardwiring options into the system should be avoided. Lists should
+gathered from compiling attributes, instead of using a master list to 
+pull from. See +jobs/select and Summaries for examples. It means a 
+little more work for us, but it will save game admins hassles in the 
+long run.
+
+NO ASSUMPTIONS: Try not to assume the usefulness of a particular
+part of the system. What might be really useful for your game might
+have no use whatsover in the wild. What might seem completely
+irrelevant to you might be exceedingly useful to 10 other games. Try and
+please as many people as possible.
+
+UPGRADEABILITY: Changes to the system should be able to be made without
+fear that an upgrade will wipe their mods. Sometimes this cannot be
+helped, but every efffort should be made to keep the system separate
+from what a user could potentially want to change.
+
+EASE OF USE: Jobs should be easy to use. Don't force the users to use
+a suite of commands - everything should be considered optional, even
+the most basic of commands.
+
+NAMING SCHEME: We should try to stick to a consistent naming format:
+
+	Commands should be in the form of
+		CMD_<command>/<switch>
+		
+	Functions should be:
+		FN_<function>
+		
+	Filters:
+		FIL_<filter>
+		
+	Maps:
+		MAP_<map>
+		
+	...etc.
