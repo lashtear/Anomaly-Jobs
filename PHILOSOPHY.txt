@@ -8,6 +8,11 @@ COMPATIBILITY: Every effort should be made to make the system compatible
 with as many gaming platforms as possible. Jobs should be the standard
 on every game we can reach.
 
+BACKWARDS COMPATIBILITY: When extending compatibility to a new platform,
+assume use of the latest stable release.  However, always continue to
+support whatever platforms +jobs previously supported; users should not
+be required to update their servers in order to update +jobs.
+
 FLEXIBILITY: A game should be able to tailor and scale Jobs for whatever
 their needs may be. This means that the system should be as flexible as
 possible.

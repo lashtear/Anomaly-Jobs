@@ -7,7 +7,7 @@ and identify standard coding practices to avoid compatibility issues.
 1. Treatment of empty attributes
 
 MUX evaluates hasattr() on an empty attribute (e.g., "&FOO me=") as 0, while
-Pennmush returns 1. Pennmush requires hasattrval() for the same behavior.
+PennMUSH returns 1. PennMUSH requires hasattrval() for the same behavior.
 %va/FN_HASATTR and %va/FN_HASATTRP resolve this difference.
 
 2. Math issues
@@ -17,11 +17,11 @@ add(1,) --> 1); PennMUSH treats it as null (--> #-1 ARGUMENTS MUST BE NUMBERS).
 Always explicitly use 0 in math functions (or base case for fold.) 
 
 In MUX, div(foo,bar) accepts floating point arguments and returns an integer.
-In PennMUSH the arguments must also be integers. round(fdiv(foo,bar)) works,
+In PennMUSH the arguments must also be integers. round(fdiv(foo,bar),0) works,
 as does using round() or trunc() on the arguments before using div(), although
 the former is less subject to intermediate roundoff errors.
 
-3. String / space issues
+3. String / delimiter issues
 
 In sort(), iter(), and other functions with an output delimiter, TinyMUSH and 
 MUX treat a space as a real space (e.g., sort(3 2 1,n, , ) --> 1 2 3); 
@@ -33,9 +33,13 @@ different order of second and third arguments (delimiter & left or right).
 While trim() will work cross-platform if only one argument is included, for 
 consistency use %va/FN_TRIM.
 
+Many PennMUSH functions which operate on strings (e.g., ansi(), pemit(), etc.) 
+do not require commas in the second argument to be escaped.  To retain MUX
+compatibility, escape commas in strings: ansi(h,foo,bar) --> ansi(h,foo\,bar)
+
 4. Attribute sorting
 
-MUX stores attributes by creation time. Pennmush stores attributes in an
+MUX stores attributes by creation time. PennMUSH stores attributes in an
 alphabetically-sorted list.  When attribute order matters (e.g., list of 
 comments) use a sort.
 
@@ -75,7 +79,8 @@ as arguments to the @tr.
 @wait me={foo};@notify me is subject to interference/mis-synchronization with
 multiple simultaneous uses of the same object during the @wait, and/or a
 coding error causing a stray @wait me (or several) eslewhere. Use semaphores
-with caution.
+with caution.  @wait 0={foo} will wait until previous commands have executed
+and will generally suffice.
 
 8. Destroying objects
 
@@ -88,7 +93,7 @@ Penn changes permissions but does not speed destruction.  To destroy without
 waiting for a purge cycle, use @nuke twice.
 
 Use @nuke for cross-platform compatibility.  If it is important to destroy
-immediately, use a combination of DESTROY_OK and two @nuke commands.
+immediately, use a combination of DESTROY_OK followed by two @nuke commands.
 
 
 
