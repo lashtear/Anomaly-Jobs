@@ -32,7 +32,9 @@ Hardwiring options into the system should be avoided. Lists should
 gathered from compiling attributes, instead of using a master list to 
 pull from. See +jobs/select and Summaries for examples. It means a 
 little more work for us, but it will save game admins hassles in the 
-long run.
+long run. Because of this, also take care in what you name new
+attributes and make sure they don't conflict with existing list
+gathering.
 
 NO ASSUMPTIONS: Try not to assume the usefulness of a particular
 part of the system. What might be really useful for your game might
