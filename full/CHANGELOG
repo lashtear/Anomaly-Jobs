@@ -48,4 +48,5 @@ Minor changes:
 - Added total Job Actions to STATS and ACTIONS reports.
 - IS_LOCKED references changed to accept a second parameter (Checkin support)
 - Conformed behavior of CHROME_BREAK
+- Added closure stats to +bucket/info. Issue 12.
 
