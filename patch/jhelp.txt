@@ -7,14 +7,14 @@
   ----------------------------------------------------------------------------
   buckets       How to manage buckets.                                 06Jan30
   complete      How to complete and follow-through on +jobs.           06Jan30
-  config        How to configure Anomaly Jobs.                         06Jan30
-  commands      A list of commands at-a-glance. No details.            06Jan30
+  config        How to configure Anomaly Jobs.                         10Jan08
+  commands      A list of commands at-a-glance. No details.            10Jan08
   create        How to create +jobs and how users can create them.     06Jan30
   credits       The credits to Anomaly Jobs.                           06Jan30
   list          Viewing the +jobs list.                                06Jan30
   player        Player commands.                                       06Jan30
   publication   Job publication and player visibility.                 06Jan30
-  manage        Managing your +jobs board.                             06Jan30
+  manage        Managing your +jobs board.                             10Jan08
   reports       Getting statistics on the system.                      06Jan30
   tagging       Tagging jobs for yourself and others.                  06Jan30
 
@@ -41,7 +41,7 @@
   baccess       Setting bucket access parameters.                      06Jan30
   bconfig       Basic bucket configuration.                            06Jan30
   logging       How to set up job logging.                             06Jan30
-  uconfig       How to configure your personal jobs experience.        06Jan30
+  uconfig       How to configure your personal jobs experience.        10Jan08
   
                        Type '+jhelp <Topic>' for more.
 & advanced
@@ -55,7 +55,7 @@
   summary       How to set up a Bucket Summary                         06Jan30
   sumsetting    How to configure /sumset parameters.                   06Jan30
   trig_add      The 'add-to-job' trigger.                              06Jan30
-  trig_create   The job-creation trigger.                              06Jan30
+  trig_create   The job-creation trigger.                              10Jan08
   
                        Type '+jhelp <Topic>' for more.
 & letters
@@ -104,7 +104,8 @@
   This command will remove all non-players from job entries.
   
   A &TRIG_CLEAN trigger is provided on the Jobs Database object which may be
-  called from autonuke code to execute this function automatically.
+  called from autonuke code or hooked to @nuke / @dest to execute this function 
+  automatically.
 & jobs/compress
 
   [ansi(h,+jobs/compress)]
@@ -236,6 +237,22 @@
   of the grid. Anything posted to the job's first comment and your <comments>
   then become public, so be careful when using /complete lest any secret
   player information become public.
+& job/checkout
+
+  [ansi(h,+job/checkout <#>)]
+  
+  This command allows you to check out job <#>. Checked out jobs can only be
+  modified by you until it is checked back in.
+  
+  See also: job/checkin
+& job/checkin
+
+  [ansi(h,+job/checkin <#>)]
+  
+  This command allows you to check in job <#>. Wizards and the person who
+  checked out the job are allowed to check them back in.
+  
+  See also: job/checkout
 & job/assign
 
   [ansi(h,+job/assign <#>=<player>)]
@@ -468,7 +485,6 @@
   [ansi(h,+bucket/check <player>)]
 
   Checks all buckets and lists whether the player has access or not.
-	 
 & bucket/set
 
   [ansi(h,+bucket/set <bucket>/<setting>=<parameter>)]
@@ -510,15 +526,16 @@
   [ansi(h,+job/assign <#>=<<player>|none>)]          : Assign a job to player
   [ansi(h,+job/clone <#>)]                           : Clones a job.
   [ansi(h,+job/complete <#>=<comment>)]              : Complete a job.
-  [ansi(h,+job/create <bucket>/<title>=<comments>)]  : Create a job manually.
-  [ansi(h,+job/delete <#>)]                          : Delete a job (Wiz)
-
+  [ansi(h,+job/checkin <#>)]                         : Checks in a job
+  [ansi(h,+job/checkout <#>)]                        : Checks out a job.
+  
   You can get details on each command with '+jhelp <command>/<switch>' without
   the + symbol. IE, '+jhelp jobs/all'.
 
   Continued in: commands2
 & commands2
-
+  [ansi(h,+job/create <bucket>/<title>=<comments>)]  : Create a job manually.
+  [ansi(h,+job/delete <#>)]                          : Delete a job (Wiz)
   [ansi(h,+job/deny <#>=<comment>                  )]: Deny a player request.
   [ansi(h,+job/due <#>=<<date>|none>               )]: Set job due date.
   [ansi(h,+job/edit <#>/<entry#>=<old>/<new>       )]: Edits a job.
@@ -537,6 +554,13 @@
   [ansi(h,+job/sumset <#>/<set>=<value>            )]: Changes a job SUMMARY setting.
   [ansi(h,+job/tag <#>                             )]: Tags a job for you.
   [ansi(h,+job/tag <#>=<player>                    )]: Tags a job for <player>.
+
+  You can get details on each command with '+jhelp <command>/<switch>' without
+  the + symbol. IE, '+jhelp jobs/all'.
+
+  Continued in: commands3
+& commands3
+
   [ansi(h,+job/trans <#>=<bucket>                  )]: Transfer a job
   [ansi(h,+job/unlock <#>                          )]: Unlocks a job.
   [ansi(h,+job/untag <#>                           )]: Untags a job.
@@ -546,7 +570,7 @@
   the + symbol. IE, '+jhelp jobs/all'.
 
   Continued in: commands3
-& commands3
+& commands4
 
   [ansi(h,+buckets)]
   [ansi(h,+bucket/info <bucket>)]
@@ -555,7 +579,7 @@
   [ansi(h,+bucket/create <bucket>=<description>)]
   [ansi(h,+bucket/delete <bucket>)]
   [ansi(h,+bucket/access <player>=<bucket>)]
-  [ansi(h,+bucket/check <player>=<bucket>)]
+  [ansi(h,+bucket/check <player>)]
   [ansi(h,+bucket/set <bucket>/<setting>=<value>)]
 
   You can get details on each command with '+jhelp <command>/<switch>' without
@@ -819,7 +843,7 @@
   [ansi(h,+job/all <#>)]
   [ansi(h,+job/name <#>=<title>)]
   
-  The first command changes job <#>'s status to the given value. The second 
+  The first command changes job <#>'s status to the given value. The second
   command allows you to set a due date for job <#>. The <date> string can be
   in one of two formats: 'Jan 13 10:00:00 2003' or '01/13/03'. Using /act 
   will allow you to view all job actions performed on a job - escalations, 
@@ -827,18 +851,21 @@
   performed and by whom. +job/all reads an entire job, like an expanded /act
   command. Using /name allows you to change the <title> of Job <#>.
   
-  The /set value codes are: 0=ON HOLD, 1=NEW, 2=UNDERWAY, 3=1/4 COMPLETE, 
-  4=1/2 COMPLETE, 5=3/4 COMPLETE, 6=COMPLETE.
+  The /set value codes are: hold=ON HOLD, new=NEW, underway=UNDERWAY, 
+  25=1/4 COMPLETE, 50=1/2 COMPLETE, 75=3/4 COMPLETE, 100=COMPLETE.
   
   Continued in: manage3
 & manage3
 
   [ansi(h,+job/lock <#>)]
   [ansi(h,+job/unlock <#>)]
+  [ansi(h,+job/checkout <#>)]
+  [ansi(h,+job/checkin <#>)]
   
   When a job is locked, it cannot be modified in any way until unlocked. It
   can, however, be transferred to another bucket. This behavior is allowed in
-  case administrators wish to impose a lockdown on a whole bucket.
+  case administrators wish to impose a lockdown on a whole bucket. If someone
+  has checked out a job, it cannot be modified until it is checked back in.
   
   [ansi(h,+job/edit <#>/<Entry #>=<Old>/<New>)]
   
@@ -850,6 +877,17 @@
   in the thousands), it is prudent to compress your job list to make the
   numbers more manageable. When you compress the jobs, it renumbers all
   open jobs, one through X, and resets the next available job number.
+  
+  Continued in: manage4
+& manage 4
+  [ansi(h,+jobs/clean)]
+  
+  This command will remove all non-players from job entries.
+  
+  A &TRIG_CLEAN trigger is provided on the Jobs Database object which may be
+  called from autonuke code or hooked to @nuke / @dest to execute this function 
+  automatically.  
+  
 & complete
   
   [ansi(h,+job/complete <#>=<comment>)]
@@ -902,8 +940,8 @@
 
   Anomaly Jobs now supports skins, which are display definitions that allow you
   to change the way that +jobs looks to the user. By default, Anomaly Jobs
-  ships with two skins: DEFAULT (the classic skin) and CHROME (an example 
-  skin).
+  ships with three skins: DEFAULT (the classic skin), CHROME (an example 
+  skin), and WHITEBG (tamer color contrast than DEFAULT).
 
   To change your skin:
   
@@ -1217,6 +1255,8 @@
   APR   +job/approve closing action.
   ASN   Assignment to a user.
   AUT   Automatic hook. If set, will run daily.
+  CKI   Checked In.
+  CKO   Checked Out.
   CLN   Clone action. Only appears on the newly created job.
   COM   +job/complete generates this closing action.
   CRE   Can only be first comment. Generated with +job/create.
@@ -1359,14 +1399,14 @@
   Sometimes it is necessary to engage the TRIG_ADD trigger from within your
   own code in order to add information to a job.
   
-    @trigger <Job Database>/TRIG_ADD=<%%0>,<%%1>,<%%2>,<%%4>
+    @trigger <Job Database>/TRIG_ADD=<%%0>,<%%1>,<%%2>,<%%3>
 
   It accepts the following arguments:
 
        %%0 = Job DB#
        %%1 = Comments to add
-       %%3 = Player adding the comments
-       %%4 = Action code to run
+       %%2 = Player adding the comments
+       %%3 = Action code to run
        
   You can pass any action code (or any three-letter code) to the trigger that
   you wish. There is no 'master list' of actions. However, unless the action 
@@ -1388,11 +1428,11 @@
        %%2=Priority
        %%3=Title (truncated to 30 characters)
        %%4=Opening Comment (truncate to 8000 for MUX and 4000 for MUSH3)
-       %%5=Player List for Opened_By (if different from %0)
+       %%5=Player List for Opened_By (if different from %%0)
        %%6=Assigned_To (null if you don't want to assign anyone)
        %%7=Hook to run
        
-  Only 1-4 are required, and the others are optional.
+  Only 0-4 are required, and the others are optional.
        
   You should not have to worry about passing %%7. If it is '1', then that
   means the job will run HOOK_CRE (+job/create), and any other value 
