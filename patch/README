@@ -1,6 +1,29 @@
+Anomaly Jobs
+-----------------------------------------------------------------------------
+Superior Task Tracking Technology
+Version 5.2 
+
+Written by: Starfleet @ Anomaly (eye1movies@aol.com)
+Maintained by: Halmar@Gamma One (grey419@gmail.com)
+Contributors: Firestorm @ Ephemera (+myjobs, /tags) 
+              Ian @ MUX (Pies), Minion @ Crossroads (Penn Compat)
+Testers: nails@MUSHpark
+         Sunshine@Ashes To Ashes
+         Centauri & Pyxis@Rise From Chaos
+         Minion & Duke@Outremer
 
 
-Anomaly Jobs 5
+Platforms supported: MUX 2.x, MUSH 3, PennMUSH 1.8.2, RhostMUSH
+Requirements: Myrddin's BBS, @mail system.
+									   
+This code is provided as-is and expresses no guarantee or warranty. Use it
+entirely at your own risk. Author is not liable for any damages, real or
+implied. It is available free to benefit the online text game community at
+large. 
+
+-----------------------------------------------------------------------------
+
+Anomaly Jobs 5.2
 
 1. Installing the Anomaly Jobs 5.2 Patch
 2. Getting Help
@@ -8,14 +31,37 @@ Anomaly Jobs 5
 
 1. Installing the Anomaly Jobs 5.2 Patch
 
-Installing the Anomaly Jobs 5.1 patch is fairly straight forward. You quote 
+Installing the Anomaly Jobs 5.2 patch is fairly straight forward. You quote 
 the patch install file to your game and the install is automated. 
 
+	IMPORTANT!
+	
+	* You should install this with a Wizard character, preferably with
+	  the same account you installed Jobs with.
+	  
+	* Do not rename your jobs objects. Patch scripts depend on these names
+	  in order to function. If you've renamed your Jobs objects, do not
+	  run this script. And furthermore: shame on you.
+	  
+	* You should not be holding anything (exits, objects) or be inside a
+	  room with a lot of exits. Names might conflict.
+	  
+	* You must install using a timed delay. Most clients have an upload-
+	  with-delay option. A delay of at least one second is recommended.
+	  
+	* Be patient. The install script will tell you when it is finished.
+	  Don't try to do anything until install is complete.
+
 Manual changes required:
-Jobs 5.0 did not setup the default delete board. In most cases this is not
-required, but in some cases why doing custom pletter_del setups, this is 
-needed. Do '&POST_DELETE Job Parent Object <JPO>=<#>' where the # is the 
-Staff Job Tracker board or the default board you want to use.
+
+	* Jobs 5.0 did not setup the default delete board. In most cases 
+	  this is not required, but in some cases why doing custom pletter_del 
+	  setups, this is needed. Do 
+
+	  	&POST_DELETE Job Parent Object <JPO>=<#>
+	  	
+	  where the # is the Staff Job Tracker board or the default board 
+	  you want to use.
 
 
 2. Getting Help
