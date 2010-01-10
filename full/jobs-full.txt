@@ -2058,9 +2058,9 @@ $+typo *:
 	%(Job system will post to these boards%)%r
 	[u(%va/fn_columns,
 		Complete: [u(%q0/POST_COMPLETE)]|
-			Approve: [u(%q0/POST_APPROVE)]|
-			Deny: [u(%q0/POST_DENY)],
-		15,|,21
+		Approve: [u(%q0/POST_APPROVE)]|
+		Deny: [u(%q0/POST_DENY)],
+		16,|,21
 	)]
 	[ifelse(
 		u(%va/fn_hasattrp,%q0,TURNAROUND),
@@ -2092,7 +2092,14 @@ $+typo *:
 		Inaccessible
 	)]%r
 	[rjust(ansi(h,Avg Resolve Time:),20)] 
-	[u(%va/fn_trim,u(FN_ART,%q0))]%r
+	[u(%va/fn_trim,u(FN_ART,%q0))]
+	%r
+	[rjust(ansi(h,Closure Stats:),20)]%b
+		[ljust(Completed: [after(grab(get(%q0/LIST_STATS),COM|*),|)],16)]
+		[ljust(Deleted: [after(grab(get(%q0/LIST_STATS),DEL|*),|)],16)]
+		[ljust(Approved: [after(grab(get(%q0/LIST_STATS),APR|*),|)],16)]
+		Denied: [after(grab(get(%q0/LIST_STATS),DNY|*),|)]
+	%r
 	[rjust(ansi(h,Desc:),20)] 
 	[get(%q0/DESC)]
 	[ifelse(
@@ -2145,7 +2152,7 @@ $+typo *:
 			),
 			b,|
 		)],
-		15,|,21
+		16,|,21
 	)]
 -
 
