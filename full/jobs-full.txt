@@ -1819,9 +1819,6 @@ $+typo *:
 @Startup Job Database <JD>=@drain me;@notify me
 -
 
-&BUCKET_HEADER Job Database <JD>=[repeat(=,79)]%r[ansi(hc,[ljust(Bucket,8)]Description)]%r[repeat(-,79)]
--
-
 &CHARGRAPH Job Database <JD>=@+-/!*ox#.X$^`~O>
 -
 
