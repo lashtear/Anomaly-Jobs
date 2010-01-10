@@ -4483,15 +4483,15 @@ $+typo *:
 &MLETTER_DNY Job Parent Object <JPO>=[name(%0)] has been denied:%r%r[last(get(%0/COMMENT_1),|)]%r[repeat(-,75)]%r[ansi(h,Comments added by [name(%2)]:)] %3
 -
 
-&MLETTER_MAI Job Parent Object <JPO>=[name(%2)] is mailing you regarding [name(%0)]:%r%r%3%r[repeat(-,75)]%rUnless this letter indicates otherwise%, you should respond with the following command:%r%r[space(5)]%xh+myjob/add [last(name(%0))]=<your comments>%xn
+&MLETTER_MAI Job Parent Object <JPO>=[name(%2)] is mailing you regarding [name(%0)]:%r%r%3%r[repeat(-,75)]%rUnless this letter indicates otherwise%, you should respond with the following command:%r%r[space(5)][ansi(h,+myjob/add [last(name(%0))]=<your comments>)]
 -
 
 &PLETTER_APR Job Parent Object <JPO>=
-	[space(10)]%xhJob:%xn #[last(name(%0))]%r
-	[space(8)]%xhTitle:%xn [get(%0/TITLE)]%r
-	[space(4)]%xhOpened By:%xn [u(%va/FN_PLAYERLIST,%0)]%r
-	[space(4)]%xhOpened On:%xn [convsecs(get(%0/OPENED_ON))]%r
-	%b%xhCompleted By:%xn [name(%2)]%r%b%xhCompleted On:%xn [time()]%r%r
+	[space(10)][ansi(h,Job:)] #[last(name(%0))]%r
+	[space(8)][ansi(h,Title:)] [get(%0/TITLE)]%r
+	[space(4)][ansi(h,Opened By:)] [u(%va/FN_PLAYERLIST,%0)]%r
+	[space(4)][ansi(h,Opened On:)] [convsecs(get(%0/OPENED_ON))]%r
+	%b[ansi(h,Completed By:)] [name(%2)]%r%b[ansi(h,Completed On:)] [time()]%r%r
 	[last(get(%0/COMMENT_1),|)]%r
 	[repeat(-,78)]%r
 	[ansi(h,Comments from [name(%2)]:)] %3%r%r
@@ -4503,11 +4503,11 @@ $+typo *:
 -
 
 &PLETTER_DNY Job Parent Object <JPO>=
-	[space(10)]%xhJob:%xn #[last(name(%0))]%r
-	[space(8)]%xhTitle:%xn [get(%0/TITLE)]%r
-	[space(4)]%xhOpened By:%xn [u(%va/FN_PLAYERLIST,%0)]%r
-	[space(4)]%xhOpened On:%xn [convsecs(get(%0/OPENED_ON))]%r
-	%b%xhCompleted By:%xn [name(%2)]%r%b%xhCompleted On:%xn [time()]%r%r
+	[space(10)][ansi(h,Job:)] #[last(name(%0))]%r
+	[space(8)][ansi(h,Title:)] [get(%0/TITLE)]%r
+	[space(4)][ansi(h,Opened By:)] [u(%va/FN_PLAYERLIST,%0)]%r
+	[space(4)][ansi(h,Opened On:)] [convsecs(get(%0/OPENED_ON))]%r
+	%b[ansi(h,Completed By:)] [name(%2)]%r%b[ansi(h,Completed On:)] [time()]%r%r
 	[last(get(%0/COMMENT_1),|)]%r
 	[repeat(-,78)]%r
 	[ansi(h,Comments from [name(%2)]:)] %3%r%r
