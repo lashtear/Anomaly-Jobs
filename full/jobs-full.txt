@@ -4389,7 +4389,14 @@ $+typo *:
 &TRIG_POST Job Tracker=+bbpost %0/%1=%2
 -
 
+@cpattr %#/JOB_VA=Job Tracker/VA
+-
 
+@cpattr %#/JOB_VB=Job Tracker/VB
+-
+
+@cpattr %#/JOB_VC=Job Tracker/VC
+-
 
 # Job Parent Object <JPO> Setup
 
