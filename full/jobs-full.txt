@@ -832,12 +832,14 @@ $+job/mail *=*:
 		[isdbref(%q0)]
 		[u(%va/HAS_ACCESS,%#)]
 		[u(%va/MAIL_ACCESS,%#)]
+		[u(%va/IS_PUBLIC,%q0)]
 		[not(u(%va/IS_LOCKED,%q0,%#))]
 		=
 		0*,{@pemit %#=There is no job by that number.},
 		10*,{@pemit %#=Permission denied.},
 		110*,{@pemit %#=Permission denied.},
-		1110*,{@pemit %#=That job is presently [ifelse(u(%va/fn_hasattrp,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
+		1110*,{@pemit %#=+job/mail cannot be used on the job because the bucket in which it is stored is not set PUBLIC %(+myjobs-accessible%).}
+		11110*,{@pemit %#=That job is presently [ifelse(u(%va/fn_hasattrp,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		{
 			@pemit %#=You have mailed [u(%va/FN_PLAYERLIST,%q0)] about job #%0, with the comments: %1;
 			@trigger %va/TRIG_ADD=%q0,[u(%va/fn_strtrunc,ansi(h,Mail sent to [u(%va/FN_PLAYERLIST,%q0)]:)%r%r%1,get(%va/BUFFER))],%#,MAI;
