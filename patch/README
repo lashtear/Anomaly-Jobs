@@ -6,12 +6,13 @@ Version 5.2
 Written by: Starfleet @ Anomaly (eye1movies@aol.com)
 Maintained by: Halmar@Gamma One (grey419@gmail.com)
 Contributors: Firestorm @ Ephemera (+myjobs, /tags) 
-              Ian @ MUX (Pies), Minion @ Crossroads (Penn Compat)
-Testers: nails@MUSHpark
-         Sunshine@Ashes To Ashes
-         Centauri & Pyxis@Rise From Chaos
-         Minion & Duke@Outremer
+              Ian @ MUX (Pies)
+              Minion @ Crossroads (Penn Compat)
 
+Beta Testers: nails@MUSHpark
+              Sunshine@Ashes To Ashes
+              Centauri & Pyxis@Rise From Chaos
+              Minion & Duke@Outremer
 
 Platforms supported: MUX 2.x, MUSH 3, PennMUSH 1.8.2, RhostMUSH
 Requirements: Myrddin's BBS, @mail system.
@@ -51,18 +52,6 @@ the patch install file to your game and the install is automated.
 	  
 	* Be patient. The install script will tell you when it is finished.
 	  Don't try to do anything until install is complete.
-
-Manual changes required:
-
-	* Jobs 5.0 did not setup the default delete board. In most cases 
-	  this is not required, but in some cases why doing custom pletter_del 
-	  setups, this is needed. Do 
-
-	  	&POST_DELETE Job Parent Object <JPO>=<#>
-	  	
-	  where the # is the Staff Job Tracker board or the default board 
-	  you want to use.
-
 
 2. Getting Help
 
