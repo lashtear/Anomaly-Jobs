@@ -1,0 +1,56 @@
+PennMUSH port notes
+by Javelin <javelin@pennmush.org>
+
+Contents
+1. Installing Anomaly Jobs on PennMUSH
+2. Developing Anomaly Jobs for PennMUSH compatibility
+
+
+1. Installing Anomaly Jobs on PennMUSH
+
+Anomaly Jobs should be installed as described in the README, with
+the following notes/tweaks:
+
+1.1. The Wizard installing Jobs should be set NO_PAY or given
+     a lot of money to perform the installation.
+
+1.2. The DAILY attribute on the Job Parent Object <JPO> needs to 
+     be triggered on a daily basis, using whatever softcoded cron
+     system you have available.
+
+1.3. The code is provided in indented format (created by mushi),
+     and should be preprocessed with 'mpp' for upload. mushi and mpp
+     are available at http://download.pennmush.org/Accessories
+
+
+2. Developing Anomaly Jobs for PennMUSH compatibility
+
+2.1. Function wrappers
+
+Several TinyMUSH functions are not available or differently implemented
+on PennMUSH. These have been wrapped into ufuns on the Job Database
+object.
+
+Instead of:                   Use:
+  columns(...)                u(fn_columns,...)
+  strtrunc(...)               u(fn_strtrunc,...)
+  pack(...)                   u(fn_pack,...)
+  hasattr(...)                u(fn_hasattr,...)
+  hasattrp(...)               u(fn_hasattrp,...)
+  trim(...)                   u(fn_trim,...)
+
+2.2. Lattr sorting
+
+lattr() sorts differently on different codebases. This is mostly
+important when sorting comments. Use u(fn_sortattrs,lattr(XX/COMMENT_*))
+to ensure proper sorting.
+
+2.3. Miscellaneous
+
+Call the flag "HALT", not "HALTED" for crossplatform functionality.
+Use ansi() rather than %x
+Avoid fractional-second @wait
+Use @lock/speech rather than @lock/speechlock for crossplatform functionality
+Remember that the royalty flag has different characters on different
+  codebases; avoid orflags(x,WZ); use or(hasflag(X,royalty),hasflag(X,wizard))
+
