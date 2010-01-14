@@ -64,6 +64,7 @@ MUX: royalty flag = Z --> Penn: royalty flag = r.  Use hasflag(royalty)
 TinyMUSH: COMMANDS --> Penn: !NO_COMMAND; MUX: either.
 MUX: Colors with %x --> Penn: ansi()  (ansi() is cross-platform)
 Current servers: %i0.  --> Old servers: itext(0).
+MUX: search() must be done in discreet chunks. See JDO/FN_ALLPLAYERS.
 
 7. Queue
 
