@@ -29,7 +29,8 @@ PennMUSH treats it as null (--> 123).  Always explicitly identify spaces used
 as delimiters with %b.
 
 PennMUSH and MUX operate identically on single-argument trim(foo), but have 
-different order of second and third arguments (delimiter & left or right).  
+different order of second and third arguments (delimiter & left or right).
+Default Penn trim() behavior matches MUX but can be configured otherwise.  
 While trim() will work cross-platform if only one argument is included, for 
 consistency use %va/FN_TRIM.
 
@@ -64,7 +65,12 @@ MUX: royalty flag = Z --> Penn: royalty flag = r.  Use hasflag(royalty)
 TinyMUSH: COMMANDS --> Penn: !NO_COMMAND; MUX: either.
 MUX: Colors with %x --> Penn: ansi()  (ansi() is cross-platform)
 Current servers: %i0.  --> Old servers: itext(0).
-MUX: search() must be done in discreet chunks. See JDO/FN_ALLPLAYERS.
+MUX: search() may fail on large chunks.  Do not do searches with results that
+	may exceed buffer size (approx 1000 dbrefs).
+MUX: Desc --> Penn: DESCRIBE (Desc is cross-platform)
+MUX: wrap() arguments differ from Penn.  Generic FN_WRAP conversion for all 8
+	arguments is possible but impractical; better to code alternate versions 
+	with fewer arguments for specific desired formats.
 
 7. Queue
 
@@ -79,7 +85,7 @@ as arguments to the @tr.
 
 @wait me={foo};@notify me is subject to interference/mis-synchronization with
 multiple simultaneous uses of the same object during the @wait, and/or a
-coding error causing a stray @wait me (or several) eslewhere. Use semaphores
+coding error causing a stray @wait me (or several) elsewhere. Use semaphores
 with caution.  @wait 0={foo} will wait until previous commands have executed
 and will generally suffice.
 
