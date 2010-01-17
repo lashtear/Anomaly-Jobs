@@ -49,4 +49,5 @@ Minor changes:
 - IS_LOCKED references changed to accept a second parameter (Checkin support)
 - Conformed behavior of CHROME_BREAK
 - Added closure stats to +bucket/info. Issue 12.
+- Various helpfile fixes.
 

@@ -507,33 +507,33 @@
   HELP file can be set with +bucket/set.
 & commands
 
-  [ansi(h,+jobs)]                                    : List jobs
-  [ansi(h,+jobs/%[all|mine|pri%])]                     : List in <bucket>/all/yours/pri
-  [ansi(h,+jobs/clean)]                              : Removes non-players from job data
-  [ansi(h,+jobs/compress)]                           : Compresses job list (Wiz)
+  [ansi(h,+jobs)]                                    : List jobs.
+  [ansi(h,+jobs/<all|mine|new>)]                     : List all/yours/new jobs.
+  [ansi(h,+jobs/clean)]                              : Remove non-players from job data.
+  [ansi(h,+jobs/compress)]                           : Compresses job list. (Wiz)
   [ansi(h,+jobs/credits)]                            : Display credit information.
   [ansi(h,+jobs/list <bucket>)]                      : List all jobs in <bucket>.
   [ansi(h,+jobs/overdue)]                            : List overdue jobs.
-  [ansi(h,+jobs/reports %[<report>%])]                 : Get a report
+  [ansi(h,+jobs/reports %[<report>%])]                 : Get a report.
   [ansi(h,+jobs/search <pattern>)]                   : Search jobs for <pattern>.
-  [ansi(h,+jobs/<sort|date|new>)]                    : Lists jobs by bucket/mod/new
+  [ansi(h,+jobs/<sort|date|pri>)]                    : Lists jobs by bucket/mod/pri.
   [ansi(h,+jobs/who <player>)]                       : Lists jobs assigned to player.
-  [ansi(h,+job <#>)]                                 : View a job
+  [ansi(h,+job <#>)]                                 : View a job.
   [ansi(h,+job/act <#>)]                             : Display actions on a job.
   [ansi(h,+job/add <#>=<comments>)]                  : Add comments to a job.
   [ansi(h,+job/all <#>)]                             : Displays all comments in a job.
   [ansi(h,+job/approve <#>=<comment>)]               : Approve a player request.
   [ansi(h,+job/assign <#>=<<player>|none>)]          : Assign a job to player
-  [ansi(h,+job/clone <#>)]                           : Clones a job.
-  [ansi(h,+job/complete <#>=<comment>)]              : Complete a job.
-  [ansi(h,+job/checkin <#>)]                         : Checks in a job
-  [ansi(h,+job/checkout <#>)]                        : Checks out a job.
   
   You can get details on each command with '+jhelp <command>/<switch>' without
   the + symbol. IE, '+jhelp jobs/all'.
 
   Continued in: commands2
 & commands2
+  [ansi(h,+job/checkin <#>)]                         : Checks in a job
+  [ansi(h,+job/checkout <#>)]                        : Checks out a job.
+  [ansi(h,+job/clone <#>)]                           : Clones a job.
+  [ansi(h,+job/complete <#>=<comment>)]              : Complete a job.
   [ansi(h,+job/create <bucket>/<title>=<comments>)]  : Create a job manually.
   [ansi(h,+job/delete <#>)]                          : Delete a job (Wiz)
   [ansi(h,+job/deny <#>=<comment>                  )]: Deny a player request.
@@ -547,13 +547,6 @@
   [ansi(h,+job/merge <source>=<destination>        )]: Merge two jobs into <destination>
   [ansi(h,+job/name <#>=<name>                     )]: Rename a job.
   [ansi(h,+job/publish <#>[=<comment>]             )]: Publishes a job or <comment>.
-  [ansi(h,+job/query <players>/<title>=<query>     )]: Sends a query to <players>.
-  [ansi(h,+job/set <#>=<status>                    )]: Set progress status on a job.
-  [ansi(h,+job/source <#>=<player list>            )]: Changes opened-by to <player list>.
-  [ansi(h,+job/summary <#>                         )]: Views a job's header & SUMMARY.
-  [ansi(h,+job/sumset <#>/<set>=<value>            )]: Changes a job SUMMARY setting.
-  [ansi(h,+job/tag <#>                             )]: Tags a job for you.
-  [ansi(h,+job/tag <#>=<player>                    )]: Tags a job for <player>.
 
   You can get details on each command with '+jhelp <command>/<switch>' without
   the + symbol. IE, '+jhelp jobs/all'.
@@ -561,6 +554,13 @@
   Continued in: commands3
 & commands3
 
+  [ansi(h,+job/query <players>/<title>=<query>     )]: Sends a query to <players>.
+  [ansi(h,+job/set <#>=<status>                    )]: Set progress status on a job.
+  [ansi(h,+job/source <#>=<player list>            )]: Changes opened-by to <player list>.
+  [ansi(h,+job/summary <#>                         )]: Views a job's header & SUMMARY.
+  [ansi(h,+job/sumset <#>/<set>=<value>            )]: Changes a job SUMMARY setting.
+  [ansi(h,+job/tag <#>                             )]: Tags a job for you.
+  [ansi(h,+job/tag <#>=<player>                    )]: Tags a job for <player>.
   [ansi(h,+job/trans <#>=<bucket>                  )]: Transfer a job
   [ansi(h,+job/unlock <#>                          )]: Unlocks a job.
   [ansi(h,+job/untag <#>                           )]: Untags a job.
