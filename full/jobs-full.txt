@@ -23,16 +23,16 @@
 }
 -
 
-@Desc Job Global Object <JGO>=%r[u(%va/fn_columns,sort(lattr(me/*)),18)]%r%r[center(Please do not rename this object.,79)]
+@Desc Job Global Object <JGO>=%r[table(sort(lattr(me/*)),18)]%r%r[center(Please do not rename this object.,79)]
 -
 
-@Desc Job Database <JD>=%r[u(%va/fn_columns,sort(lattr(me/*)),18)]%r%r[center(Please do not rename this object.,79)]
+@Desc Job Database <JD>=%r[table(sort(lattr(me/*)),18)]%r%r[center(Please do not rename this object.,79)]
 -
 
-@Desc Job Parent Object <JPO>=%r[u(%va/fn_columns,sort(lattr(me/*)),18)]%r%r[center(Please do not rename this object.,79)]
+@Desc Job Parent Object <JPO>=%r[table(sort(lattr(me/*)),18)]%r%r[center(Please do not rename this object.,79)]
 -
 
-@Desc Job Tracker=%r[u(%va/fn_columns,sort(lattr(me/*)),18)]%r%r[center(Please do not rename this object.,79)]
+@Desc Job Tracker=%r[table(sort(lattr(me/*)),18)]%r%r[center(Please do not rename this object.,79)]
 -
 
 @pemit %#=[ansi(hc,ANOMALY JOBS:)] Setting up commands.
@@ -4390,15 +4390,6 @@ $+typo *:
 -
 
 &TRIG_POST Job Tracker=+bbpost %0/%1=%2
--
-
-@cpattr %#/JOB_VA=Job Tracker/VA
--
-
-@cpattr %#/JOB_VB=Job Tracker/VB
--
-
-@cpattr %#/JOB_VC=Job Tracker/VC
 -
 
 # Job Parent Object <JPO> Setup
