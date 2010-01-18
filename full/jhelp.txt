@@ -526,7 +526,7 @@
   [ansi(h,+job/assign <#>=<<player>|none>)]          : Assign a job to player
   
   You can get details on each command with '+jhelp <command>/<switch>' without
-  the + symbol. IE, '+jhelp jobs/all'.
+  the + symbol, i.e., '+jhelp jobs/all'.
 
   Continued in: commands2
 & commands2
@@ -549,7 +549,7 @@
   [ansi(h,+job/publish <#>[=<comment>]             )]: Publishes a job or <comment>.
 
   You can get details on each command with '+jhelp <command>/<switch>' without
-  the + symbol. IE, '+jhelp jobs/all'.
+  the + symbol, i.e., '+jhelp jobs/all'.
 
   Continued in: commands3
 & commands3
@@ -567,7 +567,7 @@
   [ansi(h,+job/untag <#>=<player list>             )]: Untags a job for <player list>.
 
   You can get details on each command with '+jhelp <command>/<switch>' without
-  the + symbol. IE, '+jhelp jobs/all'.
+  the + symbol, i.e., '+jhelp jobs/all'.
 
   Continued in: commands3
 & commands4
@@ -583,7 +583,7 @@
   [ansi(h,+bucket/set <bucket>/<setting>=<value>)]
 
   You can get details on each command with '+jhelp <command>/<switch>' without
-  the + symbol. IE, '+jhelp jobs/all'.
+  the + symbol, i.e., '+jhelp jobs/all'.
 & pitch
 
   [ansi(h,+pitch <title>=<description>)]
@@ -807,7 +807,7 @@
   
   If you tag a job to a player that does not have access to the jobs system, 
   then the job will show up in +myjobs, and they will have FULL ACCESS to that
-  job (IE, they will be able to read all entries, and they will be able to add
+  job (i.e., they will be able to read all entries, and they will be able to add
   to that job), no matter if the job is in a public bucket or not.
   
 & manage
@@ -962,7 +962,7 @@
   will return you to the default behavior.
   
   There are two methods by which you can track new job activity. The new
-  method is similar to Myrddin's BBS (ie, once you read a job, it is no
+  method is similar to Myrddin's BBS (i.e., once you read a job, it is no
   longer 'new' to you). The old method (new activity since your last log
   out is new until you log out again) is the default.
   
@@ -1372,7 +1372,7 @@
   <attribute> is the attribute to set on the job object if the input is
   accepted. <data> is the data that is getting set (null will clear the attr).
   At the end of the two registers, you should test the input and return 1 if
-  the input was acceptible, and 0 if it was not.
+  the input was acceptable, and 0 if it was not.
   
   Only if this returns 1 does <attribute> get set to <data>.
   
