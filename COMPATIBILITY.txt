@@ -47,7 +47,7 @@ comments) use a sort.
 5. Non-existent functions
 
 MUX columns() --> no direct equivalent in Penn. Alternate code using align()
-is installed in %va/FN_COLUMNS
+is installed in %va/FN_COLUMNS.  Use table() if no indent required.
 
 MUX strtrunc() --> Penn left().  Installed in %va/FN_STRTRUNC
 
@@ -102,5 +102,12 @@ waiting for a purge cycle, use @nuke twice.
 Use @nuke for cross-platform compatibility.  If it is important to destroy
 immediately, use a combination of DESTROY_OK followed by two @nuke commands.
 
+9. Installation notes
 
+PennMUSH's default @pemit configuration is noisy (emitting player gets feedback).
+Use 'think' in installation files to prevent double messages.
+
+PennMUSH's @attribute/access implementation does NOT save between resets.  The
+installing wizard should use @attribute/access/retroactive and add the 
+@attribute/access commands to a wizard @startup.
 
