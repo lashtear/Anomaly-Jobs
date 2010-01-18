@@ -48,7 +48,7 @@
 -
 
 @aconnect Job Global Object <JGO>=
-	@switch [u(%va/HAS_ACCESS,%#)]=1,{+jobs/new},{+myjobs}
+	@switch [u(%va/HAS_ACCESS,%#)]=1,{@fo %#=+jobs/new},{@fo %#=+myjobs}
 -
 
 &CMD_BUCKET/ACCESS Job Global Object <JGO>=
