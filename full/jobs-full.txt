@@ -512,6 +512,7 @@ $+job/clone *:
 &CMD_JOB/COMPLETE Job Global Object <JGO>=
 $+job/complete *=*:
 	@switch 
+		[u(%va/HAS_ACCESS,%#)]
 		[u(%va/COMPLETE_ACCESS,%#)]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
@@ -519,15 +520,15 @@ $+job/complete *=*:
 		[not(u(%va/IS_LOCKED,%q0,%#))]
 		=
 		0*,{@pemit %#=Permission denied.},
-		10*,{@pemit %#=That is not a valid job #. See '+jobs/all' for valid jobs.},
-		110*,{@pemit %#=Permission denied.},
-		1110*,{@pemit %#=That job is presently [ifelse(u(%va/fn_hasattrp,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
+		10*,{@pemit %#=Permission denied.},
+		110*,{@pemit %#=That is not a valid job #. See '+jobs/all' for valid jobs.},
+		1110*,{@pemit %#=Permission denied.},
+		11110*,{@pemit %#=That job is presently [ifelse(u(%va/fn_hasattrp,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		{
 			@pemit %#=[u(%va/FN_ADDSTAT_ART,parent(%q0),%q0)][u(%va/FN_ADDSTAT_ART,%vc,%q0)]You have completed job # %0.;
 			@trigger %va/TRIG_ADD=%q0,[u(%va/fn_strtrunc,%1,get(%va/BUFFER))],%#,COM;
 			@trigger %q0/HOOK_COMPLETE=%q0,%#;
-			@trigger %vb/TRIG_COMPLETE=%0,%#,%1,[parent(%q0)];
-			@trigger %va/TRIG_APPROVE=%q0;
+			@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 completed by %n. 
 			@trigger %va/TRIG_DESTROY=%q0
 		}
 -
