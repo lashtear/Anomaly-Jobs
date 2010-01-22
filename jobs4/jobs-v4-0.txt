@@ -1,0 +1,335 @@
+@pemit %#=[ansi(hc,ANOMALY JOBS:)] Please wait.
+@@ ===============================================================================
+@@ 
+@@ Anomaly Jobs
+@@ Superior Task Tracking Technology
+@@ Version 4.0 17Feb2003
+@@
+@@ Written by: Starfleet @ Anomaly (station419@earthlink.net)
+@@
+@@ Platforms supported: MUX 2.x, MUSH 3
+@@ Requirements: Myrddin's BBS, @mail system.
+@@
+@@ This code is provided as-is and expresses no guarantee or warranty. Use it
+@@ entirely at your own risk. Author is not liable for any damages, real or
+@@ implied. It is available free to benefit the online text game community at
+@@ large.
+@@ ===============================================================================
+@@
+@@ Installation Instructions
+@@
+@@ PLEASE READ ALL OF THIS INSTALL FILE. There are configuration settings toward
+@@ the end that allow you to change the access restrictions of the +jobs system
+@@ as well as other configuration options.
+@@
+@@ This file must be installed with a Wizard character. It is best if the owner is
+@@ not an account that is regularly logged into, as the code creates and destroys
+@@ objects dynamically. This can get spammy for whoever owns the code.
+@@ 
+@@ This code REQUIRES Myrddin's BBS to be installed, as it uses the BBS to post 
+@@ completed/approved/denied jobs to. So long as your BBS is unmodified it should
+@@ work without problems. There is no need to configure the BBS or create any 
+@@ bboards, as it will work its magic automatically. It also requires hardcoded 
+@@ @mail at this time. It will automatically set up two BBS boards to use with the
+@@ system - a public read-only BBS for game-wide progress tracking, and a private,
+@@ staff-only board for privately tracking player requests and other issues.
+@@
+@@ As an optional feature, you can post character application information to the
+@@ +jobs board, and have your approval queue attached to the board. However,
+@@ you must provide your own @trigger for TRIG_APPLY on the database object, run
+@@ when a new player finished character generation. This trigger puts a character
+@@ application into the Jobs system. By modifying APP_LETTER on the database 
+@@ object, you can specify what sort of information you want to show to staff 
+@@ 'at a glance' before the character is checked at approval. If you do not wish
+@@ to use this feature, nothing will go wrong by deleting TRIG_APPLY and
+@@ APP_LETTER.
+@@ 
+@@ This script requires no modification so long as used on the servers listed
+@@ above and you want the behavior to be for staff-only. It even cleans up the 
+@@ DB references for you automatically. If you modify the code to get it to 
+@@ work, I am interested in what you did so it can be automated and placed into 
+@@ the script for future updates.
+@@
+@@ On MUSH 3 installations, attribute limits have been cut to 4k due to possible
+@@ corruption issues of attributes over 4096 bytes in size (a GDBM database
+@@ issue, not an issue with Anomaly Jobs). Some debate exists on this point, but
+@@ rather to be safe than sorry, I've installed a buffer limit for 4k on MUSH 3
+@@ and 8k on MUX. If you use a MUSH 3 install, we do not recommend that you change
+@@ the buffer limit (on the Database object as BUFFER), but it can be done if you
+@@ are sure you won't have creeping data death. Modify at your own risk.
+@@
+@@ Jobs are stored in buckets, which is a method of organization that keeps jobs
+@@ sorted in their proper locations.
+@@
+@@ The system has several buckets already installed, but you may wish to add more.
+@@ You can add buckets with the +bucket/add command (see the +help files).
+@@
+@@ Starting Buckets: CODE RP THEME REQ APPS BUILD TPS CGEN TECH FEEP PITCH ADMIN
+@@
+@@ CODE   For coding issues and bug reports.
+@@ RP     A hidden bucket for storing future plots that aren't ready to be run yet.
+@@ THEME  Game theme issues bucket.
+@@ REQ    Player requests.
+@@ APPS   Player application requests.
+@@ BUILD  Building issues and typos.
+@@ TPS    Currently running tinyplots.
+@@ CGEN   Character generation issues.
+@@ TECH   Technology issues, such as object distribution.
+@@ FEEP   A hidden bucket for creeping features, aka feeping creatures, aka
+@@          unimplemented game ideas.
+@@ PITCH  Plot and story pitches.
+@@ ADMIN  General administrative bucket.
+@@
+@@ A bucket name has to be five letters or less to identify it. WoD games might
+@@ want to add VAMP, GAROU, MAGE, FAE, etc.
+@@ 
+@@ A job in the GOING bucket is waiting to be destroyed on the next database
+@@ check.
+@@
+@@ Version 4 of Anomaly Jobs implements a new feature: Selectable board posting
+@@ on /complete actions. You can choose where a bucket posts to by default. See
+@@ the help file on 'buckets' to see how to alter the posting behavior.
+@@
+@@ ===============================================================================
+@@ 
+@@ A big thanks for bug testing and install testing goes to:
+@@
+@@ nails@MUSHpark, Sunshine@Ashes To Ashes, Centauri & Pyxis@Rise From Chaos,
+@@ Minion & Duke@Outremer, Ronan@Prophets of Reavan
+@@
+@@ ===============================================================================
+@@
+@set me=quiet
+@pemit %#=[repeat(=,79)]%r%r[center(ansi(hc,Setting up Anomaly Jobs v4.0),79)]%r%r[repeat(=,79)]
+@@
+@pemit %#=[ansi(hc,ANOMALY JOBS:)] Creating objects.
+@@
+@create Job Global Object <JGO>=10
+@create Job Database <JD>=10
+@create Job Tracker
+@Desc Job Global Object <JGO>=%r[columns(sort(lattr(me/*)),18)]%r
+@Desc Job Database <JD>=%r[columns(sort(lattr(me/*)),18)]%r
+@@
+@pemit %#=[ansi(hc,ANOMALY JOBS:)] Setting up commands.
+@@
+&CMD_JOB/CREATE Job Global Object <JGO>=$+job/create */*=*:@switch [u(#1430/CREATE_ACCESS,%#)][u(#1430/FN_ACCESSCHECK,ucstr(secure(%0)),%#)][member(get(#1430/BUCKETS),[ucstr(%0)])]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=You cannot access that bucket.},110*,{@pemit %#=There is no bucket by that name. Valid buckets are: [u(#1430/FN_PRETTY,get(#1430/BUCKETS))].},{@pemit [setq(0,inc(get(#1430/JOBS_NUM)))]%#=You have created job number %q0 entitled '[strtrunc(%1,30)]'.;@trigger #1430/TRIG_CREATE=%#,[ucstr(%0)],1,[strtrunc(%1,30)],[strtrunc(%2,u(#1430/BUFFER))],,[ifelse(u(#1430/CONFIG_ASSIGN),%#,)]}
+&CMD_JOB/ADD Job Global Object <JGO>=$+job/add *=*:@switch [u(#1430/HAS_ACCESS,%#)][setq(0,locate(#1430,Job %0,i))][isdbref(%q0)][u(#1430/FN_ACCESSCHECK,get(%q0/BUCKET),%#)][not(hasattr(%q0,LOCKED))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That is an invalid job number.},110*,{@pemit %#=You do not have access to that job.},1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@pemit %#=Comments to job number %0 added.;@trigger #1430/TRIG_ADD=%q0,%1,%#,ADD;@trigger #1430/TRIG_BROADCAST=[get(%q0/BUCKET)],Comments added to job %0 by %n.}
+&CMD_JOBS Job Global Object <JGO>=$+jobs:@wait me=@switch [u(#1430/HAS_ACCESS,%#)]=0*,{@pemit %#=Permission denied.;@wait 0=@notify me},{@pemit %#=[u(#1430/JOBS_HEADER)];@dolist revwords(lcon(#1430))={@pemit %#=[ifelse(u(#1430/FN_MONITORCHECK,get(##/BUCKET),%#),[u(#1430/DISPLAY_JOB,##)],)]};@wait .1=@pemit %#=[center(| [ansi(hr,*)] Denotes New Activity |,79,=)];@wait 0=@notify me}
+&CMD_JOB/VIEW Job Global Object <JGO>=$+job *:@switch [u(#1430/HAS_ACCESS,%#)][setq(0,locate(#1430,Job %0,i))][isdbref(%q0)][u(#1430/FN_ACCESSCHECK,get(%q0/BUCKET),%#)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no job by that name. Please type '+jobs/all' for all jobs or '+jobs/<type>' to list by type.},110*,{@pemit %#=You do not have access to that job.},{@pemit %#=[center(| [ansi(hy,View Job Number %0)] |,79,=)]%r[ulocal(#1430/DISPLAY_HEADERS,%q0)];@dolist [filter(#1430/FIL_COMMENTS,lattr(%q0/COMMENT_*))]={@pemit %#=[repeat(-,79)]%r[ifelse(u(#1430/EDIT_ACCESS,%#),[ansi(h,%[)][ansi(ch,last(##,_))][ansi(h,%]%b)],)][ansi(h,[extract(get(%q0/##),4,1,|)] added on [convsecs(extract(get(%q0/##),2,1,|))]:)] [last(get(%q0/##),|)]};@wait me={@pemit %#=[repeat(=,79)]};@notify me}
+&CMD_JOB/ESC Job Global Object <JGO>=$+job/esc *=*:@switch [u(#1430/HAS_ACCESS,%#)][setq(0,locate(#1430,Job %0,i))][setq(1,match(green yellow red,%1*))][isdbref(%q0)][u(#1430/FN_ACCESSCHECK,get(%q0/BUCKET),%#)][gt(%q1,0)][not(hasattr(%q0,LOCKED))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That is not a valid job number.},110*,{@pemit %#=You do not have access to that job.},1110*,{@pemit %#=That is not a valid escalation code. Valid codes are red, yellow, and green.},11110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@pemit %#=You have escalated job # %0 to [ucstr(%1)] status.;&PRIORITY %q0=%q1;@trigger #1430/TRIG_ADD=%q0,Priority To [ucstr(%1)].,%#,ESC;@trigger #1430/TRIG_BROADCAST=[u(%q0/BUCKET)],Job %0 set to [ucstr(%1)] priority by %n.}
+&CMD_JOB/ASSIGN Job Global Object <JGO>=$+job/assign *=*:@switch [u(#1430/HAS_ACCESS,%#)][setq(1,num(*%1))][setq(2,switch(ucstr(%1),NONE,1,0))][or(isdbref(%q1),%q2)][setq(0,locate(#1430,Job %0,i))][isdbref(%q0)][u(#1430/FN_ACCESSCHECK,get(%q0/BUCKET),%#)][not(hasattr(%q0,LOCKED))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no player by that name.},110*,{@pemit %#=That is not a valid job number.},1110*,{@pemit %#=You do not have access to that job.},11110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@pemit %#=You have assigned Job number %0 to [name(%q1)].;&ASSIGNED_TO %q0=[ifelse(%q2,,%q1)];@trigger #1430/TRIG_ADD=%q0,[ifelse(%q2,Assignment removed.,Assigned to [name(%q1)])].,%#,ASN;@trigger #1430/TRIG_BROADCAST=[get(%q0/BUCKET)],Job %0 has been assigned to [ifelse(%q2,nobody,name(%q1))] by %n.}
+&CMD_JOB/APPROVE Job Global Object <JGO>=$+job/approve *=*:@switch [setq(0,locate(#1430,Job %0,i))][isdbref(%q0)][u(#1430/HAS_ACCESS,%#)][u(#1430/APPROVE_ACCESS,%#)][not(hasattr(%q0,LOCKED))]=0*,{@pemit %#=There is no job by that number.},10*,{@pemit %#=Permission denied.},110*,{@pemit %#=Permission denied.},1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@pemit %#=You have approved job #%0, adding the comments: %1;@trigger #895/TRIG_APPROVE=%0,%#,%1,[get(%q0/TITLE)];@nuke %q0;&BUCKET %q0=GOING}
+&CMD_JOB/DENY Job Global Object <JGO>=$+job/deny *=*:@switch [or(u(#1430/DENY_ACCESS,%#),orflags(%#,WZ))][setq(0,locate(#1430,Job %0,i))][isdbref(%q0)][u(#1430/FN_ACCESSCHECK,get(%q0/BUCKET),%#)][not(hasattr(%q0,LOCKED))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no job by that number.},110*,{@pemit %#=You cannot access that job.},1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@pemit %#=You have denied job #%0.;@trigger #895/TRIG_DENY=%0,%#,%1,[get(%q0/TITLE)];@nuke %q0;&BUCKET %q0=GOING}
+&CMD_JOB/COMPLETE Job Global Object <JGO>=$+job/complete *=*:@switch [u(#1430/COMPLETE_ACCESS,%#)][setq(0,locate(#1430,Job %0,i))][isdbref(%q0)][u(#1430/FN_ACCESSCHECK,get(%q0/BUCKET),%#)][not(hasattr(%q0,LOCKED))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That is not a valid job #. See '+jobs/all' for valid jobs.},110*,{@pemit %#=Permission denied.},1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@pemit %#=You have completed job # %0.;@trigger #895/TRIG_COMPLETE=%0,%#,%1,[get(%q0/BUCKET)];@wait me={@nuke %q0;&BUCKET %q0=GOING};@notify me}
+&CMD_JOB/DUE Job Global Object <JGO>=$+job/due *=*:@switch [not(eq(words(%1,/),3))][u(#1430/HAS_ACCESS,%#)][setq(0,locate(#1430,Job %0,i))][isdbref(%q0)][u(#1430/FN_ACCESSCHECK,get(%q0/BUCKET),%#)][switch(lcstr(%1),none,2,switch(ifelse(eq(words(%1),4),convtime(XXX %1),convtime(%1)),-1,0,1))]=0*,{@@},10*,{@pemit %#=Permission denied.},110*,{@pemit %#=That is not a valid job number.},1110*,{@pemit %#=You do not have access to that job.},11110*,{@pemit %#=Invalid date. Use date formatting as '[rest(time())]'.},11112*,{@pemit %#=You have cleared Job Number %0's date.;&DUE_ON %q0=;@trigger #1430/TRIG_ADD=%q0,Due date cleared.,%#,DUE;@trigger #1430/TRIG_BROADCAST=[u(%q0/BUCKET)],Due date cleared by %n for job [secure(%0)].},{@pemit %#=You have set Job Number %0's date to %1.;&DUE_ON %q0=[ifelse(eq(words(%1),4),convtime(XXX %1),convtime(%1))];@trigger #1430/TRIG_ADD=%q0,Due on [secure(%1)].,%#,DUE;@trigger #1430/TRIG_BROADCAST=[u(%q0/BUCKET)],Due date for job %0 set by %n.}
+&CMD_JOB/SET Job Global Object <JGO>=$+job/set *=*:@switch [u(#1430/HAS_ACCESS,%#)][setq(0,locate(#1430,Job %0,i))][isdbref(%q0)][u(#1430/FN_ACCESSCHECK,get(%q0/BUCKET),%#)][and(isnum(%1),gt(%1,-1),lt(%1,7))][not(hasattr(%q0,LOCKED))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That is not a valid job.},110*,{@pemit %#=You do not have access to that job.},1110*,{@pemit %#=That is an invalid setting. Job settings are from 0 to 6.},11110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@pemit %#=You set Job Number [secure(%0)] to [setq(1,switch(%1,0,ON HOLD,1,NEW,2,UNDERWAY,3,1/4 COMPLETE,4,1/2 COMPLETE,5,3/4 COMPLETE,COMPLETE))]%q1 status.;&STATUS %q0=[secure(%1)];@trigger #1430/TRIG_ADD=%q0,Set to %q1.,%#,STA;@trigger #1430/TRIG_BROADCAST=[get(%q0/BUCKET)],Status set to %q1 on Job [secure(%0)].}
+&CMD_JOB/TRANS Job Global Object <JGO>=$+job/trans *=*:@switch [u(#1430/HAS_ACCESS,%#)][setq(0,locate(#1430,Job %0,i))][isdbref(%q0)][u(#1430/FN_ACCESSCHECK,get(%q0/BUCKET),%#)][gt(match(get(#1430/BUCKETS),%1),0)][setq(1,extract(get(#1430/BUCKETS),match(get(#1430/BUCKETS),%1),1))][not(hasattr(%q0,LOCKED))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no job by that number.},110*,{@pemit %#=You do not have access to that job.},1110*,{@pemit %#=There is no type by that name. Valid types are [u(#1430/FN_PRETTY,get(#1430/BUCKETS))].},11110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@pemit %#=You have transferred the job from [get(%q0/BUCKET)] to %q1.;&BUCKET %q0=%q1;@trigger #1430/TRIG_ADD=%q0,Transferred to %q1.,%#,TRN;@trigger #1430/TRIG_BROADCAST=[get(%q0/BUCKET)],Job %0 transferred to %q1.}
+&CMD_JOB/DELETE Job Global Object <JGO>=$+job/delete *:@switch [or(u(#1430/DELETE_ACCESS,%#),hasflag(%#,WIZARD),switch(%#,#1430,1,0))][setq(0,locate(#1430,Job %0,i))][isdbref(%q0)][not(hasattr(%q0,LOCKED))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That is not a valid job number.},110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@pemit %#=You have deleted job # %0.;&BUCKET %q0=GOING;@nuke %q0}
+&CMD_JOBS/ALL Job Global Object <JGO>=$+jobs/*:@switch [u(#1430/HAS_ACCESS,%#)][ucstr(secure(first(%0)))]=0*,{@pemit %#=Permission denied.},1ALL,{@pemit %#=[u(#1430/JOBS_HEADER)];@dolist filter(#1430/FIL_GOING,revwords(lcon(#1430)))=@pemit %#=[ifelse(u(#1430/FN_ACCESSCHECK,[get(##/BUCKET)],%#),u(#1430/DISPLAY_JOB,##),)];@wait me={@pemit %#=[repeat(=,79)]};@wait 0=@notify me},1PRI,{@@},1SEARCH,{@@},1COMPRESS,{@@},1MINE,{@@},1CREDITS,{@pemit %#=[center(| [ansi(hy,Anomaly Jobs)] |,79,=)]%r%rVersion: [u(#1430/VERSION)][space(5)]Release: [u(#1430/RELEASE)]%r%rAuthor: [u(#1430/CREDITS)]%r%r[u(#1430/LICENSE)]%r%r[repeat(=,79)]},{@switch [match(u(#1430/BUCKETS),secure(%0))]=0,{@pemit %#=That is not a valid job type. Valid job types are: [u(#1430/FN_PRETTY,u(#1430/BUCKETS))]},{@wait me=@pemit %#=[u(#1430/JOBS_HEADER)];@dolist revwords(lcon(#1430))={@pemit %#=[ifelse(and(u(#1430/FN_ACCESSCHECK,[get(##/BUCKET)],%#),switch(ucstr(secure(%0)),u(##/BUCKET),1,0)),u(#1430/DISPLAY_JOB,##),)]};@wait .1={@pemit %#=[repeat(=,79)]};@wait 0=@notify me}}
+&CMD_JOB/ACT Job Global Object <JGO>=$+job/act *:@switch [u(#1430/HAS_ACCESS,%#)][setq(0,locate(#1430,Job %0,i))][isdbref(%q0)][or(orflags(%#,WZ),u(#1430/ACCESS_[u(%q0/BUCKET)],%#))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no job by that name. Please type '+jobs/all' for all jobs or '+jobs/<type>' to list by type.},110*,{@pemit %#=You do not have access to that job.},{@pemit %#=[center(| [ansi(hy,View Job Number %0)] |,79,=)]%r[ulocal(#1430/DISPLAY_HEADERS,%q0)]%r[repeat(-,79)];@dolist lattr(%q0/COMMENT_*)={@pemit %#=[rest(convsecs(extract(get(%q0/##),2,1,|)))] [first(get(%q0/##),|)] [ljust(strtrunc(extract(get(%q0/##),4,1,|),15),15)] [ljust(strtrunc(last(get(%q0/##),|),35),35)]};@wait me={@pemit %#=[repeat(=,79)]};@notify me}
+&CMD_JOB/MERGE Job Global Object <JGO>=$+job/merge *=*:@switch [u(#1430/HAS_ACCESS,%#)][setq(0,locate(#1430,Job %1,i))][setq(1,locate(#1430,Job %0,i))][isdbref(%q1)][isdbref(%q0)][u(#1430/FN_ACCESSCHECK,get(%q0/BUCKET),%#)][u(#1430/FN_ACCESSCHECK,get(%q1/BUCKET),%#)][setq(2,u(%q0/NUM_COMMENT))][setq(3,u(%q1/NUM_COMMENT))][or(not(hasattr(%q0,LOCKED)),not(hasattr(%q1,LOCKED)))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no job number %0.},110*,{@pemit %#=There is no job number %1.},1110*,{@pemit %#=You do not have access to [name(%q0)].},11110*,{@pemit %#=You do not have access to [name(%q1)].},11110*,{@pemit %#=One of the jobs is locked. It must be unlocked before modifications can be made.},{@trigger #1430/TRIG_ADD=%q0,Job [secure(%1)] merged into this one.,%#,MRG;@trigger #1430/TRIG_BROADCAST=[u(%q0/BUCKET)],Job %0 has been merged into Job %1 by %n;@wait me={@dolist [lattr(%q1/COMMENT_*)]={@cpattr %q1/##=%q0/COMMENT_[get(%q0/NUM_COMMENT)];&NUM_COMMENT %q0=[inc(get(%q0/NUM_COMMENT))]};@nuke %q1;&BUCKET %q1=GOING}};@notify me
+&CMD_JOB/NAME Job Global Object <JGO>=$+job/name *=*:@switch [u(#1430/HAS_ACCESS,%#)][setq(0,locate(#1430,Job %0,i))][isdbref(%q0)][u(#1430/FN_ACCESSCHECK,get(%q0/BUCKET),%#)][not(hasattr(%q0,LOCKED))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no job by that name.},110*,{@pemit %#=You do not have access to that job.},1110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{@pemit %#=You have changed the name of Job %0 to %1.;&TITLE %q0=[secure(%1)];@trigger #1430/TRIG_ADD=%q0,Rename,%#,NAM;@trigger #1430/TRIG_BROADCAST=[u(%q0/BUCKET)],%n has renamed job %0.}
+&CMD_JOB/ERROR Job Global Object <JGO>=$+job:@switch [u(#1430/HAS_ACCESS,%#)]=0*,{@pemit %#=Permission denied.},{@pemit %#=Type '+jobs' for a list of jobs, or '+job <#>' to view a specific job.}
+&CMD_JOBS/ERROR Job Global Object <JGO>=$+jobs *:@switch [u(#1430/IS_STAFF,%#)]=0*,{@pemit %#=Permission denied.},{@pemit %#=Type '+jobs' for a list of jobs, or '+job <#>' to view a specific job.}
+&CMD_JOB/DUE2 Job Global Object <JGO>=$+job/due *=*/*/*:@switch [u(#1430/HAS_ACCESS,%#)][setq(0,locate(#1430,Job %0,i))][setq(1,convtime(XXX [switch([rjust(%1,2,0)],01,Jan,02,Feb,03,Mar,04,Apr,05,May,06,Jun,07,Jul,08,Aug,09,Sep,10,Oct,11,Nov,12,Dec)] [rjust(%2,2,0)] 23:59:00 20[rjust(%3,2,0)]))][isdbref(%q0)][gt(%q1,0)][u(#1430/FN_ACCESSCHECK,get(%q0/BUCKET),%#)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That is not a valid job number.},10*,{@pemit %#=Invalid date. Use date formatting as 'MM/DD/YY', '[rest(time())]', 'none' to clear.},{@pemit %#=You have set Job Number %0's date to [convsecs(%q1)].;&DUE_ON %q0=%q1;@trigger #1430/TRIG_ADD=%q0,Due on [convsecs(%q1)].,%#,DUE;@trigger #1430/TRIG_BROADCAST=[u(%q0/BUCKET)],Due date for job %0 set by %n.}
+&CMD_JOBS/COMPRESS Job Global Object <JGO>=$+jobs/compress:@switch [hasflag(%#,WIZARD)]=0*,{@pemit %#=Permission denied.},{@dolist lnum(1,words(lcon(#1430)))={@name [extract(revwords(lcon(#1430)),##,1)]=Job ##};&JOBS_NUM #1430=[words(lcon(#1430))];@pemit %#=Compressed. The next job number will be [inc(get(#1430/JOBS_NUM))].}
+&CMD_JOBS/MINE Job Global Object <JGO>=$+jobs/mine:@switch [u(#1430/HAS_ACCESS,%#)]=0*,{@pemit %#=Permission denied.},{@pemit %#=[u(#1430/JOBS_HEADER)];@dolist filter(#1430/FIL_MINE,revwords(lcon(#1430)))={@pemit %#=[u(#1430/DISPLAY_JOB,##)]};@wait me={@pemit %#=[center(| [ansi(hr,*)] Denotes New Activity |,79,=)]};@wait 0=@notify me}
+&CMD_JOBS/PRI Job Global Object <JGO>=$+jobs/pri:@switch [u(#1430/HAS_ACCESS,%#)]=0*,{@pemit %#=Permission denied.},{&JOBS_PRI #1430=[sortby(#1430/SORTBY_PRI,lcon(#1430))];@pemit %#=[u(#1430/JOBS_HEADER)];@dolist revwords(get(#1430/JOBS_PRI))={@pemit %#=[ifelse(and(u(#1430/FN_ACCESSCHECK,[get(##/BUCKET)],%#),u(#1430/FN_MONITORCHECK,get(##/BUCKET),%#)),u(#1430/DISPLAY_JOB,##),)]};@wait me={@pemit %#=[repeat(=,79)]};@wait 0=@notify me}
+&CMD_JOB/CLONE Job Global Object <JGO>=$+job/clone *:@switch [u(#1430/HAS_ACCESS,%#)][setq(0,locate(#1430,Job %0,i))][u(#1430/FN_ACCESSCHECK,get(%q0/BUCKET),%#)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no job by that number.},110*,{@pemit %#=You do not have access to that job.},{@pemit [setq(1,inc(get(#1430/JOBS_NUM)))]%#=Job copied as Job %q1.;&JOBS_NUM #1430=%q1;@clone %q0=Job %q1;@pemit me=[setq(2,num(Job %q1))];@tel %q2=#1430;@trigger #1430/TRIG_ADD=%q2,Cloned job.,%#,CLN;@trigger #1430/TRIG_BROADCAST=[get(%q0/BUCKET)],Job %0 Cloned by %n.}
+&CMD_JOBS/SEARCH Job Global Object <JGO>=$+jobs/search *:@switch [u(#1430/HAS_ACCESS,%#)]=0*,{@pemit %#=Permission denied.},{@pemit %#=[u(#1430/JOBS_HEADER)];@dolist revwords(lcon(#1430))={@pemit [setq(0,%b)]%#=ifelse(and(u(#1430/FN_ACCESSCHECK,get(##/BUCKET),%#),gt(words(grepi(##,*,%0)),0)),[u(#1430/DISPLAY_JOB,##)],)};@wait me={@pemit %#=[repeat(=,79)]};@wait 0=@notify me}
+&CMD_JOB/LOCK Job Global Object <JGO>=$+job/lock *:@switch [u(#1430/HAS_ACCESS,%#)][setq(0,locate(#1430,Job %0,i))][isdbref(%q0)][u(#1430/FN_ACCESSCHECK,get(%q0/BUCKET),%#)][not(hasattr(%q0,LOCKED))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That is an invalid job number.},110*,{@pemit %#=You do not have access to that job.},1110*,{@pemit %#=That job is already locked.},{@pemit %#=You have locked job %0. No further modifications can be made to this job until it is unlocked.;&LOCKED %q0=1;@trigger #1430/TRIG_ADD=%q0,Locked by %n.,%#,LOK;@trigger #1430/TRIG_BROADCAST=[get(%q0/BUCKET)],Job %0 locked by %n.}
+&CMD_JOB/UNLOCK Job Global Object <JGO>=$+job/unlock *:@switch [u(#1430/HAS_ACCESS,%#)][setq(0,locate(#1430,Job %0,i))][isdbref(%q0)][u(#1430/FN_ACCESSCHECK,get(%q0/BUCKET),%#)][hasattr(%q0,LOCKED)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That is an invalid job number.},110*,{@pemit %#=You do not have access to that job.},1110*,{@pemit %#=That job is not locked.},{@pemit %#=You have unlocked job %0.;&LOCKED %q0=;@trigger #1430/TRIG_ADD=%q0,%1,%#,UNL;@trigger #1430/TRIG_BROADCAST=[get(%q0/BUCKET)],Job %0 unlocked by %n.}
+&CMD_JOB/EDIT Job Global Object <JGO>=$+job/edit */*=*/*:@switch [u(#1430/HAS_ACCESS,%#)][setq(0,locate(#1430,Job %0,i))][u(#1430/EDIT_ACCESS,%#)][isdbref(%q0)][setq(1,get(%q0/COMMENT_%1))][switch(first(%q1,|),ADD,1,CRE,1,0)][not(hasattr(%q0,LOCKED))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=Permission denied.},110*,{@pemit %#=That is an invalid job number.},1110*,{@pemit %#=You cannot modify that entry.},11110*,{@pemit %#=That job is locked. It must be unlocked before modifications can be made.},{&COMMENT_%1 %q0=[extract(%q1,1,4,|)]|[edit(last(%q1,|),%2,%3)];@pemit %#=Edited: [last(u(%q0/COMMENT_%1),|)];@trigger #1430/TRIG_ADD=%q0,%1 Edited by %n.,%#,EDT;@trigger #1430/TRIG_BROADCAST=[get(%q0/BUCKET)],Job %0 edited by %n.}
+&CMD_BUCKETS Job Global Object <JGO>=$+buckets:@switch [u(#1430/IS_STAFF,%#]=0*,{@pemit %#=Permission denied.},{@pemit %#=[u(#1430/BUCKET_HEADER)];@pemit %#=[list(filter(#1430/FIL_ACCESS,get(#1430/BUCKETS)),[ljust(##,8)][ljust(strtrunc(first(get(#1430/BUCKET_##),|),54),54)][rjust(ifelse(u(#1430/FN_MONITORCHECK,##,%#),Monitoring,Ignoring),15)])];@pemit %#=[repeat(=,79)]}
+&CMD_BUCKET/CREATE Job Global Object <JGO>=$+bucket/create *=*:@switch [hasflag(%#,WIZARD)][not(member(get(#1430/BUCKETS),ucstr(%0)))][not(gt(strlen(%0),5))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is already a bucket by that name.},110*,{@pemit %#=The name of a bucket is limited to five letters.},{@pemit %#=You have created a bucket named [ucstr(%0)]. If you wish to change the attribute restrictions, you must alter #1430/ACCESS_[ucstr(%0)] as it is currently set to allow access to all players who have access to +jobs.;&BUCKETS #1430=[setunion(get(#1430/BUCKETS),ucstr(%0))];&BUCKET_[ucstr(%0)] #1430=[secure(%1)];&ACCESS_[ucstr(%0)] #1430=1}
+&CMD_BUCKET/DELETE Job Global Object <JGO>=$+bucket/delete *:@switch [hasflag(%#,WIZARD)][gt(member(get(#1430/BUCKETS),ucstr(%0)),0)][setq(0,ucstr(secure(%0)))][eq(words(filter(#1430/FIL_DELETE,lcon(#1430))),0)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no bucket by that name.},110*,{@pemit %#=The bucket is not empty, and cannot be deleted.},{@pemit %#=You have removed the bucket named [ucstr(%0)].;&BUCKETS #1430=[remove(u(#1430/BUCKETS),ucstr(%0))];&BUCKET_[ucstr(%0)] #1430=;&HIDDEN_[ucstr(%0)] #1430=;&ACCESS_[ucstr(%0)] #1430=;@dolist search(type=player)={&JOBSH ##=[remove(get(##/JOBSH),ucstr(%0))];&JOBSB ##=[remove(get(##/JOBSB),ucstr(%0))]}}
+&CMD_BUCKET/SHOW Job Global Object <JGO>=$+bucket/show *:@switch [orflags(%#,W)][not(hasattr(#1430,HIDDEN_%0))][member(get(#1430/BUCKETS),ucstr(%0))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That bucket is not on the hidden list. Use '[ansi(h,+bucket/hide <bucket>)]' to put the bucket on the hidden list.},110*,{@pemit %#=There is no bucket by that name. Use '[ansi(h,+buckets)]' for a list of valid buckets.},{@pemit %#=You have removed bucket [ucstr(secure(%0))] from the list of hidden buckets. Jobs in this bucket will now show on the standard '[ansi(h,+jobs)]' list.;&HIDDEN_%0 #1430=}
+&CMD_BUCKET/HIDE Job Global Object <JGO>=$+bucket/hide *:@switch [orflags(%#,W)][hasattr(#1430,HIDDEN_%0)][member(get(#1430/BUCKETS),ucstr(%0))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=That bucket is already on the hidden list. Use '[ansi(h,+bucket/show <bucket>)]' to take the bucket off of the hidden list.},110*,{@pemit %#=There is no bucket by that name. Use '[ansi(h,+buckets)]' for a list of valid buckets.},{@pemit %#=You have placed bucket [ucstr(%0)] on the list of hidden buckets. Jobs in this bucket will not show on the standard '[ansi(h,+jobs)]' list.;&HIDDEN_%0 #1430=1}
+&CMD_BUCKET/MONITOR Job Global Object <JGO>=$+bucket/monitor *:@switch [u(#1430/HAS_ACCESS,%#)][gt(member(get(#1430/BUCKETS),ucstr(%0)),0)][setq(0,ucstr(secure(%0)))][u(#1430/FN_ACCESSCHECK,%q0,%#)][u(#1430/FN_MONITORCHECK,%q0,%#)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no bucket by that name.},110*,{@pemit %#=You do not have access to that bucket.},1110*,{@pemit %#=You have added bucket %q0 to your monitored list.;&JOBSH %#=[ifelse(hasattr(#1430,HIDDEN_%q0),setunion(get(%#/JOBSH),%q0),remove(get(%#/JOBSH),%q0))]},{@pemit %#=You have removed bucket %q0 from your monitored list.;&JOBSH %#=[ifelse(hasattr(#1430,HIDDEN_%q0),remove(get(%#/JOBSH),%q0),setunion(get(%#/JOBSH),%q0))]}
+&CMD_BUCKET/ACCESS Job Global Object <JGO>=$+bucket/access *=*:@switch [u(#1430/GIVE_ACCESS,%#)][setq(0,num(*%0))][setq(1,ucstr(secure(%1)))][isdbref(%q0)][gt(member(get(#1430/BUCKETS),%q1),0)][u(#1430/FN_ACCESSCHECK,%q1,%q0)]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no player by that name.},110*,{@pemit %#=There is no bucket by that name.},1110*,{@pemit %#=You have given [name(%q0)] access to the [ucstr(%1)] bucket.;&JOBSB %q0=[ifelse(member(get(%q0/JOBSB),%q1),remove(get(%q0/JOBSB),%q1),setunion(get(%q0/JOBSB),%q1))]},{@pemit %#=You have removed [name(%q0)]'s access to the [ucstr(%1)] bucket.;&JOBSB %q0=[ifelse(member(get(%q0/JOBSB),%q1),remove(get(%q0/JOBSB),%q1),setunion(get(%q0/JOBSB),%q1))]}
+&CMD_BUCKET/POST Job Global Object <JGO>=$+bucket/post *=*:@switch [orflags(%#,W)][gt(member(get(#1430/BUCKETS),ucstr(%0)),0)][isnum(%1)][not(eq(%1,0))]=0*,{@pemit %#=Permission denied.},10*,{@pemit %#=There is no bucket by that name. Please use '[ansi(h,+buckets)]' to see a list of valid buckets.},110*,{@pemit %#=The post-to value must be an integer.},1110*,{@pemit %#=You have set bucket [ucstr(%0)] to post to the default board.;&POSTTO_%0 #1430=},{@pemit %#=You have set bucket [ucstr(%0)] to post to board %1. Please make sure that #895 has posting privileges to that board, and make sure the board exists. Set this to '0' to return it to default post status.;&POSTTO_%0 #1430=%1}
+&CMD_PITCH Job Global Object <JGO>=$+pitch *=*:@switch [not(haspower(%#,guest))]=0*,{@pemit %#=Permission Denied.},{@pemit %#=You have pitched the story idea to the roleplay staff about the '[secure(%0)]' storyline. Please remember that this is merely a story [ansi(hu,pitch)], and not a request. Staff, for one reason or many, may decide not to go with the idea.;@trigger #1430/TRIG_CREATE=%#,PITCH,1,[strtrunc(secure(%0),20)],%1}
+&CMD_REQUEST Job Global Object <JGO>=$+request *=*:@switch [not(haspower(%#,guest))]=0*,{@pemit %#=Permission denied.},{@pemit [setq(0,add(u(#1430/JOBS_NUM),1))]%#=You have requested [secure(strtrunc(%0,30))] from staff. Please allow for some time to process it. Do not page staff about it - you will hear back soon.;@trigger #895/TRIG_MAIL=%#,%0,%1;@trigger #1430/TRIG_CREATE=%#,REQ,2,[strtrunc(secure(%0),30)],[strtrunc(%1,get(#1430/BUFFER))],[add(secs(),172800)]}
+&CMD_TYPO Job Global Object <JGO>=$+typo *:@switch [not(haspower(%#,guest))]=0*,{@pemit %#=Permission denied.},{@pemit [setq(0,add(get(#1430/JOBS_NUM),1))]%#=You have notified production staff of the typo, with the details '[strtrunc(%0,get(#1430/BUFFER))]';@trigger #1430/TRIG_CREATE=%#,BUILD,2,[strtrunc(%0,30)],[strtrunc(%1,get(#1430/BUFFER))]}
+&CMD_BUG Job Global Object <JGO>=$+bug *=*:@switch [not(haspower(%#,guest))]=0*,{@pemit %#=Permission Denied.},{@pemit [setq(0,add(get(#1430/JOBS_NUM),1))]%#=You have notified production staff of the [secure(strtrunc(%0,30))] bug, with the details '[secure(strtrunc(%1,get(#1430/BUFFER)))]';@trigger #1430/TRIG_CREATE=%#,CODE,3,[strtrunc(%0,30)],[strtrunc(%1,get(#1430/BUFFER))]}
+@aconnect Job Global Object <JGO>=@switch [u(#1430/HAS_ACCESS,%#)]=1,{@fo %#=+jobs},{@@}
+@adisconnect Job Global Object <JGO>=@pemit me=[ifelse(u(#1430/HAS_ACCESS,%#),set(%#,LAST_CONN:[secs()]),)]
+@Startup Job Global Object <JGO>=@drain me;@notify me
+@@
+@pemit %#=[ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
+@@
+&BUCKETS Job Database <JD>=CODE RP THEME REQ APPS BUILD TPS CGEN TECH FEEP PITCH ADMIN WIZ
+&JOBS_NUM Job Database <JD>=1
+&JOBS_HEADER Job Database <JD>=[repeat(=,79)]%r[ansi(hc,*%b%b[ljust(Job#,5)][ljust(Type,6)][ljust(Description,31)][ljust(Due,9)][ljust(Assigned To,17)]Status)]%r[repeat(-,79)]
+&DISPLAY_JOB Job Database <JD>=[setq(0,ifelse(get(%0/DUE_ON),ifelse(gt(secs(),get(%0/DUE_ON)),r,switch(get(%0/PRIORITY),1,g,2,y,3,r,g)),switch(get(%0/PRIORITY),1,g,2,y,3,r)))][ifelse(gt(get(%0/MODIFIED_ON),get(%#/LAST_CONN)),[ansi(hr,*)]%b,%b%b)][ansi(h%q0,[rjust([last(name(%0))],5)]%b[ljust(get(%0/BUCKET),5)]%b[ljust(mid(get(%0/TITLE),0,30),30)]%b[ljust(switch(get(%0/STATUS),0,--HOLD--,ifelse(get(%0/DUE_ON),ifelse(gt(secs(),get(%0/DUE_ON)),OVERDUE!,[u(#1430/FN_SHORT_DATE,convsecs(get(%0/DUE_ON)))]),--------)),8)]%b[ljust(ifelse(isdbref(get(%0/ASSIGNED_TO)),name(get(%0/ASSIGNED_TO)),-),16)]%b[center(switch(get(%0/STATUS),0,ON HOLD,1,NEW,2,UNDERWAY,3,1/4 DONE,4,1/2 DONE,5,3/4 DONE,6,COMPLETE,NEW),8)])]
+&FN_SHORT_DATE Job Database <JD>=[switch(extract(%0,2,1),Jan,01,Feb,02,Mar,03,Apr,04,May,05,Jun,06,Jul,07,Aug,08,Sep,09,Oct,10,Nov,11,Dec,12,??)]/[extract(%0,3,1)]/[mid(last(%0),2,2)]
+&FN_PRETTY Job Database <JD>=[switch(words(%0,switch(%1,,%b,%1)),0,%0,1,%0.,[ldelete(edit(%0,switch(%1,,%b,%1),%,%b),words(%0,switch(%1,,%b,%1)),%,)] and [last(%0,switch(%1,,%b,%1))].)]
+&FN_ACCESSCHECK Job Database <JD>=[or(orflags(%1,W),switch([u(#1430/ACCESS_%0,%1)][gt(member(get(%1/JOBSB),%0),0)],01,1,10,1,11,0,0))]
+&FN_MONITORCHECK Job Database <JD>=[and(or(u(#1430/FN_ACCESSCHECK,%0,%1),orflags(%1,W)),switch([hasattr(#1430,HIDDEN_%0)][gt(member(get(%1/JOBSH),%0),0)],01,0,10,0,11,1,1))]
+&FIL_COMMENTS Job Database <JD>=[switch(first(get(%q0/%0),|),ADD,1,CRE,1,0)]
+&FIL_GOING Job Database <JD>=[switch(get(%0/BUCKET),GOING,0,1)]
+&FIL_ACCESS Job Database <JD>=[u(#1430/FN_ACCESSCHECK,%0,%#)]
+&FIL_DELETE Job Database <JD>=[switch(u(%0/BUCKET),%q0,1,0)]
+&FIL_BROADCAST Job Database <JD>=[u(#1430/FN_ACCESSCHECK,%q0,%0)]
+&FIL_MINE Job Database <JD>=[switch(get(%0/ASSIGNED_TO),%#,1,0)]
+&DISPLAY_HEADERS Job Database <JD>=[setq(0,%0)][ljust([rjust(ansi(hc,Type:),10)] [get(%q0/BUCKET)],40)][rjust(ansi(hc,Due On:),12)] [ifelse(get(%q0/DUE_ON),ifelse(gt(secs(),get(%q0/DUE_ON)),OVERDUE!,convsecs(get(%q0/DUE_ON))),-)]%r[ljust([rjust(ansi(ch,Opened By:),10)] [ifelse(isdbref(get(%q0/OPENED_BY)),name(get(%q0/OPENED_BY)),get(%q0/OPENED_BY))],40)][rjust(ansi(hc,Assigned To:),12)] [ifelse(get(%q0/ASSIGNED_TO),name(get(%q0/ASSIGNED_TO)),Nobody)]%r[ljust([rjust(ansi(hc,Opened On:),10)] [convsecs(get(%q0/OPENED_ON))],40)][rjust(ansi(hc,Status:),12)] [switch(get(%q0/PRIORITY),1,Green,2,Yellow,3,Red)]%r[ljust([rjust(ansi(hc,Title:),10)] [get(%q0/TITLE)],40)][rjust(ansi(hc,Progress:),12)] [switch(get(%q0/STATUS),0,On Hold,1,New,2,Underway,3,1/4 Complete,4,1/2 Complete,5,3/4 Complete,6,Complete,No Progress Flag)]
+&BUCKET_HEADER Job Database <JD>=[repeat(=,79)]%r[ansi(ch,Bucket%b%bDescription)]%r[repeat(-,79)]
+&BUCKET_CODE Job Database <JD>=For bugs and code enhancements.
+&BUCKET_ADMIN Job Database <JD>=For game administrative issues.
+&BUCKET_APPS Job Database <JD>=Character applications submitted for review.
+&BUCKET_BUILD Job Database <JD>=For building issues and typo reports.
+&BUCKET_CGEN Job Database <JD>=For character generation problems and updates.
+&BUCKET_FEEP Job Database <JD>=Unimplemented game features and ideas.
+&BUCKET_PITCH Job Database <JD>=Pitched plots and stories.
+&BUCKET_REQ Job Database <JD>=Player requests.
+&BUCKET_THEME Job Database <JD>=Thematic issues and discussion.
+&BUCKET_TECH Job Database <JD>=Technology issues, requests and discussion.
+&BUCKET_RP Job Database <JD>=For storing potential plots.
+&BUCKET_TPS Job Database <JD>=Actively running tiny plots.
+&BUCKET_WIZ Job Database <JD>=Wizard jobs.
+&HIDDEN_RP Job Database <JD>=1
+&HIDDEN_FEEP Job Database <JD>=1
+&VERSION Job Database <JD>=v4.0
+&CREDITS Job Database <JD>=Starfleet@Anomaly (station419@earthlink.net)
+&LICENSE Job Database <JD>=You may port this code to any game provided that these credits remain intact. Please report any and all bugs, feedback or whatnot to the email address provided above. The most recent version of this code can be found at Anomaly's web page: http://anomaly.mushpark.com
+&RELEASE Job Database <JD>=February 17, 2003
+&APP_LETTER Job Database <JD>=Application for approval submitted by [name(%0)].
+&IS_STAFF Job Database <JD>=[orflags(%0,WZ)]
+&SORTBY_PRI Job Database <JD>=[comp(get(%0/PRIORITY),get(%1/PRIORITY))]
+@switch [first(version())]=TinyMUSH,{&BUFFER Job Database <JD>=4000},{&BUFFER Job Database <JD>=8000}
+@@
+@@ ------------------------------------------------------------------
+@@ These attributes control who can access what features of the code.
+@@
+@@ HAS_ACCESS      : Return 1 if player can access the +jobs code.
+@@ CREATE_ACCESS   : Return 1 if player can /create jobs.
+@@ APPROVE_ACCESS  : Return 1 if player can /approve jobs.
+@@ DENY_ACCESS     : Return 1 if player can /deny jobs.
+@@ COMPLETE_ACCESS : Return 1 if player can /complete jobs.
+@@ ADD_ACCESS      : Return 1 if player can /add to jobs.
+@@ GIVE_ACCESS     : Return 1 if player can +bucket/access.
+@@ EDIT_ACCESS     : Return 1 if player can edit a job.
+@@ ------------------------------------------------------------------
+@@
+&HAS_ACCESS Job Database <JD>=[or(haspower(%0,builder),orflags(%0,WZ))]
+&CREATE_ACCESS Job Database <JD>=[orflags(%0,WZ)]
+&APPROVE_ACCESS Job Database <JD>=[orflags(%0,WZ)]
+&DENY_ACCESS Job Database <JD>=[orflags(%0,WZ)]
+&COMPLETE_ACCESS Job Database <JD>=[orflags(%0,WZ)]
+&ADD_ACCESS Job Database <JD>=[orflags(%0,WZ)]
+&GIVE_ACCESS Job Database <JD>=[orflags(%0,W)]
+&EDIT_ACCESS Job Database <JD>=[orflags(%0,WZ)]
+@@
+@@ ------------------------------------------------------------------
+@@ This attribute controls whether or not when you create a new job
+@@ if it is automatically assigned to the creator.
+@@     1 = Automatically assign job on job/create to creator
+@@     0 = Leave job unassigned on job/create.
+@@ ------------------------------------------------------------------
+@@
+&CONFIG_ASSIGN Job Database <JD>=1
+@@
+@@ ------------------------------------------------------------------
+@@ The next attribute controls how many jobs are allowed in the
+@@ system before it halts new job creation.
+@@ ------------------------------------------------------------------
+@@
+&MAX_JOBS Job Database <JD>=200
+@@
+@@ ------------------------------------------------------------------
+@@ These attributes control who can access an individual bucket.
+@@ 
+@@ You only need to change these if you change the HAS_ACCESS attr
+@@ above. Returning 1 means that the player (%0) has access to the
+@@ bucket.
+@@ ------------------------------------------------------------------
+@@
+&ACCESS_CODE Job Database <JD>=[orflags(%0,WZ)]
+&ACCESS_ADMIN Job Database <JD>=[orflags(%0,WZ)]
+&ACCESS_APPS Job Database <JD>=[orflags(%0,WZ)]
+&ACCESS_BUILD Job Database <JD>=[or(haspower(%0,builder),orflags(%0,WZ))]
+&ACCESS_CGEN Job Database <JD>=[orflags(%0,WZ)]
+&ACCESS_FEEP Job Database <JD>=[orflags(%0,WZ)]
+&ACCESS_PITCH Job Database <JD>=[orflags(%0,WZ)]
+&ACCESS_REQ Job Database <JD>=[orflags(%0,WZ)]
+&ACCESS_THEME Job Database <JD>=[orflags(%0,WZ)]
+&ACCESS_RP Job Database <JD>=[orflags(%0,WZ)]
+&ACCESS_TPS Job Database <JD>=[orflags(%0,WZ)]
+&ACCESS_TECH Job Database <JD>=[orflags(%0,WZ)]
+&ACCESS_WIZ Job Database <JD>=[orflags(%0,W)]
+@@
+@@ Do not alter the following ACCESS and HIDDEN, as there is no reason to 
+@@ access the GOING bucket.
+@@
+&ACCESS_GOING Job Database <JD>=0
+&HIDDEN_GOING Job Database <JD>=1
+@@
+@pemit %#=[ansi(hc,ANOMALY JOBS:)] Setting triggers.
+&TRIG_APPROVE Job Tracker=+bbpost %vb/A: %3=[space(10)]%chJob:%cn #%0%r[space(8)]%chTitle:%cn [get(%q0/TITLE)]%r[space(4)]%chOpened By:%cn [name(get(%q0/OPENED_BY))]%r[space(4)]%chOpened On:%cn [convsecs(get(%q0/OPENED_ON))]%r%b%chCompleted By:%cn [name(%1)]%r%b%chCompleted On:%cn [time()]%r%r[last(get(%q0/COMMENT_1),|)]%r[repeat(-,78)]%r[ansi(h,Comments from [name(%1)]:)] %2%r%rThis request was approved.;@mail/quick [get(%q0/OPENED_BY)]/Approved: %3=Your request for %3 has been approved: [last(get(%q0/COMMENT_1),|)]%r[repeat(-,75)]%r[ansi(h,Comments added by [name(%1)]:)] %2
+&TRIG_DENY Job Tracker=+bbpost %vb/D: %3=[space(10)]%chJob:%cn #%0%r[space(8)]%chTitle:%cn [get(%q0/TITLE)]%r[space(4)]%chOpened By:%cn [name(get(%q0/OPENED_BY))]%r[space(4)]%chOpened On:%cn [convsecs(get(%q0/OPENED_ON))]%r%b%chCompleted By:%cn [name(%1)]%r%b%chCompleted On:%cn [time()]%r%r[last(get(%q0/COMMENT_1),|)]%r[repeat(-,78)]%r[ansi(h,Comments from [name(%1)]:)] %2%r%rThis request was denied.;@mail/quick [get(%q0/OPENED_BY)]/Denied: %3=Your request for %3 has been denied: [last(get(%q0/COMMENT_1),|)]%r[repeat(-,75)]%r[ansi(h,Comments added by [name(%1)]:)] %2
+&TRIG_COMPLETE Job Tracker=+bbpost [default(#1430/POSTTO_%3,%va)]/Completed Job #%0 %([get(%q0/TITLE)]%)=Job #%0 has been completed by [name(%1)]: %r%r[last(get(%q0/COMMENT_1),|)]%r[repeat(-,78)]%r[ansi(h,Comments from [name(%1)]:)] %2
+&TRIG_MAIL Job Tracker=@mail/quick %0/%1=%2
+&TRIG_POST Job Tracker=+bbpost %vb/%0=%1
+&TRIG_BROADCAST Job Database <JD>=@pemit/list [setq(0,%0)][filter(#1430/FIL_BROADCAST,lwho())]=[ansi(hc,JOBS:)] %1
+&TRIG_ADD Job Database <JD>=think [setq(0,default(%0/NUM_COMMENT,1))];&COMMENT_%q0 %0=%3|[secs()]|%2|[name(%2)]|[strtrunc(%1,get(#1430/BUFFER))];&NUM_COMMENT %0=[inc(%q0)];&MODIFIED_ON %0=[secs()];&MODIFIED_BY %0=%2
+&TRIG_APPLY Job Database <JD>=think [setq(0,add(u(#1430/JOBS_NUM),1))][setq(1,create(Job %q0,10))];@tel %q1=#1430;@link %q1=#1430;&OPENED_BY %q1=%0;&OPENED_ON %q1=[secs()];&MODIFIED_ON %q1=[secs()];&STATUS %q1=1;&TITLE %q1=App from %1;&BUCKET %q1=APPS;&NUM_COMMENT %q1=2;&PRIORITY %q1=3;&COMMENT_1 %q1=CRE|[secs()]|%0|%1|[u(#1430/APP_LETTER,%0)];&DUE_ON %q1=[add(secs(),86400)];@trig #1430/TRIG_BROADCAST=APPS,New application submitted by %1 as job %q0.;&JOBS_NUM #1430=[inc(u(#1430/JOBS_NUM))];&JOBS_NUM #1430=%q0
+&TRIG_CREATE Job Database <JD>=@switch gt(words(lcon(#1430)),u(#1430/MAX_JOBS))=1,{@pemit %0=[ansi(hr,JOBS ERROR:)] Creation failed. The +jobs system is full. Contact staff immediately.},{think [setq(0,inc(u(#1430/JOBS_NUM)))][setq(1,create(Job %q0,10))];@tel %q1=#1430;@link %q1=#1430;&OPENED_BY %q1=%0;&OPENED_ON %q1=[secs()];&MODIFIED_ON %q1=[secs()];&STATUS %q1=1;&TITLE %q1=%3;&BUCKET %q1=%1;&NUM_COMMENT %q1=2;&PRIORITY %q1=%2;&COMMENT_1 %q1=CRE|[secs()]|%0|[name(%0)]|[strtrunc(%4,get(#1430/BUFFER))];&ASSIGNED_TO %q1=%6;&JOBS_NUM #1430=%q0;@trig #1430/TRIG_BROADCAST=%1,New %1 job # %q0 submitted by [name(%0)]: %3}
+@@
+@pemit %#=[ansi(hc,ANOMALY JOBS:)] Setting flags.
+@@
+@set Job Global Object <JGO>=INHERIT
+@switch [first(version())]=TinyMUSH,{@set Job Global Object <JGO>=COMMANDS},{@set Job Global Object <JGO>=!NO_COMMAND}
+@set Job Global Object <JGO>=!HALTED
+@set Job Global Object <JGO>=UNFINDABLE
+@set Job Global Object <JGO>=SAFE
+@set Job Database <JD>=INHERIT
+@set Job Database <JD>=UNFINDABLE
+@switch [first(version())]=TinyMUSH,{@set Job Global Object <JGO>=COMMANDS},{@set Job Database <JD>=!NO_COMMAND}
+@set Job Database <JD>=!HALTED
+@set Job Database <JD>=SAFE
+@set Job Tracker=INHERIT
+@set Job Tracker=UNFINDABLE
+@switch [first(version())]=TinyMUSH,{@set Job Global Object <JGO>=COMMANDS},{@set Job Tracker=!NO_COMMAND}
+@set Job Tracker=!HALTED
+@set Job Tracker=SAFE
+@@
+@pemit %#=[ansi(hc,ANOMALY JOBS:)] Setting locks.
+@@
+@lock jgo=me
+@lock jd=me
+@lock Job Tracker=me
+@@
+@pemit %#=[ansi(hc,ANOMALY JOBS:)] Cleaning up attributes. You may see 'Created: Permission denied.' errors, these are normal.
+@@
+@fo me=@edit jgo/*=#1430,[num(Job Database <JD>)]
+@fo me=@edit jd/*=#1430,[num(Job Database <JD>)]
+@fo me=@edit Job Tracker/*=#1430,[num(Job Database <JD>)]
+@fo me=@edit jgo/*=#895,[num(Job Tracker)]
+@fo me=@edit jd/*=#895,[num(Job Tracker)]
+@@
+@pemit %#=[ansi(hc,ANOMALY JOBS:)] Creating initial job.
+@@
+@create Job 1=10
+@fo me=&OPENED_BY Job 1=%#
+@fo me=&OPENED_ON Job 1=[secs()]
+@fo me=&MODIFIED_ON Job 1=[secs()]
+&STATUS Job 1=1
+&TITLE Job 1=Welcome
+&BUCKET Job 1=ADMIN
+&NUM_COMMENT Job 1=3
+&PRIORITY Job 1=1
+@fo me={&COMMENT_1 Job 1=CRE|[secs()]|#0|Anomaly Jobs|Thank you for choosing Anomaly Jobs. This is fully-featured task tracking code that helps to keep games organized. Please see '+jobs/credits' for information on version, license and other credits.}
+@fo me={&COMMENT_2 Job 1=ADD|[secs()]|#0|Anomaly Jobs|Remember that /complete posts to the public BBS (unless changed for a bucket - see the help file on buckets). /approve and /deny sends mail to the job-creator, and posts to private BBS.}
+@set Job 1=UNINSPECTED
+@set Job 1=UNFINDABLE
+@switch [first(version())]=TinyMUSH,{@set Job 1=!COMMANDS},{@set Job 1=NO_COMMAND}
+@@
+@switch [setq(0,search(object=bbpocket))][isdbref(%q0)]=0,{@pemit %#=[ansi(hc,ANOMALY JOBS:)] Couldn't find Myrddin's BBS. Installation is not complete.},{@pemit %#=[ansi(hc,ANOMALY JOBS:)] Setting up the BBS..;+bbnewgroup Job Tracker;@wait 2={+bbnewgroup Staff Job Tracker};@wait 5={&VA [setq(1,extract(u(%q0/GROUPS),dec(words(u(%q0/GROUPS))),1))][setq(2,last(u(%q0/GROUPS)))]Job Tracker=member(u(%q0/GROUPS),%q1);&VB Job Tracker=member(u(%q0/GROUPS),%q2);&CANREAD %q1=1;&CANWRITE %q1=%[or%(switch%(num%(%%#),[num(Job Tracker)],1,0%),orflags%(%%#,WZ%)%)%];&CANREAD %q2=%[orflags(%%#,WZ)];&CANWRITE %q2=%[or%(switch%(num%(%%#),[num(Job Tracker)],1,0%),orflags%(%%#,WZ%)%)%]}}
+@@
+@@ The following waits are used to let the rest of the code catch up before final
+@@ cleanup.
+@@
+@wait 7=@tel Job 1=jd
+@wait 8=@tel jd=jgo
+@wait 9=@tel Job Tracker=jgo
+@wait 10={@pemit %#=[ansi(hc,ANOMALY JOBS:)] Script complete. Thanks for using Anomaly Jobs! You should drop the Job Global Object <JGO> in the master room. If you have opened up the system to more than just ROYALTY and WIZARD, you must have #1 lock and hide the attribute LAST_CONN. You should hide & lock JOBSH and JOBSB no matter what. For example:%r%r@attribute/access JOBSB=WIZARD%r@attribute/access JOBSH=HIDDEN;@set me=!quiet}

@@ -1,0 +1,267 @@
+
+& pitch
+  +pitch <title>=<description>
+  
+  This is different from +request. This puts a story idea into the RP jobs 
+  bucket. Now, this is not a request for a TP, this is a method of giving story
+  ideas, or theme ideas, to the staff for consideration. Please note that it is 
+  unlikely that you will hear back about them. Generally, they will either be 
+  ran with, or deleted without any fanfare. So if you want to request a scene, 
+  use +request. If you want to pitch a story idea that staff can use, whether 
+  it is about your character, another character, or all the characters, use
+  +pitch.
+
+& request
+  
+  +request <title>=<description>
+  
+  This command requests <title> and <description> from staff. The request is 
+  added to the jobs list and will be tended to as soon as possible. Please do 
+  not bug staff - it will be handled shortly. There is a standard three day
+  turnaround time on +requests.
+    
+& bug
+  
+  +bug <title>=<description>
+  
+  This command is used for bug reporting. In <title> put the command that is 
+  bugged, or something else appropriate. Please be as descriptive as possible in 
+  the <description> field. What were the results you were expecting? What 
+  happened in its place? By giving lots of detail here, it saves us the time of 
+  tracking you down to drag the information out of you. Thanks.
+  
+& typo
+  
+  +typo <typo description>
+  
+  This command reports a typo. Please be specific about where the typo is, what
+  the typo is, and what you think it should be changed to.
+  
+=====================================================================================
+
+For STAFFHELP.TXT
+
+
+& jobs
+  Anomaly Jobs v4.0
+  
+  Anomaly Jobs is a feature-rich task-tracker. To see help on a topic, please
+  type '+help <topic>'.
+  
+  Topic         Description                                            Updated
+  ----------------------------------------------------------------------------
+  jobs-list     Viewing the +jobs list.                                03Feb17
+  jobs-commands A list of commands at-a-glance. No details.            03Feb17
+  jobs-create   How to create +jobs and how users can create them.     03Feb17
+  jobs-manage   Managing your +jobs board.                             03Feb17
+  jobs-complete How to complete and follow-through on +jobs.           03Feb17
+  jobs-config   How to configure Anomaly Jobs.                         03Feb17
+  jobs-credits  The credits to Anomaly Jobs                            03Feb17
+  buckets       How to manage buckets.                                 03Feb17
+  
+& jobs-commands
+  +jobs                                    : List jobs
+  +jobs/[<bucket>|all|mine|pri]            : List in <bucket>/all/yours/pri
+  +jobs/compress                           : Compresses job list (Wiz)
+  +jobs/credits                            : Display credit information.
+  +jobs/search <pattern>                   : Search jobs for <pattern>.
+  +job <#>                                 : View a job
+  +job/act <#>                             : Display actions on a job.
+  +job/add <#>=<comments>                  : Add comments to a job.
+  +job/approve <#>=<comment>               : Approve a player request.
+  +job/assign <#>=<<player>|none>          : Assign a job to player
+  +job/clone <#>                           : Clones a job.
+  +job/complete <#>=<comment>              : Complete a job.
+  +job/create <bucket>/<title>=<comments>  : Create a job manually.
+  +job/delete <#>                          : Delete a job (Wiz)
+  +job/deny <#>=<comment>                  : Deny a player request.
+  +job/due <#>=<<date>|none>               : Set job due date.
+  +job/edit <#>/<entry#>=<old>/<new>       : Edits a job.
+  +job/esc <#>=<green|yellow|red>          : Escalate a job
+  +job/lock <#>                            : Locks a job and prevents changes.
+  +job/merge <source>=<destination>        : Merge two jobs into <destination>
+  +job/name <#>=<name>                     : Rename a job.
+  +job/set <#>=<0-6>                       : Set progress status on a job.
+  +job/trans <#>=<bucket>                  : Transfer a job
+  +job/unlock <#>                          : Unlocks a job
+
+  
+& jobs-list
+  These commands help you sort through various +jobs.
+  
+  +jobs
+  +jobs/all
+  +jobs/<bucket>
+  +jobs/mine
+  +jobs/pri
+  +jobs/search <pattern>
+  
+  The first command displays a list of all +jobs for buckets that you have
+  access to, not including any jobs in hidden buckets. The second command
+  displays a list of all jobs in all buckets that you have access to, including
+  hidden buckets. The third command gets a list of all jobs in <bucket>,
+  provided that you have access to <bucket>. Using the /mine switch, you can
+  get a list of all jobs assigned to you. Using the /pri switch, you can get a
+  list of jobs by priority. You can /search through jobs for <pattern> and get
+  a list of all jobs containing it.
+  
+& jobs-create
+  Jobs can be created in a variety of ways. Players can use +pitch to put up
+  a PITCH job, +request to put up a REQ job, +bug to put up a CODE job, and
+  +typo to put up a BUILD job.
+  
+  +job/create <bucket>/<title>=<text of job>
+  
+  This command allows those with access to the system to create a new job. This
+  job is placed into <bucket>, provided the enactor has access to that bucket.
+  Jobs created with the suite of player commands are assigned priorities,
+  buckets, and due dates automatically. The /create command creates a jobs with
+  none of this information - it is a clean slate.
+  
+& jobs-manage
+  
+  +job <#>
+  +job/add <#>=<comments>
+  +job/trans <#>=<bucket>
+  +job/esc <#>=<green|yellow|red>
+  +job/assign <#>=<player>
+  +job/merge <source>=<destination>
+  
+  The first command allows you to view an individual job. You can only see
+  added comments with this command. The second command adds <comments> to job
+  <#>. The third command transfers job <#> to <bucket>. The next command alters
+  job <#>'s escalation code to <green> or <yellow> or <red>. The next command
+  assigns job <#> to <player>. The next command merges two jobs together.
+  Job <source> is copied into Job <destination>.
+  
+  Please see: jobs-manage2
+& jobs-manage2
+  
+  +job/set <#>=<0-6>
+  +job/due <#>=<<date>|none>
+  +job/act <#>
+  +job/name <#>=<name>
+  
+  The first command changes job <#>'s status from <0> to <6>. The second 
+  command allows you to set a due date for job <#>. The <date> string can be
+  in one of two formats: 'Jan 13 10:00:00 2003' or '01/13/03'. Using /act 
+  will allow you to view all job actions performed on a job - escalations, 
+  sets, merges, all information will be displayed, with when the action was 
+  performed and by whom. Using /name allows you to change the <name> of 
+  Job <#>.
+  
+  The /set value codes are: 0=ON HOLD, 1=NEW, 2=UNDERWAY, 3=1/4 COMPLETE, 
+  4=1/2 COMPLETE, 5=3/4 COMPLETE, 6=COMPLETE.
+  
+  Please see: jobs-manage3
+& jobs-manage3
+
+  +job/lock <#>
+  +job/unlock <#>
+  
+  When a job is locked, it cannot be modified in any way until unlocked.
+  
+  +job/edit <#>/<Entry #>=<Old>/<New>
+  
+  This command edits <Entry #> on Job <#>, replacing <Old> with <New>.  
+
+  +jobs/compress
+  
+  This is a wizard-only command. When job ID numbers become too large (say,
+  in the thousands), it is prudent to compress your job list to make the
+  numbers more manageable. When you compress the jobs, it renumbers all
+  open jobs, one through X, and resets the next available job number.
+    
+& jobs-complete
+  
+  +job/complete <#>=<comment>
+  +job/approve <#>=<comment>
+  +job/deny <#>=<comment>
+  +job/delete <#>
+  
+  The first command allows you to complete job <#>. When /complete is used,
+  the first comment of the job and your <comment> is posted on the public job
+  bboard. No intermittent comments are posted to keep the buffer limit small
+  (so that the BBS can handle it). It then deletes the job. /approve works in
+  the same fashion, except the player who opened the job is sent an @mail, and
+  a copy is posted to the staff-only job tracker. /deny works in the same 
+  fashion as /approve, only informs the job-opener that their request or job 
+  is denied.
+  
+  The /delete is only usable by a WIZARD character. The /complete, /approve 
+  and /deny commands can all be individually locked.
+  
+& jobs-config
+  Anomaly Jobs has a tiered access structure. By changing who has access to
+  various commands, you can selectively allow players like builders into the
+  system so they can work. The access locks are on the Job Database <JD>
+  object. Bucket access locks are stored there too.
+  
+  HAS_ACCESS: Returns 1 if a player can access the +jobs system.
+     COMPLETE_ACCESS: Returns 1 if a player can /complete jobs.
+     APPROVE_ACCESS:  Returns 1 if a player can /approve jobs.
+     DENY_ACCESS:     Returns 1 if a player can /deny jobs.
+     CREATE_ACCESS:   Returns 1 if a player can use the /create command.
+     ADD_ACCESS:      Returns 1 if a player can use the /add command.
+     GIVE_ACCESS:     Returns 1 if a player can use +bucket/access.
+     EDIT_ACCCESS:    Returns 1 if a player can use the /edit command.
+     ACCESS_<BUCKET>: Returns 1 if a player can access <BUCKET>.
+  
+  A player must pass HAS_ACCESS before the other locks are applied.
+  
+& jobs-credits
+  
+  +jobs/credits
+  
+  This command will list the current version, release date, and license
+  information for Anomaly Jobs.
+  
+& buckets
+  +buckets
+  +bucket/monitor <bucket>
+  
+  The first command displays a list of buckets that you have access to, and what
+  their monitor status is. By invoking with the /monitor switch, it allows you to 
+  show or hide a particular bucket in your list. It only affects your personal list,
+  not the global hidden status of the bucket.
+  
+  +bucket/create <bucket>=<description>
+  
+  This command creates <bucket> with the <description> you provide. You must set
+  a lock for the bucket on the Job Database <JD>, as it defaults to 1 (anyone who
+  can pass the main lock can access it). /create is Wizard-only. Example lock:
+      &ACCESS_VAMP Job Database <JD>=[switch(get(%0/RACE),VAMPIRE,1,0)]
+  
+  Please see: buckets2
+  
+& buckets2
+  +bucket/hide <bucket>
+  +bucket/show <bucket>
+  +bucket/post <bucket>=<board#>
+  
+  Using the /hide switch will hide <bucket> from standard job lists, and turns
+  it into a hidden bucket. /show is the opposite of this, placing <bucket> back
+  into shown bucket status.
+ 
+  Using the /post switch, you can force which <board #> that <bucket> posts to
+  when a +job/complete is performed on it. Note that this performs no error
+  checking. You need to make sure that the Job Tracker object can access the
+  <board#> and is able to post with it. Setting <board #> to '0', it will return
+  the <bucket> to post to the default BBS.
+
+  Please see: buckets3
+
+& buckets3
+  
+  +bucket/access <player>=<bucket>
+  
+  This command toggles access to <bucket> to the named <player>. This allows them
+  to bypass the default bucket locks. They must still pass the main lock to access.
+  You can change who can alter access with the GIVE_ACCESS on the Job Database <JD>
+  object. It defaults to wizard only.
+  
+  +bucket/delete <bucket>
+  
+  This permanently removes <bucket>. The bucket must have no jobs inside of it
+  for it to be successful. Wizard only.
+  
