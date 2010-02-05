@@ -23,16 +23,40 @@
 }
 -
 
-@Desc Job Global Object <JGO>=%r[table(sort(lattr(me/*)),18)]%r%r[center(Please do not rename this object.,79)]
+@switch [first(version())]
+	=RhostMUSH,{
+		@Desc Job Global Object <JGO>=%%r%[columns%(sort%(lattr%(me/*%)%),18,4%)%]%%r%%r%[center%(Please do not rename this object.,79%)%]
+	},
+	{
+		@Desc Job Global Object <JGO>=%%r%[table%(sort%(lattr%(me/*%)%),18%)%]%%r%%r%[center%(Please do not rename this object.,79%)%]
+	}
 -
 
-@Desc Job Database <JD>=%r[table(sort(lattr(me/*)),18)]%r%r[center(Please do not rename this object.,79)]
+@switch [first(version())]
+	=RhostMUSH,{
+		@Desc Job Database <JD>=%%r%[columns%(sort%(lattr%(me/*%)%),18,4%)%]%%r%%r%[center%(Please do not rename this object.,79%)%]
+	},
+	{
+		@Desc Job Database <JD>=%%r%[table%(sort%(lattr%(me/*%)%),18%)%]%%r%%r%[center%(Please do not rename this object.,79%)%]
+	}
 -
 
-@Desc Job Parent Object <JPO>=%r[table(sort(lattr(me/*)),18)]%r%r[center(Please do not rename this object.,79)]
+@switch [first(version())]
+	=RhostMUSH,{
+		@Desc Job Parent Object <JPO>=%%r%[columns%(sort%(lattr%(me/*%)%),18,4%)%]%%r%%r%[center%(Please do not rename this object.,79%)%]
+	},
+	{
+		@Desc Job Parent Object <JPO>=%%r%[table%(sort%(lattr%(me/*%)%),18%)%]%%r%%r%[center%(Please do not rename this object.,79%)%]
+	}
 -
 
-@Desc Job Tracker=%r[table(sort(lattr(me/*)),18)]%r%r[center(Please do not rename this object.,79)]
+@switch [first(version())]
+	=RhostMUSH,{
+		@Desc Job Tracker=%%r%[columns%(sort%(lattr%(me/*%)%),18,4%)%]%%r%%r%[center%(Please do not rename this object.,79%)%]
+	},
+	{
+		@Desc Job Tracker=%%r%[table%(sort%(lattr%(me/*%)%),18%)%]%%r%%r%[center%(Please do not rename this object.,79%)%]
+	}
 -
 
 @pemit %#=[ansi(hc,ANOMALY JOBS:)] Setting up commands.
@@ -141,7 +165,7 @@ $+bucket/create *=*:
 	},
 	TinyMUSH,{
 		@edit Job Global Object <JGO>/CMD_BUCKET/CREATE=!no_command,commands
-	};
+	}
 -
 
 &CMD_BUCKET/DELETE Job Global Object <JGO>=
@@ -3431,8 +3455,8 @@ $+typo *:
 			get(%0/GOING)
 			=
 			1,{
-				@switch version()=
-					PennMUSH*,{@parent %0;@nuke %0;@wait 0=@nuke %0},
+				@switch first(version())=
+					PennMUSH,{@parent %0;@nuke %0;@wait 0=@nuke %0},
 					{@parent %0;@dest/instant %0}
 			}
 	}
