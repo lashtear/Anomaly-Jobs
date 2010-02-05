@@ -5583,6 +5583,7 @@ $+typo *:
 		@wait 25=
 		@switch [first(version())]=
 			PennMUSH,@shutdown/reboot,
+			RhostMUSH,@reboot,
 			@restart
 	}
 -
