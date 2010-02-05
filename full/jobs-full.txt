@@ -528,7 +528,7 @@ $+job/complete *=*:
 			@pemit %#=[u(%va/FN_ADDSTAT_ART,parent(%q0),%q0)][u(%va/FN_ADDSTAT_ART,%vc,%q0)]You have completed job # %0.;
 			@trigger %va/TRIG_ADD=%q0,[u(%va/fn_strtrunc,%1,get(%va/BUFFER))],%#,COM;
 			@trigger %q0/HOOK_COMPLETE=%q0,%#;
-			@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 completed by %n. 
+			@trigger %va/TRIG_BROADCAST=[parent(%q0)],Job %0 completed by %n.;
 			@trigger %va/TRIG_DESTROY=%q0
 		}
 -
@@ -3430,7 +3430,11 @@ $+typo *:
 		@switch 
 			get(%0/GOING)
 			=
-			1,{@set %0=DESTROY_OK;@parent %0;@nuke %0}
+			1,{
+				@switch version()=
+					PennMUSH*,{@parent %0;@nuke %0;@wait 0=@nuke %0},
+					{@parent %0;@dest/instant %0}
+			}
 	}
 -
 
