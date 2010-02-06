@@ -1,0 +1,25 @@
+RhostMUSH notes
+
+Anomaly Jobs should be installed as described in the README, with
+the following notes/tweaks:
+
+1.1. The Wizard installing Jobs should be set SIDEFX in order to use
+     the create() functions during install.  If desired, SIDEFX can be 
+     removed after the objects are created and their DBREF #s stored.
+     
+1.2. The default function_invocation_limit of 2500 from older installs
+     may be reached on many +jobs/reports.  A value of 25000 is recommended
+     and is the default on newer installs.
+
+1.3. The DAILY attribute on the Job Parent Object <JPO> needs to 
+     be triggered on a daily basis, using whatever softcoded cron
+     system you have available.
+
+1.4. PennMUSH does not save @attribute/access changes across reboots.
+     The @attribute/access changes recommended at the end of the install
+     should be done /retroactive and then added to the @startup sequence
+     of a wizard or wizard-flagged object.
+     
+1.5. Log filenames differ from that described in help.  See wizhelp @log
+     for more details; the /file switch is used.
+
