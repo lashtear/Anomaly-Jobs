@@ -15,11 +15,6 @@ the following notes/tweaks:
      be triggered on a daily basis, using whatever softcoded cron
      system you have available.
 
-1.4. PennMUSH does not save @attribute/access changes across reboots.
-     The @attribute/access changes recommended at the end of the install
-     should be done /retroactive and then added to the @startup sequence
-     of a wizard or wizard-flagged object.
-     
-1.5. Log filenames differ from that described in help.  See wizhelp @log
+1.4. Log filenames differ from that described in help.  See wizhelp @log
      for more details; the /file switch is used.
 
