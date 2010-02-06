@@ -38,6 +38,9 @@ Many PennMUSH functions which operate on strings (e.g., ansi(), pemit(), etc.)
 do not require commas in the second argument to be escaped.  To retain MUX
 compatibility, escape commas in strings: ansi(h,foo,bar) --> ansi(h,foo\,bar)
 
+MUX doesn't care about negative integers on repeat(). Rhost and Penn do. Use
+max(0,<calculation>) if it's possible the calculation will be negative.
+
 4. Attribute sorting
 
 MUX stores attributes by creation time. PennMUSH stores attributes in an
@@ -57,6 +60,8 @@ but uses a different encoding string.  %va/FN_PACK implements MUX version.
 MUX & Penn itemize() --> Rhost elist() with different order of arguments.
 Installed in %va/FN_ITEMIZE which also calls FN_PRETTY as a final backup.
 
+MUX & Rhost ladd(<foo>) --> Penn has lmath(add,<foo>). Use %va/FN_LADD. 
+
 6. Misc. functions/flags
 
 MUX: HALTED --> Penn: HALT (HALT is cross-platform)
@@ -71,6 +76,8 @@ MUX: Desc --> Penn: DESCRIBE (Desc is cross-platform)
 MUX: wrap() arguments differ from Penn.  Generic FN_WRAP conversion for all 8
 	arguments is possible but impractical; better to code alternate versions 
 	with fewer arguments for specific desired formats.
+MUX: map() has @@ null delimiter. Penn, leave blank. Rhost doesn't allow. If
+	output is needed, use an iter. If output suppressed, wrap in a null().
 
 7. Queue
 
@@ -91,16 +98,10 @@ and will generally suffice.
 
 8. Destroying objects
 
-TinyMUSH/MUX has @destroy (and @destroy/instant).  @nuke is an alias for 
-@dest; if an object is set DESTROY_OK it is destroyed instantly on @nuke.
+TinyMUSH/MUX/Rhost has @destroy/instant
 
 PennMUSH default configuration has @destroy disabled (in preference for the
-@recycle alias) and also @nuke (alias for @dest/override).  DESTROY_OK on 
-Penn changes permissions but does not speed destruction.  To destroy without 
-waiting for a purge cycle, use @nuke twice.
-
-Use @nuke for cross-platform compatibility.  If it is important to destroy
-immediately, use a combination of DESTROY_OK followed by two @nuke commands.
+@recycle alias). To destroy without waiting for a purge cycle, use @nuke twice.
 
 9. Installation notes
 
@@ -111,3 +112,8 @@ PennMUSH's @attribute/access implementation does NOT save between resets.  The
 installing wizard should use @attribute/access/retroactive and add the 
 @attribute/access commands to a wizard @startup.
 
+Rhost requires installing wizard set SIDEFX to use create(), and most objects
+that use side effects must also be set this way.
+
+PennMUSH can't handle the large number of [ symbols in the pie chart map.  These
+have been moved out to be re-merged via foreach() when needed.
