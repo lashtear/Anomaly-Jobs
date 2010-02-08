@@ -72,12 +72,15 @@ MUX: Colors with %x --> Penn: ansi()  (ansi() is cross-platform)
 Current servers: %i0.  --> Old servers: itext(0).
 MUX: search() may fail on large chunks.  Do not do searches with results that
 	may exceed buffer size (approx 1000 dbrefs).
+Rhost: evaluating search() works without [ ], does not work with.
 MUX: Desc --> Penn: DESCRIBE (Desc is cross-platform)
 MUX: wrap() arguments differ from Penn.  Generic FN_WRAP conversion for all 8
 	arguments is possible but impractical; better to code alternate versions 
 	with fewer arguments for specific desired formats.
 MUX: map() has @@ null delimiter. Penn, leave blank. Rhost doesn't allow. If
 	output is needed, use an iter. If output suppressed, wrap in a null().
+Rhost: lcon() returns #-1 if the object is empty.  words(lcon()) is not a
+  reliable means of detecting emptiness.
 
 7. Queue
 
@@ -102,6 +105,8 @@ TinyMUSH/MUX/Rhost has @destroy/instant
 
 PennMUSH default configuration has @destroy disabled (in preference for the
 @recycle alias). To destroy without waiting for a purge cycle, use @nuke twice.
+
+
 
 9. Installation notes
 
