@@ -81,6 +81,8 @@ MUX: map() has @@ null delimiter. Penn, leave blank. Rhost doesn't allow. If
 	output is needed, use an iter. If output suppressed, wrap in a null().
 Rhost: lcon() returns #-1 if the object is empty.  words(lcon()) is not a
   reliable means of detecting emptiness.
+Rhost: children() returns #-1 if no children. Don't words() it either.
+Rhost: if() on Rhost does not return true for a valid dbref. Use if(t(dbref)).
 
 7. Queue
 
