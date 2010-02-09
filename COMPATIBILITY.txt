@@ -66,8 +66,8 @@ TinyMUSH 3.1 doesn't have if(). Use ifelse(foo,bar,) in place of if(foo,bar).
 
 TinyMUSH 3.1 doesn't have chr().  Use escaped characters.
 
-TinyMUSH 3.1 nested iter() level numbering is opposite other servers. Use
-itext(ilev()) when you need ## for the current level.
+TinyMUSH 3.1 nested iter() level numbering is opposite other servers. Avoid
+nested iter()s.  Use itext(ilev()) for TinyMUSH to access inner loop.
 
 6. Misc. functions/flags
 
