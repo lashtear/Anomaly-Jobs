@@ -6,9 +6,9 @@ and identify standard coding practices to avoid compatibility issues.
 
 1. Treatment of empty attributes
 
-MUX evaluates hasattr() on an empty attribute (e.g., "&FOO me=") as 0, while
-PennMUSH returns 1. PennMUSH requires hasattrval() for the same behavior.
-%va/FN_HASATTR and %va/FN_HASATTRP resolve this difference.
+Tiny/Rhost/MUX evaluate hasattr() on an empty attribute (e.g., "&FOO me=") as 
+0, while PennMUSH returns 1. PennMUSH requires hasattrval() for the same 
+behavior.  %va/FN_HASATTR and %va/FN_HASATTRP resolve this difference.
 
 2. Math issues
 
@@ -41,6 +41,9 @@ compatibility, escape commas in strings: ansi(h,foo,bar) --> ansi(h,foo\,bar)
 MUX doesn't care about negative integers on repeat(). Rhost and Penn do. Use
 max(0,<calculation>) if it's possible the calculation will be negative.
 
+Never use \ or % as a delimiter.  As different servers treat \ differently
+when parsing, use % as an escape character for parens, etc.
+
 4. Attribute sorting
 
 MUX stores attributes by creation time. PennMUSH stores attributes in an
@@ -54,15 +57,12 @@ is installed in %va/FN_COLUMNS.  Use table() if no indent required.
 
 MUX strtrunc() --> Penn left().  Installed in %va/FN_STRTRUNC
 
-MUX pack() --> no direct Penn equivalent. Baseconv() is probably sufficient
-but uses a different encoding string.  %va/FN_PACK implements MUX version.
-
 MUX & Penn itemize() --> Rhost elist() with different order of arguments.
 Installed in %va/FN_ITEMIZE which also calls FN_PRETTY as a final backup.
 
 MUX & Rhost ladd(<foo>) --> Penn has lmath(add,<foo>). Use %va/FN_LADD. 
 
-TinyMUSH 3.1 doesn't have if(). ifelse() on 3.1 has an optional 3rd argument.
+TinyMUSH 3.1 doesn't have if(). Use ifelse(foo,bar,) in place of if(foo,bar).
 
 TinyMUSH 3.1 doesn't have chr().  Use escaped characters.
 
@@ -86,10 +86,11 @@ MUX: wrap() arguments differ from Penn.  Generic FN_WRAP conversion for all 8
 	with fewer arguments for specific desired formats.
 MUX: map() has @@ null delimiter. Penn, leave blank. Rhost doesn't allow. If
 	output is needed, use an iter. If output suppressed, wrap in a null().
-Rhost: lcon() returns #-1 if the object is empty.  words(lcon()) is not a
-  reliable means of detecting emptiness.
-Rhost: children() returns #-1 if no children. Don't words() it either.
-Rhost: if() on Rhost does not return true for a valid dbref. Use if(t(dbref)).
+Rhost: lcon() returns #-1 if the object is empty.  Use t(lcon()) to check for
+	empty object before counting contents with words().
+Rhost: children() returns #-1 if no children. t() before words() here too.
+Rhost: iflese() on Rhost does not return true for a valid dbref.  Use t() or
+	isdbref() as appropriate.
 
 7. Queue
 
@@ -114,8 +115,6 @@ TinyMUSH/MUX/Rhost has @destroy/instant
 
 PennMUSH default configuration has @destroy disabled (in preference for the
 @recycle alias). To destroy without waiting for a purge cycle, use @nuke twice.
-
-
 
 9. Installation notes
 
