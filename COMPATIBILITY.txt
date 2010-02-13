@@ -1,98 +1,132 @@
 Developer notes on cross-platform compatibility
 -----------------------------------------------
 
-This document is intended to highlight differences in supported servers
-and identify standard coding practices to avoid compatibility issues.
+This document is intended to highlight differences in supported servers and
+identify standard coding practices to avoid compatibility issues.
 
-1. Treatment of empty attributes
+1. Iteration
 
-Tiny/Rhost/MUX evaluate hasattr() on an empty attribute (e.g., "&FOO me=") as 
-0, while PennMUSH returns 1. PennMUSH requires hasattrval() for the same 
-behavior.  %va/FN_HASATTR and %va/FN_HASATTRP resolve this difference.
+TinyMUSH level numbering for iter() is opposite MUX/Rhost/Penn (i.e., itext(0)
+refers to the outermost iter(), while itext(ilev()) refers to the innermost.)
+Avoid nested iter()s by using filter() or map() and appropriate registers. Use
+single-level iter() sparingly in top-level (command) attributes or hooks; do not
+use it in functions. Use itext(0) in preference to ##.
 
-2. Math issues
+2. Booleans
 
-In many math functions, TinyMUSH and MUX treat a space as zero (e.g., 
+Server and/or configuration differences may cause non-negative db#'s and
+nonempty strings to be evaluated as "false". For boolean evaluations (t(),
+ifelse, or, and, etc.) use the appropriate function (e.g., isdbref(), strlen(),
+etc.) to ensure the evaluation is either 0 or a non-zero number.
+
+3. Empty attributes
+
+Tiny/Rhost/MUX evaluate hasattr() on an empty attribute (e.g., "&FOO me=") as 0,
+while PennMUSH returns 1. PennMUSH requires hasattrval() for the same behavior.
+%va/FN_HASATTR and %va/FN_HASATTRP resolve this difference.
+
+4. Null
+
+In many math functions, TinyMUSH and MUX treat null (or a space) as zero (e.g.,
 add(1,) --> 1); PennMUSH treats it as null (--> #-1 ARGUMENTS MUST BE NUMBERS).
-Always explicitly use 0 in math functions (or base case for fold.) 
+Always explicitly use 0 in math functions (or base case for fold.)
 
-In MUX, div(foo,bar) accepts floating point arguments and returns an integer.
-In PennMUSH the arguments must also be integers. round(fdiv(foo,bar),0) works,
-as does using round() or trunc() on the arguments before using div(), although
-the former is less subject to intermediate roundoff errors.
+In sort(), iter(), and other functions with an output delimiter, TinyMUSH and
+MUX treat a space as a real space (e.g., sort(3 2 1,n, , ) --> 1 2 3);  PennMUSH
+and RhostMUSH treat it as null (--> 123).  Always explicitly identify spaces
+used as delimiters with %b.
 
-3. String / delimiter issues
+In map() and filter(), MUX accepts @@ as a null delimeter, but Penn/Rhost do
+not. Creativity may be required to obtain the output you need, either by using
+iter() with a null delimiter (see note 1), a version switch on the odelim,
+editing the output, or wrapping the undesired output in null().
 
-In sort(), iter(), and other functions with an output delimiter, TinyMUSH and 
-MUX treat a space as a real space (e.g., sort(3 2 1,n, , ) --> 1 2 3); 
-PennMUSH treats it as null (--> 123).  Always explicitly identify spaces used
-as delimiters with %b.
+5. Special characters
 
-PennMUSH and MUX operate identically on single-argument trim(foo), but have 
+Different servers treat \ differently when parsing. Use % as a preferred escape
+character when possible. Never use \ or % as a delimiter. TM3.1 does not have
+chr(), so all special characters must be escaped.
+
+6. Math
+
+In MUX, div(foo,bar) accepts floating point arguments and returns an integer. In
+PennMUSH the arguments must also be integers.  div(trunc(),trunc()) would
+exactly emulate MUX behavior, but round(fdiv(foo,bar),0) is probably preferred
+to avoid intermediate roundoff errors.
+
+MUX/Rhost/Tiny have list math functions such as ladd(<list>). Penn has a single
+function lmath with the math operator as an argument, (e.g., lmath(add,<list>)).
+Use %va/FN_LADD or similar.
+
+7. Strings
+
+PennMUSH and MUX operate identically on single-argument trim(foo), but have
 different order of second and third arguments (delimiter & left or right).
-Default Penn trim() behavior matches MUX but can be configured otherwise.  
-While trim() will work cross-platform if only one argument is included, for 
+Default Penn trim() behavior matches MUX but can be configured otherwise. 
+While trim() will work cross-platform if only one argument is included, for
 consistency use %va/FN_TRIM.
 
-Many PennMUSH functions which operate on strings (e.g., ansi(), pemit(), etc.) 
+Many PennMUSH functions which operate on strings (e.g., ansi(), pemit(), etc.)
 do not require commas in the second argument to be escaped.  To retain MUX
 compatibility, escape commas in strings: ansi(h,foo,bar) --> ansi(h,foo\,bar)
 
 MUX doesn't care about negative integers on repeat(). Rhost and Penn do. Use
 max(0,<calculation>) if it's possible the calculation will be negative.
 
-Never use \ or % as a delimiter.  As different servers treat \ differently
-when parsing, use % as an escape character for parens, etc.
+MUX center(), ljust(), and rjust() truncate their content. Use FN_STRTRUNC prior
+to passing to these functions if the argument has a chance of exceeding the
+specified length.
 
-4. Attribute sorting
+8. Searching
+
+On MUX, search() may fail on large chunks.  Do not do searches with results that
+may exceed buffer size (approx 1000 dbrefs). On Rhost, search() can return
+garbage objects; use searchng() instead.  On Penn, evaluating searches require
+\[ \] around the argument.
+
+9. Attribute sorting
 
 MUX stores attributes by creation time. PennMUSH stores attributes in an
-alphabetically-sorted list.  When attribute order matters (e.g., list of 
+alphabetically-sorted list.  When attribute order matters (e.g., list of
 comments) use a sort.
 
-5. Non-existent functions
+10. Non-existent functions
 
-MUX columns() --> no direct equivalent in Penn. Alternate code using align()
-is installed in %va/FN_COLUMNS.  Use table() if no indent required.
+MUX columns() --> no direct equivalent in Penn. Alternate code using align() is
+installed in %va/FN_COLUMNS.  Use table() if no indent required.
 
 MUX strtrunc() --> Penn left().  Installed in %va/FN_STRTRUNC
 
 MUX & Penn itemize() --> Rhost elist() with different order of arguments.
 Installed in %va/FN_ITEMIZE which also calls FN_PRETTY as a final backup.
 
-MUX & Rhost ladd(<foo>) --> Penn has lmath(add,<foo>). Use %va/FN_LADD. 
-
 TinyMUSH 3.1 doesn't have if(). Use ifelse(foo,bar,) in place of if(foo,bar).
 
-TinyMUSH 3.1 doesn't have chr().  Use escaped characters.
+11. Misc. functions/flags
 
-TinyMUSH 3.1 nested iter() level numbering is opposite other servers. Avoid
-nested iter()s.  
+MUX/TM3/Penn WIZARD Flag --> Rhost bittype() = 5
 
-6. Misc. functions/flags
+MUX/TM3 ROYALTY Flag = Z --> Penn Flag = r --> Rhost bittype() = 2
 
-MUX: HALTED --> Penn: HALT (HALT is cross-platform)
-MUX: @lock/speechlock --> Penn: @lock/speech (@lock/speech is cross-platform)
-MUX: royalty flag = Z --> Penn: royalty flag = r.  Use hasflag(royalty)
-TinyMUSH: COMMANDS --> Penn: !NO_COMMAND; MUX: either.
-MUX: Colors with %x --> Penn: ansi()  (ansi() is cross-platform)
-Current servers: %i0.  --> Old servers: itext(0).
-MUX: search() may fail on large chunks.  Do not do searches with results that
-	may exceed buffer size (approx 1000 dbrefs).
-Rhost: evaluating search() works without [ ], does not work with.
-MUX: Desc --> Penn: DESCRIBE (Desc is cross-platform)
-MUX: wrap() arguments differ from Penn.  Generic FN_WRAP conversion for all 8
-	arguments is possible but impractical; better to code alternate versions 
-	with fewer arguments for specific desired formats.
-MUX: map() has @@ null delimiter. Penn, leave blank. Rhost doesn't allow. If
-	output is needed, use an iter. If output suppressed, wrap in a null().
-Rhost: lcon() returns #-1 if the object is empty.  Use t(lcon()) to check for
-	empty object before counting contents with words().
-Rhost: children() returns #-1 if no children. t() before words() here too.
-Rhost: iflese() on Rhost does not return true for a valid dbref.  Use t() or
-	isdbref() as appropriate.
+TinyMUSH: COMMANDS --> Penn: !NO_COMMAND --> MUX/Rhost: either.
 
-7. Queue
+HALT flag is cross-platform (don't use HALTED)
+
+@lock/speech is cross-platform (don't use @lock/speechlock)
+
+ansi() is cross-platform (don't use %x or %c codes)
+
+@Desc is cross-platform (don't use @Describe)
+
+wrap() arguments differ between servers.  A generic FN_WRAP conversion for all 8
+arguments is possible but impractical; it is better to code alternate versions
+with fewer arguments for specific desired formats.
+
+lcon() and children() return #-1 rather than an empty list.  If there is a 
+chance that list will return empty, use remove(lcon(),#-1) to produce 
+cross-platform behavior.
+
+12. Queue
 
 MUX: Permits fractional-second @wait. Processes @tr's (puts on queue with
 evaluation of current state of attributes) before processing additional 
@@ -100,29 +134,30 @@ commands in the original thread which might change the attributes.
 
 Penn: @wait must be integer. @tr's take a queue cycle and might not be 
 processed before additional commands in the earlier thread change attributes.
-Use long enough @waits for the @tr's to propogate, or pass any needed values
-as arguments to the @tr.
+Use long enough @waits for the @tr's to propogate, or pass any needed values as
+arguments to the @tr.
 
 @wait me={foo};@notify me is subject to interference/mis-synchronization with
-multiple simultaneous uses of the same object during the @wait, and/or a
-coding error causing a stray @wait me (or several) elsewhere. Use semaphores
-with caution.  @wait 0={foo} will wait until previous commands have executed
-and will generally suffice.
+multiple simultaneous uses of the same object during the @wait, and/or a coding
+error causing a stray @wait me (or several) elsewhere. Use semaphores with
+caution.  @wait 0={foo} will wait until previous commands have executed and will
+generally suffice.
 
-8. Destroying objects
+13. Destroying objects
 
-TinyMUSH/MUX/Rhost has @destroy/instant
+TinyMUSH/MUX has @destroy/instant.  PennMUSH default configuration has @destroy
+disabled, only @nuke is config-independent. Rhost has @destroy (accepting
+/instant for compatibility, but it does nothing), but RECOVER items immediately
+disappear from lcon(), etc.  Additionally on Rhost, this garbage is not
+automatically removed by default, but must be @purged periodically.
 
-PennMUSH default configuration has @destroy disabled (in preference for the
-@recycle alias). To destroy without waiting for a purge cycle, use @nuke twice.
+14. Installation notes
 
-9. Installation notes
-
-PennMUSH's default @pemit configuration is noisy (emitting player gets feedback).
-Use 'think' in installation files to prevent double messages.
+PennMUSH's default @pemit configuration is noisy (emitting player gets
+feedback). Use 'think' in installation files to prevent double messages.
 
 PennMUSH's @attribute/access implementation does NOT save between resets.  The
-installing wizard should use @attribute/access/retroactive and add the 
+installing wizard should use @attribute/access/retroactive and add the
 @attribute/access commands to a wizard @startup.
 
 Rhost requires installing wizard set SIDEFX to use create(), and most objects
