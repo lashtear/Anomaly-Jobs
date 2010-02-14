@@ -1,21 +1,19 @@
-
-
 Anomaly Jobs
 -----------------------------------------------------------------------------
 Superior Task Tracking Technology
-Version 5.2 
+Version 6.0 
 
 Written by: Starfleet @ Anomaly (eye1movies@aol.com)
 Maintained by: Halmar@Gamma One (grey419@gmail.com)
 Contributors: Firestorm @ Ephemera (+myjobs, /tags) 
-              Ian @ MUX (Pies), Minion @ Crossroads (Penn Compat)
+              Ian @ MUX (Pies), Minion @ Crossroads (Penn & Rhost Compat)
 Testers: nails@MUSHpark
          Sunshine@Ashes To Ashes
          Centauri & Pyxis@Rise From Chaos
          Minion & Duke@Outremer
 
 
-Platforms supported: MUX 2.x, MUSH 3, PennMUSH 1.8.2, RhostMUSH
+Platforms supported: MUX 2.x, TinyMUSH 3.1, PennMUSH 1.8.2, RhostMUSH
 Requirements: Myrddin's BBS, @mail system.
 									   
 This code is provided as-is and expresses no guarantee or warranty. Use it
@@ -24,9 +22,9 @@ implied. It is available free to benefit the online text game community at
 large. 
 
 
-Anomaly Jobs 5.2
+Anomaly Jobs 6.0
 -----------------------------------------------------------------------------
-1. Installing Anomaly Jobs 5.2
+1. Installing Anomaly Jobs 6.0
 2. Buckets
 3. Getting Help
 4. Integrating Applications with Jobs
@@ -39,9 +37,9 @@ Anomaly Jobs 5.2
 
 
 
-1. Installing Anomaly Jobs 5.2
+1. Installing Anomaly Jobs 6.0
 -----------------------------------------------------------------------------
-Installing Jobs 5.2 is fairly straight forward. You quote the install file to
+Installing Jobs 6.0 is fairly straight forward. You quote the install file to
 your game and the install is automated. However, before you install it read
 the README and the README.<dist> file for your server for any notes, and 
 read the install file notes for behavioral changes you might wish to make.
@@ -54,10 +52,6 @@ read the install file notes for behavioral changes you might wish to make.
 	  
 	* Do not rename your jobs objects. Patch scripts depend on these 
 	  names in order to function.
-	  
-	* You should not be holding anything (exits, objects) or be inside a
-	  room with a lot of exits. There are some organizational buckets 
-	  that may have the same name, and this will confuse the script.
 	  
 	* You must install using a timed delay. Most clients have an upload-
 	  with-delay option. A delay of at least one second is recommended.
@@ -111,8 +105,7 @@ MAGE, FAE, etc.
 3. Getting Help
 -----------------------------------------------------------------------------
 The primary location to get help and report bugs for Jobs 5 is the google 
-code site at http://code.google.com/p/anomalyjobs/ If you wish to ask for
-help log into puggy.mushpark.com 9033 and speak with Grey.
+code site at http://code.google.com/p/anomalyjobs/ 
 
 
 
@@ -128,20 +121,29 @@ must add the following code to your 'please approve me' command:
 	@trigger <Job Database>/TRIG_APPLY=<player DB# to be approved>
 
 To change the information presented to player upon application submission,
-see the APPS bucket setup.
+see the APPS bucket setup.  You can use the HOOK_APR on the APPS bucket to
+take action upon application approval.
 
 
 
 5. +job/log - Log File
 -----------------------------------------------------------------------------
-The LOGFILE attribute is the base name of the log file. You can
-change the log file for each bucket, or change the following
-LOGFILE attribute to change the default name.
+The LOGFILE attribute is the base name of the log file. On MUX and RhostMUSH,
+you can change the log file for each bucket (or the default on the Job
+Parent Object) with the LOGFILE attribute.  
 
-NOTE: The following file must already exist on the server in order
-for job logging to be successful:
+The two default <logfiles> are 'reqlog' (for all player +requests) and 
+'joblog' (for all other buckets).  Logs are directed to:
 
-/game/logs/M-<logfilename>.log
+MUX:       /game/logs/M-<logfile>.log (Note 1)
+RhostMUSH: /game/<logfile>_manual.log (Note 2)
+TinyMUSH:  /game/netmush.log
+PennMUSH:  /game/log/command.log
+
+Note 1: This file must exist, or logging will fail.  To create an empty file,
+navigate to the /game/logs directory on the server and "touch M-joblog.log".
+
+Note 2: RhostMUSH permits subdirectories defined as part of the logfilename.
 
 
 
@@ -153,13 +155,6 @@ Add the following to your system if you wish automatic logging:
 &HOOK_DEL Job Parent Object <JPO>=@trigger [v(VA)]/TRIG_LOG=%0,[v(VA)]
 &HOOK_DNY Job Parent Object <JPO>=@trigger [v(VA)]/TRIG_LOG=%0,[v(VA)]
 &HOOK_COM Job Parent Object <JPO>=@trigger [v(VA)]/TRIG_LOG=%0,[v(VA)]
-
-Note that the logs must previously exist on the server before they
-can be written to:
-/game/logs/M-<logfile>.log
-
-The two default <logfiles> are 'reqlog' (for all player +requests)
-and 'joblog' (for all other buckets).
 
 
 
@@ -179,9 +174,13 @@ potentially spam the system through spurious job creation.
 8. Automatic Assignment
 -----------------------------------------------------------------------------
 If you would like jobs to automatically assign a job to the
-person who invoked /create, then set the following:
+person who invoked +job/create, then set the following:
 
 &HOOK_CRE Job Parent Object <JPO>=&ASSIGNED_TO %0=%1
+
+For automatic assignment of jobs created other than with +job/create, use:
+
+&HOOK_OTH <JPO or bucket>=&ASSIGNED_TO %0=<player or jgroup dbref>
 
 
 

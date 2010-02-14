@@ -1,8 +1,39 @@
 
-CHANGELOG for full install of Anomaly Jobs
+CHANGELOG for Anomaly Jobs
 
+Version 6.0
 
-Full Install. 
+Major changes:
+- Extended full compatibility to PennMUSH and RhostMUSH servers.
+  - Modified destruction behavior; Jobs will now remain GOING for one minute 
+    after closure in which they may be saved by +job/trans.
+  - Various other changes in functions, flags, @wait, null arguments, 
+    integer division, and ansi.
+- Completed full implementation of TinyMUSH 3.1 compatibility.
+- +jobs/select command, allowing filtering of which jobs to display using
+  multiple criteria and logical combinations. Issue 62.
+- +jobs/checkout and /checkin support. 
+- Added +jgroups - user groupings for assignment/tagging/source. Issue 22.
+- Added +myjob summaries so users can use +myjob/sumset. Issue 25.
+- Added +jobs/catchup to clear new job indication flags. Issue 91.
+- +jobs/clean command and associated cron-capable &TRIG_CLEAN to remove 
+  non-players from jobs data. Issue 9.
+- Variable-width support using width() or user entered value. Issue 84.
+- Custom widths for the fields of the JOBS display attribute. Issue 84.
+- Added action locks to prevent certain actions on buckets. Issue 26.
+- Added BLETTER support, to allow for broadcast customization. Issue 60.
+
+Minor changes:
+- Job numbers and bucket names are now exactly matched. Issue 16.
+- Identify tagged users in jobs header.  Issue 77.
+- Added total Job Actions to STATS and ACTIONS reports.
+- Added closure stats to +bucket/info. Issue 12.
+- +job/help <#> is now an alias for +bucket/help. Issue 69.
+- Some general myjob tweaks. Issue 21.
+- +myjobs now follows skinning rules. Issue 63.
+- New WHITEBG skin. Issue 28.
+- All bugfixes from Version 5.2 (never released)
+- Numerous other small bugfixes and command standardization.
 
 Version 5.1
 - Removed '@trigger %vb/TRIG_APPROVE=%0,%#,%1,[get(%q0/TITLE)]' from the +job/approve command. This is deprecated code left over from the Jobs 4 days. TRIG_ADD handles the TRIG_APR hook now.
@@ -19,18 +50,9 @@ Version 5.1
 - Pulled out the tagged_for check on +myjob/add for two reasons. First, the intent is unclear considering the code is buggy. Two, removing it makes sure the job is only locked by +job/lock, making +myjob/add work like +job/add.
 - Added Maintainer line to +job/credits.
 
-Version 5.2
-Major changes:
-- Modified destruction behavior for Rhost and Penn compatibility and consistency across all code-bases; Jobs will now remain GOING for one minute after closure in which they may be saved by +job/trans.
-- Added +jobs/clean command and associated TRIG_CLEAN trigger to remove non-players from the various jobs fields. This can be linked to autonuke code or hooked to @dest and/or @nuke commands. Issue 9.
-- Job numbers and bucket names must now be explicitly matched. Issue 16.
-- Added new WHITEBG skin. Issue 28.
-- Added /checkin and /checkout support. 
-Minor changes:
-- Various other changes for Rhost and Penn compatibility: functions, flags, @wait, null arguments, integer division, and piecharts affected.
+Version 5.2(release candidate; never released)
 - Changed 5.0 to 5.2 in the jhelp.txt file. 
 - Updated the manage2 helpfile to correct the +job/set syntax.
-- Updated version in install file to 5.2
 - Added +bucket/check with two entries in jhelp.txt. Issue 15.
 - Removed POST_COMPLETE from the REQ bucket. Issue 18.
 - Changed the @aconnect. Issue 20.
@@ -45,9 +67,6 @@ Minor changes:
 - One-character bucket name bargraph fix. Issue 53.
 - Fixed a FIL_NEWCOMMENT1 bug.
 - Fixed a CHROME_JOBLIST bug.
-- Added total Job Actions to STATS and ACTIONS reports.
 - IS_LOCKED references changed to accept a second parameter (Checkin support)
 - Conformed behavior of CHROME_BREAK
-- Added closure stats to +bucket/info. Issue 12.
 - Various helpfile fixes.
-

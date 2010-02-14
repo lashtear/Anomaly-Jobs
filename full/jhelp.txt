@@ -1,5 +1,5 @@
 & help
-  Anomaly Jobs v5.2
+  Anomaly Jobs v6.0
   
   Anomaly Jobs is a feature-rich task-tracker.
   
@@ -8,9 +8,10 @@
   buckets       How to manage buckets.                                 06Jan30
   complete      How to complete and follow-through on +jobs.           06Jan30
   config        How to configure Anomaly Jobs.                         10Jan08
-  commands      A list of commands at-a-glance. No details.            10Jan08
+  commands      A list of commands at-a-glance. No details.            10Jan23
   create        How to create +jobs and how users can create them.     06Jan30
   credits       The credits to Anomaly Jobs.                           06Jan30
+  jgroups       How to manage jgroups (player lists).                  10Jan08
   list          Viewing the +jobs list.                                06Jan30
   player        Player commands.                                       06Jan30
   publication   Job publication and player visibility.                 06Jan30
@@ -37,6 +38,7 @@
   Sub Topic     Description                                            Updated
   ----------------------------------------------------------------------------
   access        Access parameters to the Jobs system.                  06Jan30
+  aaccess       Setting bucket action permission.                      10Jan08
   advanced      Advanced configuration.                                06Jan30
   baccess       Setting bucket access parameters.                      06Jan30
   bconfig       Basic bucket configuration.                            06Jan30
@@ -60,13 +62,14 @@
                        Type '+jhelp <Topic>' for more.
 & letters
 
-  Anomaly Jobs supports three types of form letters:
+  Anomaly Jobs supports four types of form letters:
   
   Topic         Description                                            Updated
   ----------------------------------------------------------------------------
   aletter       Addition letters - formatting an added comment.        06Jan30
-  pletter       Post letters - posting a letter to the BBS.            06Jan30
+  bletter       Broadcast letters - formatting broadcast messages.     10Jan08
   mletter       Mail letters - sent to the OPENED_BY list.             06Jan30
+  pletter       Post letters - posting a letter to the BBS.            06Jan30
   
                        Type '+jhelp <Topic>' for more.
 & jobs
@@ -148,12 +151,124 @@
   This will search all jobs for <pattern> and return a list of jobs that
   have that pattern. It will search the entire object, not necessarily comments
   that the player has access to.
+& jobs/select
+
+  [ansi(h,+jobs/select <expression>)]
+
+  In the simplest cases, +jobs/select <text> returns the same list of jobs
+  as the equivalent +jobs/<text> command, such as:
+    +jobs/select all         (same as +jobs/all)
+    +jobs/select new         (same as +jobs/new)
+    +jobs/select mine        (same as +jobs/mine)
+    +jobs/select overdue     (same as +jobs/overdue)
+    +jobs/select who=none    (same as +jobs/who none)
+  
+  However, the +jobs/select command's power is in returning lists of jobs 
+  that meet multiple criteria.  For example, the command:
+    +jobs/select new or mine
+  would return a list of jobs that appeared in either the +jobs/new OR the
+  +jobs/mine lists.  Similarly:
+    +jobs/select new and mine
+  would return a list of jobs that appeared in both +jobs/new AND +jobs/mine.
+  
+  The <expression> may be a single selection criterion or combination of 
+  several using the Boolean logic operators AND, OR, or NOT (&, |, or !), 
+  along with parentheses if needed, such as:
+  	+jobs/select (new | overdue) & ! who=none
+  which would list jobs that are either new or overdue, and not unassigned.
+  
+  Continued in: jobs/select2
+& jobs/select2
+
+  Job selection criteria include the following:
+
+	all - all jobs
+  new - new jobs (same criteria as +jobs/new)
+  mine - jobs assigned to or tagged for you (same as +jobs/mine)
+  overdue - jobs past their due date 
+  due<=<date/time> - jobs due before the specified date/time
+  due>=<date/time> - jobs due after the specified time or with no due date
+  who=<player or none> - jobs assigned to <player> / unassigned
+  source=<player> - jobs originated by <player> 
+  pri=<color> (or esc=<color>) - jobs of green, yellow, or red priority
+  status=<status> - jobs of hold, new, underway, 25, 50, 75, or 100 status
+  bucket=<bucket> - jobs in <bucket> 
+  search=<pattern> - jobs including <pattern> in their text
+  viewing (or monitor) - jobs in buckets you have selected to monitor
+  hidden - jobs in buckets designated as hidden
+  public (or myjobs) - jobs in buckets designated public
+  published - jobs which have been published
+  summary - jobs containing summary attribute
+  
+  Logical operators are left-associative. The following are equivalent:
+    +jobs/select new | overdue & mine
+    +jobs/select (new | overdue) & mine
+  Both would return new or overdue jobs that are assigned to/tagged for you.
+  
+  Continued in: jobs/select3
+& jobs/select3
+
+  If a parameter requires spaces (such as dates, player names, or search
+  terms) it must be enclosed in quotation marks.    Due dates may be 
+  specified as either:
+  - time() format: "Dec 25 00:12:00 2009"
+  - MM/DD/YY: 12/25/09
+  - Time-from-now in days/hours/mins/secs:  "1d 12h" or 36h
+
+  Examples:
+
+    +jobs/select viewing 
+      - would return output identical to +jobs.
+
+    +jobs/select due<="1d 12h" & (pri=yellow | pri=red)
+      - would return jobs of yellow or red priority due in the next 36 hours.
+
+    +jobs/select (bucket=code | bucket=build) & due<=01/01/10
+      - would return CODE or BUILD jobs due before the New Year
+    
+    +jobs/select bucket=TPS & (search=dragon & !search="dragon egg")
+      - would return jobs in the TPS buckets which included the word dragon 
+        but did NOT include the words "dragon egg".
+
+  Continued in: jobs/select4
+& jobs/select4
+  
+  Similar to the way the &JOBS attribute specifies which columns display for
+  +jobs, a player may use &JOBSELECT to redefine which jobs will be shown
+  for the +jobs command.  For example:
+    &JOBSELECT me=viewing | mine
+    
+  This would add jobs from "mine" to the existing list of monitored buckets
+  for that player's +jobs command.
+
+  Players may also store expressions using &JOBSELECT_<name> me=<expression>
+  and then simply use +jobs/select <name>.  For example, if a player entered:
+    &JOBSELECT_IMMINENT me=bucket=REQ & due<=36h & ! overdue
+    
+  They could then use the following command:
+    +jobs/select imminent
+      - which would return REQ bucket jobs coming due in the next 36 hours.
+      
+  Players may override the default +jobs/all, +jobs/new, +jobs/mine, and 
+  +jobs/overdue lists by defining &JOBSELECT_ALL, &JOBSELECT_NEW, 
+  &JOBSELECT_MINE, and &JOBSELECT_OVERDUE.
+
+  A game's code staff may add additional criteria by adding &SEL_<criteria> 
+  attributes to the Job Database <JD> object. These functions take %%0 (list
+  of all job dbrefs) and %%1 (argument) and return a filtered list of job 
+  dbrefs meeting that selection criteria.
 & jobs/sort
 
   [ansi(h,+jobs/sort)]
   
   This command will display a list of jobs, except the list is organized by
   bucket.
+& jobs/catchup
+
+  [ansi(h,+jobs/catchup)]
+  
+  This command will catch you up on the jobs system, clearing all unread
+  jobs as being new. This works for both versions of new jobs.
 & jobs/date
 
   [ansi(h,+jobs/date)]
@@ -259,6 +374,12 @@
   
   This command assigns <player> as being responsible for Job <#>. It triggers
   the ASN hooks.
+& job/claim
+
+  [ansi(h,+job/claim <#>)]
+  
+  This command is an alias for +job/assign <#>=<yourself>. It triggers 
+  the ASN hooks.
 & job/clone
 
   [ansi(h,+job/clone <#>)]
@@ -305,6 +426,12 @@
   date and it will revert to a yellow priority.
   
   This command triggers the ESC hooks.
+& job/help
+
+  [ansi(h,+job/help <#>)]
+  
+  This command displays the HELP attribute on the bucket that the job is in. If
+  any MYHELP exists, it will be displayed as well.
 & job/last
 
   [ansi(h,+job/last <#>=<X>)]
@@ -324,7 +451,7 @@
 
   [ansi(h,+job/log <#>)]
   
-  This command dumps Job <#> into it's bucket's LOGFILE setting. It also runs
+  This command dumps Job <#> into its bucket's LOGFILE setting. It also runs
   the LOG hooks.
   
   See also: logging
@@ -509,6 +636,7 @@
 
   [ansi(h,+jobs)]                                    : List jobs.
   [ansi(h,+jobs/<all|mine|new>)]                     : List all/yours/new jobs.
+  [ansi(h,+jobs/catchup)]                            : Clears new jobs.
   [ansi(h,+jobs/clean)]                              : Remove non-players from job data.
   [ansi(h,+jobs/compress)]                           : Compresses job list. (Wiz)
   [ansi(h,+jobs/credits)]                            : Display credit information.
@@ -516,6 +644,7 @@
   [ansi(h,+jobs/overdue)]                            : List overdue jobs.
   [ansi(h,+jobs/reports %[<report>%])]                 : Get a report.
   [ansi(h,+jobs/search <pattern>)]                   : Search jobs for <pattern>.
+  [ansi(h,+jobs/select <expression>)]                : List jobs matching <expression>.
   [ansi(h,+jobs/<sort|date|pri>)]                    : Lists jobs by bucket/mod/pri.
   [ansi(h,+jobs/who <player>)]                       : Lists jobs assigned to player.
   [ansi(h,+job <#>)]                                 : View a job.
@@ -523,37 +652,40 @@
   [ansi(h,+job/add <#>=<comments>)]                  : Add comments to a job.
   [ansi(h,+job/all <#>)]                             : Displays all comments in a job.
   [ansi(h,+job/approve <#>=<comment>)]               : Approve a player request.
-  [ansi(h,+job/assign <#>=<<player>|none>)]          : Assign a job to player
+  [ansi(h,+job/assign <#>=<<player>|none>)]          : Assign a job to player.
   
   You can get details on each command with '+jhelp <command>/<switch>' without
-  the + symbol, i.e., '+jhelp jobs/all'.
+  the + symbol. i.e., '+jhelp jobs/all'.
 
   Continued in: commands2
 & commands2
+
   [ansi(h,+job/checkin <#>)]                         : Checks in a job
   [ansi(h,+job/checkout <#>)]                        : Checks out a job.
+  [ansi(h,+job/claim <#>)]                           : Assign a job to yourself.
   [ansi(h,+job/clone <#>)]                           : Clones a job.
   [ansi(h,+job/complete <#>=<comment>)]              : Complete a job.
   [ansi(h,+job/create <bucket>/<title>=<comments>)]  : Create a job manually.
-  [ansi(h,+job/delete <#>)]                          : Delete a job (Wiz)
+  [ansi(h,+job/delete <#>)]                          : Delete a job. (Wiz)
   [ansi(h,+job/deny <#>=<comment>                  )]: Deny a player request.
   [ansi(h,+job/due <#>=<<date>|none>               )]: Set job due date.
   [ansi(h,+job/edit <#>/<entry#>=<old>/<new>       )]: Edits a job.
-  [ansi(h,+job/esc <#>=<green|yellow|red>          )]: Escalate a job
+  [ansi(h,+job/esc <#>=<green|yellow|red>          )]: Escalate a job's priority.
+  [ansi(h,+job/help <#>                            )]: Display help for a job's bucket.
   [ansi(h,+job/last <#>=<X>                        )]: List last <X> entries in <#>.
   [ansi(h,+job/lock <#>                            )]: Locks a job and prevents changes.
-  [ansi(h,+job/log <#>                             )]: Logs a job
+  [ansi(h,+job/log <#>                             )]: Logs a job.
   [ansi(h,+job/mail <#>=<message>                  )]: Mails opener with <message>.
-  [ansi(h,+job/merge <source>=<destination>        )]: Merge two jobs into <destination>
-  [ansi(h,+job/name <#>=<name>                     )]: Rename a job.
-  [ansi(h,+job/publish <#>[=<comment>]             )]: Publishes a job or <comment>.
+  [ansi(h,+job/merge <source>=<destination>        )]: Merge <source> into <destination>.
 
   You can get details on each command with '+jhelp <command>/<switch>' without
-  the + symbol, i.e., '+jhelp jobs/all'.
+  the + symbol. i.e., '+jhelp jobs/all'.
 
   Continued in: commands3
 & commands3
 
+  [ansi(h,+job/name <#>=<name>                     )]: Rename a job.
+  [ansi(h,+job/publish <#>[=<comment>]             )]: Publishes a job or <comment>.
   [ansi(h,+job/query <players>/<title>=<query>     )]: Sends a query to <players>.
   [ansi(h,+job/set <#>=<status>                    )]: Set progress status on a job.
   [ansi(h,+job/source <#>=<player list>            )]: Changes opened-by to <player list>.
@@ -561,15 +693,15 @@
   [ansi(h,+job/sumset <#>/<set>=<value>            )]: Changes a job SUMMARY setting.
   [ansi(h,+job/tag <#>                             )]: Tags a job for you.
   [ansi(h,+job/tag <#>=<player>                    )]: Tags a job for <player>.
-  [ansi(h,+job/trans <#>=<bucket>                  )]: Transfer a job
+  [ansi(h,+job/trans <#>=<bucket>                  )]: Transfer (or undelete) a job.
   [ansi(h,+job/unlock <#>                          )]: Unlocks a job.
   [ansi(h,+job/untag <#>                           )]: Untags a job.
   [ansi(h,+job/untag <#>=<player list>             )]: Untags a job for <player list>.
 
   You can get details on each command with '+jhelp <command>/<switch>' without
-  the + symbol, i.e., '+jhelp jobs/all'.
+  the + symbol. i.e., '+jhelp jobs/all'.
 
-  Continued in: commands3
+  Continued in: commands4
 & commands4
 
   [ansi(h,+buckets)]
@@ -582,8 +714,14 @@
   [ansi(h,+bucket/check <player>)]
   [ansi(h,+bucket/set <bucket>/<setting>=<value>)]
 
+  [ansi(h,+jgroups)]
+  [ansi(h,+jgroup/info <jgroup>)]
+  [ansi(h,+jgroup/create <jgroup>=<description>)]
+  [ansi(h,+jgroup/delete <jgroup>)]
+  [ansi(h,+jgroup/member <player>=<jgroup>)]
+  
   You can get details on each command with '+jhelp <command>/<switch>' without
-  the + symbol, i.e., '+jhelp jobs/all'.
+  the + symbol. i.e., '+jhelp jobs/all'.
 & pitch
 
   [ansi(h,+pitch <title>=<description>)]
@@ -634,6 +772,47 @@
   
   Jobs can be tagged by staff for you to see. In those instances, you can see
   all comments added, not just those you have added.
+
+  [ansi(h,+myjob/help <#>)]
+  [ansi(h,+myjob/sumset <#>/<setting>=<value>)]
+
+  If staff has set a MYHELP attribute on the bucket, +myjob/help will display
+  it, as well as special summary settings, which may be set with 
+  +myjob/sumset.
+& myjob/help
+
+  [ansi(h,+myjob/help <#>)]
+  
+  This command displays the MYHELP attribute on the bucket that the job is in.
+  If there are any special sumsettings (summary settings) for the job, the help
+  for it will be located here.
+
+  See also: MYSUMMARIES, MYJOB/SUMSET
+& mysummaries
+
+  The 'MySummary' block is information that all players can see by looking at
+  the job in +myjobs. The job could also potentially have settings associated 
+  to it (See: myjob/sumset).
+  
+  The MYSUMMARY attribute follows the exact same rules as the SUMMARY does 
+  (see 'summaries'). The only difference is that for any /sumset 
+  settings, the names of the attributes are:
+  
+  	MYACCESS_<setting>
+  	MYPROCESS_<setting>
+  	MYERROR_<setting>
+  
+  See also: SUMMARIES, SUMSETTING
+& myjob/sumset
+  
+  [ansi(h,+myjob/sumset <#>/<setting>=<value>)]
+  
+  This command will set a 'summary setting' on job <#>. If a header called
+  'MySummary', then there might be settings available for it. In order to check
+  for valid settings, use '+myjob/help <#>'
+  
+  See also: MYSUMMARIES
+
 & publication
 
   Jobs that are in buckets that are flagged to be Myjobs accessible, or
@@ -704,8 +883,27 @@
   A player must pass HAS_ACCESS before the other locks are applied.
   
   Access to buckets are set at the bucket level (see 'baccess').
+  You can also restrict actions by bucket (see 'aaccess').
 
-  See also: baccess
+  See also: aaccess, baccess
+& aaccess
+  
+  Actions can be restricted by bucket. This allows you to customize the
+  available actions to, for instance, prevent jobs from being tampered
+  with in automated buckets. The format for this is:
+  
+  &<action code>_ACCESS <bucket>=<return 1 to access, 0 to deny>
+  
+  The <action>_ACCESS code allows for one argument: %%0 == PlayerDB#.
+  
+       Example: If you do not want a job to ever be transferred out 
+       of an automated XP bucket (not included) you can prevent 
+       this behavior if you know the three-letter action code (in this 
+       example, TRN):
+  
+       &TRN_ACCESS XP=0
+
+  See also: access, codes
 & reports
 
   [ansi(h,+jobs/reports %[<report>%])]
@@ -774,21 +972,25 @@
 
 & logging
 
-  Job logging cannot occur unless the log already exists on the server. You
-  must have access to your shell account to create these files, and you must
-  know the <filename> of the bucket's log that you need to create. The 
-  <filename> is located at:
+  Jobs can be logged to files on the shell account. In TinyMUSH and PennMUSH,
+  logs are stored in existing game logs. For MUX and RhostMUSH, a separate log
+  file may be designated.  Lognames for supported servers are:
+
+    TinyMUSH:  game/netmush.log
+    PennMUSH:  game/log/command.log
+    RhostMUSH: game/<logfile>_manual.log
+    MUX:       game/logs/M-<logfile>.log   (Note: file must exist)
   
-       game/logs/M-<filename>.log
-             
-  To create the logs, you can use touch, for example:
+  The default <logfile> is 'reqlog' for the REQ bucket and 'joblog' for all
+  other buckets.
+  
+  In MUX, logging cannot occur unless the log already exists on the server. 
+  You must have access to your shell account to create these files.  To create
+  the logs, you can use touch, for example:
   
        > cd logs
        > touch M-joblog.log
-       
-  The default <filename> is 'reqlog' for the REQ bucket and 'joblog' for all
-  other buckets. You can change where the <filename> logs to, but keep in mind
-  that the system already takes into account 'game/logs/M-' and '.log'.
+     
 
 & tagging
 
@@ -807,8 +1009,8 @@
   
   If you tag a job to a player that does not have access to the jobs system, 
   then the job will show up in +myjobs, and they will have FULL ACCESS to that
-  job (i.e., they will be able to read all entries, and they will be able to add
-  to that job), no matter if the job is in a public bucket or not.
+  job (i.e., they will be able to read all entries, and they will be able to 
+  add to that job), no matter if the job is in a public bucket or not.
   
 & manage
   
@@ -906,12 +1108,15 @@
   
   The /delete is only usable by a WIZARD character. The /complete, /approve 
   and /deny commands can all be individually locked.
+  
+  Jobs will be permanently deleted 60 seconds after closing. To restore an
+  inadvertently deleted job, use +job/trans to move it back to a bucket.
 & uconfig
 
-  Your personal jobs list can be configured. By setting a list of flags on 
+  Your personal jobs list can be configured. By setting a list of fields on 
   yourself, you can  get a customized display of the jobs listings.
 
-  Flag:  Displays                         Flag   Displays
+  Field  Displays                         Field  Displays
   -------------------------------------------------------------------------
    T     Title                             B     Bucket
    D     Due On                            A     Assigned To
@@ -920,57 +1125,58 @@
    #     Job DB#                           F     Flags
 
   You can set these by typing, for example:
-    > &JOBS me=TBDS
+    > &JOBS me=TBDS (will display Title, Bucket, Due On, and Status)
 
   The default is: BTDAS
 
-  Try setting a different list and looking at it, but note that choosing all
-  the flags, the list will look terrible unless you have a very wide screen
-  setting, as it will spill over 80 columns. If that happens, drop some
-  letters off of the end of your setting and try it again.
-  
-  You can also turn off jobs broadcasts by:
-    > &JOBS_SILENCE me=1
-    
-  Erasing the attribute will return you to the default behavior.
+  Width of the individual job fields described above may also be customized by
+  setting the JOBSWIDTH_<field> attribute.  For example:
+    > &JOBSWIDTH_T me=25 (will reduce Title width to 25 characters)
+
+  Erasing the attributes will return you to the default behavior.
 
   Continued in: uconfig2
-
 & uconfig2
 
-  Anomaly Jobs now supports skins, which are display definitions that allow you
-  to change the way that +jobs looks to the user. By default, Anomaly Jobs
-  ships with three skins: DEFAULT (the classic skin), CHROME (an example 
+  Anomaly Jobs will automatically detect your terminal width (if your client
+  supports it), defaulting to 80 characters otherwise.  If your client does 
+  not report width, you may set it with the JOBSWIDTH attribute:
+    > &JOBSWIDTH me=100 (will override autodetection and set width to 100)
+
+  Anomaly Jobs also supports skins, which are display definitions that allow 
+  you to change the way that +jobs looks to the user. By default, Anomaly 
+  Jobs ships with three skins: DEFAULT (the classic skin), CHROME (an example 
   skin), and WHITEBG (tamer color contrast than DEFAULT).
 
   To change your skin:
   
     > &JOBSKIN me=<skin name>
     
-  To revert to the default, erase the attribute from yourself.
-  
+  Erasing the attributes will return you to the default behavior.
+
   Continued in: uconfig3
   
 & uconfig3
-  
-  You can filter out some mail generated by the system (such as +request
-  receipts) by setting:
-  
-    > &JOBS_NOSPAM me=1
-    
-  This will filter out 'non-important' MLETTER_* hooks. Erasing the attr 
-  will return you to the default behavior.
   
   There are two methods by which you can track new job activity. The new
   method is similar to Myrddin's BBS (i.e., once you read a job, it is no
   longer 'new' to you). The old method (new activity since your last log
   out is new until you log out again) is the default.
   
-  To use the new method:
-  
+  To use the new method:  
     > &JOBSN me=1
     
-  Erasing the attribute will return you to the default behavior.
+  You can filter out some mail generated by the system (such as +request
+  receipts) by setting:
+  
+    > &JOBS_NOSPAM me=1
+    
+  This will filter out 'non-important' MLETTER_* hooks. 
+  
+  You can also turn off jobs broadcasts by:
+    > &JOBS_SILENCE me=1
+    
+  Erasing the attributes will return you to the default behavior.
   
   See also: access, bconfig
 & credits
@@ -1033,8 +1239,9 @@
   This command creates <bucket> with the <description> you provide. You must
   set a lock for the bucket on the Job Database <JD>, as it defaults to 1 
   (anyone who can pass the main lock can access it). /create is Wizard-only.
-  See 'baccess' for help with configuring the bucket lock.
-  
+  See 'baccess' for help with configuring the bucket lock.  You can also 
+  restrict actions by bucket (see 'aaccess').
+    
   Continued in: buckets4
 & buckets4
   
@@ -1185,6 +1392,32 @@
   the +job/add command is used anywhere in the system. In the second example,
   a job in the APPS bucket displays some basic character information on the
   applicant before showing his comments on the app.
+& bletter
+
+  All actions have BLETTER_<action> hooks associated to them. This is the
+  text that is broadcast for jobs announcements. You can override the text
+  by setting:
+  
+       &BLETTER_<action code> <bucket/parent>=<text>
+       
+  BLETTER is passed the following arguments:
+  
+       %%0 = Job DB#
+       %%1 = Enactor DB#
+       %%2 = Wild (handled on a case-by-case basis)
+       %%3 = Wild (as above)
+
+  Continued in: bletter2
+& bletter2
+  Example:
+  
+       &BLETTER_ADD RP=%[name(%%1)%] has added important information to
+          %[name(%%0)%].
+  
+  In the above example, the /add command information that is broadcast is
+  changed for the RP bucket.
+  
+  See Also: trig_broadcast, codes
 & pletter
 
   A PLETTER is a form letter that is posted to the BBS. If it exists on the
@@ -1251,7 +1484,7 @@
 
   CODE  Description
   -----------------------------------------------------------------------------
-  ADD   Player comment. Generated with +job/add
+  ADD   Player comment. Generated with +job/add.
   APR   +job/approve closing action.
   ASN   Assignment to a user.
   AUT   Automatic hook. If set, will run daily.
@@ -1329,7 +1562,7 @@
   It is passed two parameters:
 
        %%0 = Job DB#
-       %%1 = Enactor's DB#.
+       %%1 = Enactor's DB#
        
   See also: sumsetting
 & sumsetting
@@ -1414,6 +1647,23 @@
   someone looking at the job. So if you want your addition to be seen with 
   the standard job-read view, you should either pass an ADD code or make sure 
   that your unique action code is located in LIST_VISCOMMENTS.
+& trig_broadcast
+  
+  You may need to trigger the broadcast within a command of your own.
+  
+  @trigger <Job Database>/TRIG_BROADCAST=<%%0>,<%%1>,<%%2>,<%%3>,<%%4>
+  
+       %%0=Job DB# (or <text>)
+       %%1=Enactor DB#
+       %%2=Three letter Action Code
+       %%3=Wild (handled via the BLETTER as necessary)
+       %%4=Wild (as above)
+       
+  Only %%0 is mandatory, and is a special case. If %%0 is a DB#, it will go
+  through the BLETTER process (see 'bletter'). If %%0 is not a DB#, it will
+  broadcast whatever you send to it.
+  
+  See Also: bletter
 & trig_create
 
   Sometimes it is necessary to engage the TRIG_CREATE trigger from within
@@ -1423,7 +1673,7 @@
   
   It accepts the following arguments:
 
-       %%0=Person who opened the job.
+       %%0=Person who opened the job
        %%1=Bucket DB#
        %%2=Priority
        %%3=Title (truncated to 30 characters)
@@ -1438,4 +1688,66 @@
   means the job will run HOOK_CRE (+job/create), and any other value 
   indicates that HOOK_OTH is to be run. Since you are using code other than
   +job/create to create the job, you should leave it blank.
-       
+& jgroups
+
+  [ansi(h,+jgroups)]
+
+  This command will display a list of jgroups that have been defined.  Jgroups
+  are convenient ways to add a list of players to some jobs commands, and may
+  be used in place of player names in the +job/assign, /query, /source, /tag,
+  and /untag commands.  
+  
+  [ansi(h,+jgroup/create <jgroup>=<description>)]
+  
+  This command creates <jgroup> with the <description> you provide. Jgroup 
+  names must begin with +, e.g., +TPStaff, +Coders, etc.  The ISMEMBER 
+  attribute is used to determine membership in the group and defaults
+  to checking the MEMBERLIST attribute. The ISMEMBER attribute may be changed
+  to reference other tests of group membership.
+  
+  [ansi(h,+jgroup/member <player>=<jgroup>)]
+  
+  This command toggles membership in <jgroup> to the named <player>.  This has
+  no effect if the ISMEMBER attribute does not reference MEMBERLIST.
+
+  Continued in: jgroups2
+& jgroups2
+
+  [ansi(h,+jgroup/info <jgroup>)]
+  
+  This command displays the description and membership of <jgroup>. 
+
+  [ansi(h,+jgroup/delete <jgroup>)]
+  
+  This permanently removes <jgroup>. 
+
+& jgroup/info
+
+  [ansi(h,+jgroup/info <jgroup>)]
+  
+  This command shows the description of the +jgroup and a list of all members.
+  
+& jgroup/create
+
+  [ansi(h,+jgroup/create <jgroup>=<description>)]
+  
+  This command creates <jgroup> with the <description> you provide. Jgroup 
+  names must begin with +, e.g., +TPStaff, +Coders, etc.  The ISMEMBER 
+  attribute is used to determine membership in the group and defaults
+  to checking the MEMBERLIST attribute. The ISMEMBER attribute may be changed
+  to reference other tests of group membership.
+
+  This is a wizard-only command.
+
+& jgroup/delete
+
+  [ansi(h,+jgroup/delete <jgroup>)]
+  
+  This command destroys <jgroup>. Wizard only.
+
+& jgroup/member
+
+  [ansi(h,+jgroup/member <player>=<jgroup>)]
+  
+  This command toggles membership in <jgroup> to the named <player>.  This has
+  no effect if the ISMEMBER attribute does not reference MEMBERLIST.

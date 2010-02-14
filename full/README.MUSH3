@@ -1,9 +1,17 @@
+TinyMUSH notes
 
-On MUSH 3 installations, attribute limits have been cut to 4k due to possible
-corruption issues of attributes over 4096 bytes in size (a GDBM database
-issue, not an issue with Anomaly Jobs). Some debate exists on this point, but
-rather to be safe than sorry, I've installed a buffer limit for 4k on MUSH 3
-and 8k on MUX. If you use a MUSH 3 install, we do not recommend that you change
-the buffer limit (on the Database object as BUFFER), but it can be done if you
-are sure you won't have creeping data death. Modify at your own risk.
+Anomaly Jobs should be installed as described in the README, with
+the following notes/tweaks:
 
+1.1. On MUSH 3 installations, attribute limits have been cut to 4k due to 
+     possible corruption issues of attributes over 4096 bytes in size (a GDBM
+     database issue, not an issue with Anomaly Jobs). Some debate exists on
+     this point, but rather to be safe than sorry, we've installed a buffer
+     limit for 4k on MUSH 3 and 8k on other servers. If you use a MUSH 3
+     install, we do not recommend that you change the buffer limit (on the
+     Database object as BUFFER), but it can be done if you are sure you won't
+     have creeping data death. Modify at your own risk.
+
+     
+1.2. At present, TinyMUSH does not support logging to arbitrarily-named
+     logfiles.  Log functionality is presently directed to netmush.log.

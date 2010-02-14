@@ -15,12 +15,9 @@ the following notes/tweaks:
      be triggered on a daily basis, using whatever softcoded cron
      system you have available, or a @daily emulator.
 
-1.4. Log filenames differ from that described in help.  See wizhelp @log
-     for more details; the /file switch is used.
-
-1.5. The mail syntax on the Job Database's &TRIG_MAIL assumes that the user
+1.4. The mail syntax on the Job Database's &TRIG_MAIL assumes that the user
      has not @toggled on alternate mail syntax.
      
-1.6. @dest does not permanently delete objects in Rhost. Use @purge 
+1.5. @dest does not permanently delete objects in Rhost. Use @purge 
      periodically to remove old objects.
 
