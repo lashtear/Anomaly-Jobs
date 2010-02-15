@@ -50,7 +50,7 @@
 		think [ansi(hc,ANOMALY JOBS:)] [ansi(hr,Aborting. Cancel this script in your client.)];
 		&JOB_RP %#=#-1;
 		&JOB_TPS %#=#-1;
-	},{
+	},
 	1110*,{
 		think [ansi(hc,ANOMALY JOBS:)] [ansi(hr,No TPS bucket found.)];
 		think [ansi(hc,ANOMALY JOBS:)] [ansi(hr,Aborting. Cancel this script in your client.)];
