@@ -1,0 +1,475 @@
+# --------------------------------------------------------------
+# EVENT bucket:
+#
+# Interacts with TPS and RP buckets.
+# --------------------------------------------------------------
+#
+
+@switch 
+	[ifelse(
+		isdbref(setr(0,
+			switch(
+				first(version()),
+				PennMUSH,lsearch(all,eobjects,\[strmatch(name(##),Job Global Object <JGO>)\]),
+				RhostMUSH,searchng(object=Job Global Object <JGO>),
+				search(object=Job Global Object <JGO>)
+			)
+		)),
+		setq(1,get(%q0/VC)),
+		[setq(1,
+			switch(
+				first(version()),
+				PennMUSH,lsearch(all,eobjects,\[strmatch(name(##),Job Parent Object <JPO>)\]),
+				RhostMUSH,searchng(object=Job Parent Object <JPO>),
+				search(object=Job Parent Object <JPO>)
+			)
+		)]
+		[setq(0,loc(%q1))]
+	)]
+	[isdbref(%q0)]
+	[and(
+		isdbref(%q1),
+		gte(edit(first(default(%q1/version,0),.),v,),6)
+	)]
+  [isdbref(setr(2,locate(%q1,RP,i)))]
+  [isdbref(setr(3,locate(%q1,TPS,i)))]
+	=
+	0*,{
+		think [ansi(hc,ANOMALY JOBS:)] [ansi(hr,No jobs installation found.)];
+		think [ansi(hc,ANOMALY JOBS:)] [ansi(hr,Aborting. Cancel this script in your client.)];
+		&JOB_RP %#=#-1;
+		&JOB_TPS %#=#-1;
+	},
+	10*,{
+		think [ansi(hc,ANOMALY JOBS:)] [ansi(hr,Not a valid Jobs 6 or later installation.)];
+		think [ansi(hc,ANOMALY JOBS:)] [ansi(hr,Aborting. Cancel this script in your client.)];
+		&JOB_RP %#=#-1;
+		&JOB_TPS %#=#-1;
+	110*,{
+		think [ansi(hc,ANOMALY JOBS:)] [ansi(hr,No RP bucket found.)];
+		think [ansi(hc,ANOMALY JOBS:)] [ansi(hr,Aborting. Cancel this script in your client.)];
+		&JOB_RP %#=#-1;
+		&JOB_TPS %#=#-1;
+	},{
+	1110*,{
+		think [ansi(hc,ANOMALY JOBS:)] [ansi(hr,No TPS bucket found.)];
+		think [ansi(hc,ANOMALY JOBS:)] [ansi(hr,Aborting. Cancel this script in your client.)];
+		&JOB_RP %#=#-1;
+		&JOB_TPS %#=#-1;
+	},{
+		think [ansi(hc,ANOMALY JOBS:)] Jobs 6 with RP and TPS buckets found. Installing EVENT bucket.;
+		&JOB_RP %#=%q2;
+		&JOB_TPS %#=%q3;
+		&JOB_EVENT %#=setr(4,create(EVENT,10));
+		@tel %q4=%q1;
+		@parent %q4=%q1;
+	}
+-
+
+@Desc [v(JOB_EVENT)]=Upcoming Game Events
+-
+
+@lock/Speech [v(JOB_EVENT)]=ACCESS/1
+-
+
+&ACCESS [v(JOB_EVENT)]=[u(%va/FN_STAFFALL,%#)]
+-
+
+&MYSUMMARY [v(JOB_EVENT)]=
+	[rjust(ansi(c,Signed Up:),10)]%b
+	[ifelse(u(%va/FN_HASATTRP,%0,SIGNUPS),u(%va/FN_ITEMIZE,map(%va/MAP_NAME,get(%0/SIGNUPS),%b,|),|),Nobody)]%b
+	%([sub(get(%0/SEATS),words(get(%0/SIGNUPS)))] Remaining Seats%)
+	%r
+	[rjust(ansi(c,Schedule:),10)]%b
+	[ifelse(u(%va/FN_HASATTRP,%0,SCHEDULE),convsecs(get(%0/SCHEDULE)),Unset)]
+	%r
+	[rjust(ansi(c,Contact:),10)]%b
+	[ifelse(u(%va/FN_HASATTRP,%0,WRITER),u(%va/FN_ITEMIZE,map(me/MAP_NAME,get(%0/WRITER),%b,|),|),Nobody)]
+	%r
+	[rjust(ansi(c,Blurb:),10)]%b
+	[ifelse(u(%va/FN_HASATTRP,%0,BLURB),get(%0/BLURB),Unset)]
+	%r
+	%r
+	[center(Please join only if you are planning on attending.,u(%va/FN_FLEXWIDTH,79))]
+	%r
+	[center(@mail the Contact if you have any questions regarding the plot.,u(%va/FN_FLEXWIDTH,79))]
+	%r
+	[center(Syntax: [ansi(h,+myjob/sumset [last(name(%0))]/attend=<yes|no>)],u(%va/FN_FLEXWIDTH,79))]
+-
+
+&SUMMARY [v(JOB_EVENT)]=
+	[rjust(ansi(c,Players:),10)]%b
+	[ifelse(u(%va/FN_HASATTRP,%0,PLAYERS),u(%va/FN_ITEMIZE,map(%va/MAP_NAME,get(%0/PLAYERS),%b,|),|),Nobody)]
+	%r
+	[rjust(ansi(c,Seats:),10)]%b
+	[default(%0/SEATS,0)]
+	%r
+	[rjust(ansi(c,Arc:),10)]%b
+	[ifelse(u(%va/FN_HASATTRP,%0,PLOT_ARC),get(%0/PLOT_ARC),Unset)]
+-
+
+#
+# Event Bucket Help Files
+#
+
+&MYHELP [v(JOB_EVENT)]=%r[space(5)]This bucket is for upcoming game events. You should only sign up for events that you are sure that you can make. If you find that you can't make it after all, please think of other players and remove yourself from the Signed Up list.%r%rTo sign up: +myjob/sumset <#>/ATTEND=yes%r%bTo unjoin: +myjob/sumset <#>/ATTEND=no
+-
+
+&HELP [v(JOB_EVENT)]=%r[space(5)]This bucket is for potential plots that aren't yet ready to run on the grid, but are up for discussion among story staff. When the plot is ready, it should be transferred to the EVENT or TPS buckets.%r%r[u(%va/FN_BREAK,ansi(c,Settings for +job/sumset))]%r[ljust(ansi(h,PLAYERS),10)] Accepts <player> as a valid parameter.%r[ljust(ansi(h,SCHEDULE),10)] Describe when the plot is in effect.%r[ljust(ansi(h,ARC),10)] Describes the story arc associated to this plot.%r[ljust(ansi(h,CONTACT),10)] Accepts <player> as a valid parameter.%r[ljust(ansi(h,SYNOPSIS),10)] A brief synopsis of the plot.%r[ljust(ansi(h,BLURB),10)] The advertising blurb for the plot event.%r[ljust(ansi(h,APPROVED),10)] Wiz-only, for approving plots. Accepts 'yes' or 'no'.
+-
+
+#
+# ATTEND myjob/sumset switch
+#
+
+&MYACCESS_ATTEND [v(JOB_EVENT)]=1
+-
+
+&MYPROCESS_ATTEND [v(JOB_EVENT)]=
+	[setq(3,SIGNUPS)]
+	[setq(9,member(yes no,lcstr(%0)))]
+	[switch(
+		%q9[not(gt(inc(words(get(%1/SIGNUPS))),get(%1/SEATS)))][member(get(%1/SIGNUPS),%2)],
+		0??,[setq(2,1)]0,?0?,[setq(2,2)]0,
+		110,[setq(1,setunion(get(%1/SIGNUPS),%2))]1,
+		111,[setq(2,3)]0,2?0,[setq(2,4)]0,
+		2?1,[setq(1,remove(get(%1/SIGNUPS),%2))]1,
+		[setq(2,5)]0)]
+-
+
+&MYERROR_ATTEND1 [v(JOB_EVENT)]=You may either choose 'yes' to add yourself or 'no' to remove yourself from attendance.
+-
+
+&MYERROR_ATTEND2 [v(JOB_EVENT)]=There are no seats left for that event. If you show up at the time of event, however, there may be an opening. @mail the Contact if you have any further questions.
+-
+
+&MYERROR_ATTEND3 [v(JOB_EVENT)]=You are already signed up for that event.
+-
+
+&MYERROR_ATTEND4 [v(JOB_EVENT)]=You aren't signed up for that event.
+-
+
+&MYERROR_ATTEND5 [v(JOB_EVENT)]=Unknown error.
+-
+
+#
+# Controls # of available Seats
+#
+&SEATS [v(JOB_EVENT)]=6
+-
+
+&ACCESS_SEATS [v(JOB_EVENT)]=1
+-
+
+&PROCESS_SEATS [v(JOB_EVENT)]=[setq(3,SEATS)][ifelse(isnum(%0),[setq(1,%0)]1,0)]
+-
+
+&ERROR_SEATS [v(JOB_EVENT)]=The number of seats must enter an integer.
+-
+
+#
+&ACCESS_APPROVED [v(JOB_EVENT)]=[u(%va/FN_WIZONLY,%0)]
+-
+
+&PROCESS_APPROVED [v(JOB_EVENT)]=[setq(3,APPROVED)][setq(1,%0)]1
+-
+
+#
+&ACCESS_ARC [v(JOB_EVENT)]=[u(%va/FN_STAFFALL,%0)]
+-
+
+&PROCESS_ARC [v(JOB_EVENT)]=[setq(3,PLOT_ARC)][setq(1,u(%va/fn_strtrunc,%0,50))]
+-
+
+#
+&ACCESS_PLAYERS [v(JOB_EVENT)]=[u(%va/FN_STAFFALL,%0)]
+-
+
+&PROCESS_PLAYERS [v(JOB_EVENT)]=
+	[setq(3,PLAYERS)]
+	[ifelse(
+		not(
+			gt(
+				strlen(
+					u(%va/FN_TRIM,
+						squish(
+							iter(%0,
+								ifelse(
+									not(isdbref(pmatch(itext(0)))),
+									[setr(p,itext(0))],
+								)
+							)
+						)
+					)
+				)
+			,0)
+		),
+		[setq(9,iter(%0,pmatch(itext(0))))]
+		[setq(8,get(%1/PLAYERS))]
+		[iter(%q9,
+			ifelse(
+				gt(
+					member(%q8,##)
+				,0),
+				setq(8,setdiff(%q8,##)),
+				setq(8,setunion(%q8,##))
+			)
+		)]
+	[setq(1,%q8)]1,
+	0)]
+-
+
+&ERROR_PLAYERS [v(JOB_EVENT)]=I don't recognize [ansi(h,%qp)] as a player.
+-
+
+#
+&ACCESS_SCHEDULE [v(JOB_EVENT)]=[u(%va/FN_STAFFALL,%0)]
+-
+
+&PROCESS_SCHEDULE [v(JOB_EVENT)]=[setq(3,SCHEDULE)][switch(convtime(%0),#-1 INVALID DATE,[setq(1,)]0,[setq(1,convtime(%0))]1)]
+-
+
+#
+&ACCESS_SYNOPSIS [v(JOB_EVENT)]=[u(%va/FN_STAFFALL,%0)]
+-
+
+&PROCESS_SYNOPSIS [v(JOB_EVENT)]=[setq(3,BRIEF)][setq(1,%0)]1
+-
+
+#
+&ACCESS_BLURB [v(JOB_EVENT)]=[u(%va/FN_STAFFALL,%0)]
+-
+
+&PROCESS_BLURB [v(JOB_EVENT)]=[setq(3,BLURB)][setq(1,%0)]1
+-
+
+#
+&ACCESS_CONTACT [v(JOB_EVENT)]=[u(%va/FN_STAFFALL,%0)]
+-
+
+&PROCESS_CONTACT [v(JOB_EVENT)]=
+	[setq(3,WRITER)]
+	[ifelse(
+		not(
+			gt(
+				strlen(
+					u(%va/FN_TRIM,
+						squish(
+							iter(%0,
+								ifelse(
+									not(
+										isdbref(pmatch(itext(0)))
+									),
+									[setr(p,itext(0))]
+								)
+							)
+						)
+					)
+				),
+			0)
+		),
+		[setq(9,iter(%0,pmatch(itext(0))))]
+		[setq(8,get(%1/WRITER))]
+		[iter(%q9,
+			ifelse(
+				gt(member(%q8,##),0),
+				setq(8,setdiff(%q8,##)),
+				setq(8,setunion(%q8,##))
+			)
+		)]
+		[setq(1,%q8)]1,
+	0)]
+-
+
+&ERROR_CONTACT [v(JOB_EVENT)]=I don't recognize [ansi(h,%qp)] as a player.
+-
+
+#
+@switch [first(version())]=PennMUSH,{@set [v(JOB_EVENT)]=WIZARD},{@set [v(JOB_EVENT)]=INHERIT}
+-
+
+@switch [first(version())]=PennMUSH,{@set [v(JOB_EVENT)]=!HALT},{@set [v(JOB_EVENT)]=!HALTED};
+-
+
+@switch [first(version())]=TinyMUSH,{@set [v(JOB_EVENT)]=!COMMANDS},{@set [v(JOB_EVENT)]=NO_COMMAND};
+-
+
+# -------------------------
+#
+# Updated RP bucket
+#
+# -------------------------
+
+&ACCESS [v(JOB_RP)]=[u(%va/FN_STAFFALL,%#)]
+-
+
+&ACCESS_APPROVED [v(JOB_RP)]=[u(%va/FN_WIZONLY,%0)]
+-
+
+&ACCESS_ARC [v(JOB_RP)]=[u(%va/FN_STAFFALL,%0)]
+-
+
+&ACCESS_PLAYERS [v(JOB_RP)]=[u(%va/FN_STAFFALL,%0)]
+-
+
+&ACCESS_SCHEDULE [v(JOB_RP)]=[u(%va/FN_STAFFALL,%0)]
+-
+
+&ACCESS_STAFF [v(JOB_RP)]=[u(%va/FN_STAFFALL,%0)]
+-
+
+&ACCESS_SYNOPSIS [v(JOB_RP)]=[u(%va/FN_STAFFALL,%0)]
+-
+
+&ERROR_PLAYERS [v(JOB_RP)]=I don't recognize [ansi(h,%qp)] as a player.
+-
+
+&ERROR_STAFF [v(JOB_RP)]=I don't recognize [ansi(h,%qp)] as a player.
+-
+
+&HIDDEN [v(JOB_RP)]=1
+-
+
+&PROCESS_APPROVED [v(JOB_RP)]=[setq(3,APPROVED)][setq(1,%0)]1
+-
+
+&PROCESS_ARC [v(JOB_RP)]=[setq(3,PLOT_ARC)][setq(1,u(%va/FN_STRTRUNC,%0,50))]
+-
+
+&PROCESS_PLAYERS [v(JOB_RP)]=
+	[setq(3,PLAYERS)]
+	[ifelse(
+		not(
+			gt(
+				strlen(
+					u(%va/FN_TRIM,
+						squish(
+							iter(%0,
+								ifelse(
+									not(isdbref(pmatch(itext(0)))),
+									[setr(p,itext(0))],
+								)
+							)
+						)
+					)
+				)
+			,0)
+		),
+		[setq(9,iter(%0,pmatch(itext(0))))]
+		[setq(8,get(%1/PLAYERS))]
+		[iter(%q9,
+			ifelse(
+				gt(
+					member(%q8,##)
+				,0),
+				setq(8,setdiff(%q8,##)),
+				setq(8,setunion(%q8,##))
+			)
+		)]
+	[setq(1,%q8)]1,
+	0)]
+-
+
+&PROCESS_SCHEDULE [v(JOB_RP)]=[setq(3,SCHEDULE)][switch(convtime(%0),#-1 INVALID DATE,[setq(1,)]0,[setq(1,convtime(%0))]1)]
+-
+
+&PROCESS_SYNOPSIS [v(JOB_RP)]=[setq(3,BRIEF)][setq(1,%0)]1
+-
+
+&SUMMARY [v(JOB_RP)]=
+	[rjust(ansi(c,Approved:),10)]%b
+	[ifelse(u(%va/FN_HASATTRP,%0,APPROVED),get(%0/APPROVED),Unapproved)]
+	%r
+	[rjust(ansi(c,Players:),10)]%b
+	[ifelse(u(%va/FN_HASATTRP,%0,PLAYERS),u(%va/FN_ITEMIZE,map(me/MAP_NAME,get(%0/PLAYERS),%b,|),|),Nobody)]
+	%r
+	[rjust(ansi(c,Seats:),10)]%b
+	[ifelse(u(%va/FN_HASATTRP,%0,SEATS),get(%0/SEATS),0)]
+	%r
+	[rjust(ansi(c,Schedule:),10)]%b
+	[ifelse(u(%va/FN_HASATTRP,%0,SCHEDULE),get(%0/SCHEDULE),Unset)]
+	%r
+	[rjust(ansi(c,Arc:),10)]%b
+	[ifelse(u(%va/FN_HASATTRP,%0,PLOT_ARC),get(%0/PLOT_ARC),Unset)]
+	%r
+	[rjust(ansi(c,Contact:),10)]%b
+	[ifelse(u(%va/FN_HASATTRP,%0,WRITER),u(%va/FN_ITEMIZE,map(me/MAP_NAME,get(%0/WRITER),%b,|),|),Nobody)]
+	%r
+	[rjust(ansi(c,Blurb:),10)]%b
+	[ifelse(u(%va/FN_HASATTRP,%0,BLURB),get(%0/BLURB),Unset)]
+	%r
+	[rjust(ansi(c,Synopsis:),10)]%b[ifelse(u(%va/FN_HASATTRP,%0,BRIEF),get(%0/BRIEF),Unset)]
+-
+
+&HELP [v(JOB_RP)]=%r[space(5)]This bucket is for potential plots that aren't yet ready to run on the grid, but are up for discussion among story staff. When the plot is ready, it should be transferred to the EVENT or TPS buckets.%r%r[u(%va/FN_BREAK,ansi(c,Settings for +job/sumset))]%r[ljust(ansi(h,PLAYERS),10)] Accepts <player> as a valid parameter.%r[ljust(ansi(h,SCHEDULE),10)] Describe when the plot is in effect.%r[ljust(ansi(h,ARC),10)] Describes the story arc associated to this plot.%r[ljust(ansi(h,CONTACT),10)] Accepts <player> as a valid parameter.%r[ljust(ansi(h,SYNOPSIS),10)] A brief synopsis of the plot.%r[ljust(ansi(h,BLURB),10)] The advertising blurb for the plot event.%r[ljust(ansi(h,APPROVED),10)] Wiz-only, for approving plots. Accepts 'yes' or 'no'.
+-
+
+&ERROR_SCHEDULE [v(JOB_RP)]=You must enter a valid date string.
+-
+
+&ACCESS_CONTACT [v(JOB_RP)]=[u(%va/FN_STAFFALL,%0)]
+-
+
+&PROCESS_CONTACT [v(JOB_RP)]=
+	[setq(3,WRITER)]
+	[ifelse(
+		not(
+			gt(
+				strlen(
+					u(%va/FN_TRIM,
+						squish(
+							iter(%0,
+								ifelse(
+									not(
+										isdbref(pmatch(itext(0)))
+									),
+									[setr(p,itext(0))],
+								)
+							)
+						)
+					)
+				),
+			0)
+		),
+		[setq(9,iter(%0,pmatch(itext(0))))]
+		[setq(8,get(%1/WRITER))]
+		[iter(%q9,
+			ifelse(
+				gt(member(%q8,##),0),
+				setq(8,setdiff(%q8,##)),
+				setq(8,setunion(%q8,##))
+			)
+		)]
+		[setq(1,%q8)]1,
+	0)]
+-
+
+&ERROR_CONTACT [v(JOB_RP)]=I don't recognize [ansi(h,%qp)] as a player.
+-
+
+&ACCESS_SEATS [v(JOB_RP)]=1
+-
+
+&PROCESS_SEATS [v(JOB_RP)]=[setq(3,SEATS)][ifelse(isnum(%0),[setq(1,%0)]1,0)]
+-
+
+&ERROR_SEATS [v(JOB_RP)]=The number of seats must enter an integer.
+-
+
+&ACCESS_BLURB [v(JOB_RP)]=[u(%va/FN_STAFFALL,%0)]
+-
+
+&PROCESS_BLURB [v(JOB_RP)]=[setq(3,BLURB)][setq(1,%0)]1
+-
+
+@switch [first(version())]=PennMUSH,{@set [v(JOB_RP)]=WIZARD},{@set [v(JOB_RP)]=INHERIT}
+-
+
+@switch [first(version())]=PennMUSH,{@set [v(JOB_RP)]=!HALT},{@set [v(JOB_RP)]=!HALTED};
+-
+
+@switch [first(version())]=TinyMUSH,{@set [v(JOB_RP)]=!COMMANDS},{@set [v(JOB_RP)]=NO_COMMAND};
+-
+
+@set [v(JOB_RP)]=UNFINDABLE
+-
