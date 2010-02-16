@@ -3899,7 +3899,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 # TRIG_BROADCAST - Broadcasts a comment.
 #
 # Accepts the following arguments:
-# %0 - Job or Bucket DB# 
+# %0 - Job DB# (if %1 is a DB#) or Bucket DB# (if %1 is text)
 # %1 - Enactor DB# (or, if not a DB#, broadcast what is in %1)
 # %2 - Three-letter action code
 # %3 - (Optional) Wild - handled however needed in BLETTER_*
@@ -3907,15 +3907,20 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 #
 
 &TRIG_BROADCAST [v(JOB_VA)]=
-	@pemit/list 
-		[setq(0,%0)]
-		[filter(%va/FIL_BROADCAST,setunion(lwho(),))]
-		=
-		[ansi(hc,JOBS:)]%b[ifelse(
-			isdbref(%1),
-			u(%0/BLETTER_%2,%0,%1,%3,%4),
-			%1
-		)]
+	@switch isdbref(%1)=
+		1,{
+			@pemit/list 
+				[setq(0,parent(%0))]
+				[filter(%va/FIL_BROADCAST,setunion(lwho(),))]
+				=
+				[ansi(hc,JOBS:)]%b[u(%q0/BLETTER_%2,%0,%1,%3,%4)]
+		},{
+			@pemit/list 
+				[setq(0,%0)]
+				[filter(%va/FIL_BROADCAST,setunion(lwho(),))]
+				=
+				[ansi(hc,JOBS:)]%b%1
+		}
 -
 
 &TRIG_CLEAN [v(JOB_VA)]=
