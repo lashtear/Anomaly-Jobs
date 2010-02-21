@@ -204,9 +204,9 @@
 		[u(%va/FN_STREXACT,get(%0/DESC),u(%va/FN_FLEXWIDTH,30))]
 		[rjust(words(children(%0)),5)]
 		[rjust(mul(round(fdiv(words(children(%0)),words(lcon(%va))),2),100)%%,5)]%b%b
-		[rjust(get(%0/POST_COMPLETE),2)]%b
-		[rjust(get(%0/POST_APPROVE),2)]%b
-		[rjust(get(%0/POST_DENY),2)]
+		[rjust(u(%va/FN_FIND-BBNUM,get(%0/POST_COMPLETE)),2)]%b
+		[rjust(u(%va/FN_FIND-BBNUM,get(%0/POST_APPROVE)),2)]%b
+		[rjust(u(%va/FN_FIND-BBNUM,get(%0/POST_DENY)),2)]
 		[rjust(default(%0/TURNAROUND,0),5)]
 		[rjust(
 			[ifelse(

@@ -3,7 +3,7 @@
 # For new installations or upgrades from 5.0+
 #
 
-think [repeat(=,79)]%r%r[center(ansi(hc,Setting up Anomaly Jobs v6.0),79)]%r%r[repeat(=,79)]
+think [repeat(=,77)]%r%r[center(ansi(hc,Setting up Anomaly Jobs v6.0),77)]%r%r[repeat(=,77)]
 -
 
 @set me=quiet
@@ -2276,9 +2276,9 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 	[rjust(ansi(h,Post Data:),20)] 
 	%(Job system will post to these boards%)%r
 	[u(%va/fn_columns,
-		Complete: [u(%q0/POST_COMPLETE)]|
-		Approve: [u(%q0/POST_APPROVE)]|
-		Deny: [u(%q0/POST_DENY)],
+		Complete: [u(%va/FN_FIND-BBNUM,get(%q0/POST_COMPLETE))]|
+		Approve: [u(%va/FN_FIND-BBNUM,get(%q0/POST_APPROVE))]|
+		Deny: [u(%va/FN_FIND-BBNUM,get(%q0/POST_DENY))],
 		16,|,21
 	)]
 	[ifelse(
@@ -2729,6 +2729,14 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 	setq(0,u(FN_LADD,map(%va/MAP_EQUALIZEPIE,%0,%1),%1))
 	[setq(1,strlen(v(DATA_CHARS)))]
 	[map(MAP_EQUALIZEPIE2,%0,%1)]
+-
+
+&FN_FIND-BBDBREF [v(JOB_VA)]=
+	extract(u([get(%vc/BBPOCKET)]/GROUPS),%0,1)
+-
+
+&FN_FIND-BBNUM [v(JOB_VA)]=
+	member(u([get(%vc/BBPOCKET)]/GROUPS),%0)
 -
 
 &FN_FIND-BUCKET [v(JOB_VA)]=
@@ -4119,7 +4127,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 			@wait 1=
 			{
 				@trigger %vb/TRIG_POST=
-					[u(%0/POST_
+					[get(%0/POST_
 						[case(
 							%1,
 							APR,APPROVE,
@@ -4280,9 +4288,9 @@ think [ansi(hc,ANOMALY JOBS:)] Installing skins.
 				)%%,
 				5
 			)]%b%b
-			[rjust(get(%0/POST_COMPLETE),2)]%b
-			[rjust(get(%0/POST_APPROVE),2)]%b
-			[rjust(get(%0/POST_DENY),2)]
+			[rjust(u(%va/FN_FIND-BBNUM,get(%0/POST_COMPLETE)),2)]%b
+			[rjust(u(%va/FN_FIND-BBNUM,get(%0/POST_APPROVE)),2)]%b
+			[rjust(u(%va/FN_FIND-BBNUM,get(%0/POST_DENY)),2)]
 			[rjust(default(%0/TURNAROUND,0),5)]
 			[rjust(
 				[ifelse(
@@ -5333,13 +5341,13 @@ think [ansi(hc,ANOMALY JOBS:)] Setting up master parent.
 &PROCESS_MYJOBS [v(JOB_VC)]=[setq(3,PUBLIC)][setq(1,switch(lcstr(%0),yes,1,no,,0))][switch(%q1,,1,%q1)]
 -
 
-&PROCESS_POST_APPROVE [v(JOB_VC)]=[setq(3,POST_APPROVE)][setq(1,%0)][gt(%0,0)]
+&PROCESS_POST_APPROVE [v(JOB_VC)]=[setq(3,POST_APPROVE)][setq(1,u(%va/FN_FIND-BBDBREF,%0))][gt(%0,0)]
 -
 
-&PROCESS_POST_COMPLETE [v(JOB_VC)]=[setq(3,POST_COMPLETE)][setq(1,%0)][gt(%0,0)]
+&PROCESS_POST_COMPLETE [v(JOB_VC)]=[setq(3,POST_COMPLETE)][setq(1,u(%va/FN_FIND-BBDBREF,%0))][gt(%0,0)]
 -
 
-&PROCESS_POST_DENY [v(JOB_VC)]=[setq(3,POST_DENY)][setq(1,%0)][gt(%0,0)]
+&PROCESS_POST_DENY [v(JOB_VC)]=[setq(3,POST_DENY)][setq(1,u(%va/FN_FIND-BBDBREF,%0))][gt(%0,0)]
 -
 
 &PROCESS_TURNAROUND [v(JOB_VC)]=[setq(3,TURNAROUND)][setq(1,%0)][isnum(%0)]
@@ -6006,7 +6014,8 @@ think [ansi(hc,ANOMALY JOBS:)] Setting locks.
 	=
 	0*,{think [ansi(hc,ANOMALY JOBS:)] Couldn't find Myrddin's BBS. Installation is not complete.},
 	10,{
-		think [ansi(hc,ANOMALY JOBS:)] Setting up the BBS..;
+		think [ansi(hc,ANOMALY JOBS:)] Setting up the BBS.;
+		&BBPOCKET [v(JOB_VC)]=%q0;
 		+bbnewgroup Job Tracker;
 		@wait 2={+bbnewgroup Staff Job Tracker};
 		@wait 5=
@@ -6021,14 +6030,50 @@ think [ansi(hc,ANOMALY JOBS:)] Setting locks.
 					PennMUSH,lit(orflags(%0,Wr)),
 					lit(orflags(%0,WZ))
 				))]
-				[v(JOB_VC)]=member(u(%q0/GROUPS),%q1);
-			&POST_APPROVE [v(JOB_VC)]=member(u(%q0/GROUPS),%q2);
-			&POST_DENY [v(JOB_VC)]=member(u(%q0/GROUPS),%q2);
-			&POST_DELETE [v(JOB_VC)]=member(u(%q0/GROUPS),%q2);
+				[v(JOB_VC)]=%q1;
+			&POST_APPROVE [v(JOB_VC)]=%q2;
+			&POST_DENY [v(JOB_VC)]=%q2;
+			&POST_DELETE [v(JOB_VC)]=%q2;
 			&CANREAD %q1=1;
 			&CANWRITE %q1=%[or%(strmatch%(%%0,%q3%),%q4%)%];
 			&CANREAD %q2=%q4;
 			&CANWRITE %q2=%[or%(strmatch%(%%0,%q3%),%q4%)%];
+		}
+	},{
+		think [ansi(hc,ANOMALY JOBS:)] Updating BBS settings.;
+		&BBPOCKET [v(JOB_VC)]=%q0;
+		@dolist [v(JOB_VC)] [lcon(v(JOB_VC))]=
+		{
+			@switch 
+				[and(
+					hasattr(##,POST_COMPLETE),
+					isnum(get(##/POST_COMPLETE))
+				)]
+				[and(
+					hasattr(##,POST_APPROVE),
+					isnum(get(##/POST_APPROVE))
+				)]
+				[and(
+					hasattr(##,POST_DENY),
+					isnum(get(##/POST_DENY))
+				)]
+				[and(
+					hasattr(##,POST_DELETE),
+					isnum(get(##/POST_DELETE))
+				)]
+				=
+				1???,{
+					&POST_COMPLETE ##=[extract(u(%q0/GROUPS),get(##/POST_COMPLETE),1)]
+				},
+				?1??,{
+					&POST_APPROVE ##=[extract(u(%q0/GROUPS),get(##/POST_APPROVE),1)]
+				},
+				??1?,{
+					&POST_DENY ##=[extract(u(%q0/GROUPS),get(##/POST_DENY),1)]
+				},
+				???1,{
+					&POST_DELETE ##=[extract(u(%q0/GROUPS),get(##/POST_DELETE),1)]
+				}
 		}
 	}
 -
