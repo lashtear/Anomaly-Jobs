@@ -32,6 +32,7 @@ Minor changes:
 - Some general myjob tweaks. Issue 21.
 - +myjobs now follows skinning rules. Issue 63.
 - New WHITEBG skin. Issue 28.
+- BBoards are now stored by dbref to survive board renumbering. Issue 102.
 - All bugfixes from Version 5.2 (never released)
 - Numerous other small bugfixes and command standardization.
 
