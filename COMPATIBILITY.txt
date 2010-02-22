@@ -8,9 +8,15 @@ identify standard coding practices to avoid compatibility issues.
 
 TinyMUSH level numbering for iter() is opposite MUX/Rhost/Penn (i.e., itext(0)
 refers to the outermost iter(), while itext(ilev()) refers to the innermost.)
-Avoid nested iter()s by using filter() or map() and appropriate registers. Use
-single-level iter() sparingly in top-level (command) attributes or hooks; do not
-use it in functions. Use itext(0) in preference to ##.
+Avoid nested iter()s by using filter() or map() (See note) and appropriate 
+registers. Use single-level iter() sparingly in top-level (command) attributes
+or hooks; do not use it in functions. Use itext(0) in preference to ##.
+
+Note: TinyMUSH's interpretation of filter(), map(), fold(), mix(), and 
+foreach() retrieves and evaluates the text of its attribute, rather than 
+passing list elements to the attribute, essentially evaluating get_eval() 
+rather than u().  For compatibility, attributes called by these functions which
+use subsequent attribute calls must explicitly identify the object dbref.
 
 2. Booleans
 
