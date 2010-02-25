@@ -3322,7 +3322,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 		OR,u(%va/FN_S-PUSH,setunion(u(%va/FN_S-POP),u(%va/FN_S-POP))),
 		AND,u(%va/FN_S-PUSH,setinter(u(%va/FN_S-POP),u(%va/FN_S-POP))),
 		NOT,u(%va/FN_S-PUSH,setdiff(%q1,u(%va/FN_S-POP))),
-		u(%va/FN_S-PUSH,map(%va/SEL_%q2,%q1))
+		u(%va/FN_S-PUSH,filter(%va/SEL_%q2,%q1))
 	)
 -
 
@@ -3739,104 +3739,94 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 -
 
 #
-# Job list generation for +jobs/select -- called via map
+# Job list generation for +jobs/select -- called via filter
 # SEL_<portion before = sign> called with arguments
-# %0 = Job dbref to include/exclude
+# %0 = Job dbref to include/exclude by returning 1/0
 # %qa = argument passed to the select
 #
 
-&SEL_ALL [v(JOB_VA)]=%0
+&SEL_ALL [v(JOB_VA)]=1
 -
 
 &SEL_NEW [v(JOB_VA)]=
-	ifelse(u(%va/FIL_NEW[default(%#/JOBSN,0)],%0),%0,)
+	u(%va/FIL_NEW[default(%#/JOBSN,0)],%0)
 -
 
 &SEL_OVERDUE [v(JOB_VA)]=
-	ifelse(u(%va/FIL_OVERDUE,%0),%0,)
+	u(%va/FIL_OVERDUE,%0)
 -
 
 &SEL_MINE [v(JOB_VA)]=
-	ifelse(u(%va/FIL_MINE,%0),%0,)
+	u(%va/FIL_MINE,%0)
 -
 
 &SEL_WHO [v(JOB_VA)]=
-	ifelse(u(%va/FIL_WHO,%0,
-		switch(%qa,none,,pmatch(%qa))
-	),%0,)
+	u(%va/FIL_WHO,%0,switch(%qa,none,,pmatch(%qa)))
 -
 
 &SEL_SOURCE [v(JOB_VA)]=
-	ifelse(u(%va/FIL_SOURCE,%0,
-		switch(%qa,none,,pmatch(%qa))
-	),%0,)
+	u(%va/FIL_SOURCE,%0,switch(%qa,none,,pmatch(%qa)))
 -
 
 &SEL_PRI [v(JOB_VA)]=u(%va/SEL_ESC,%0)
 -
 
 &SEL_ESC [v(JOB_VA)]=
-	ifelse(u(%va/FIL_ESC,%0,
-		match(green yellow red,%qa*)
-	),%0,)
+	u(%va/FIL_ESC,%0,match(green yellow red,%qa*))
 -
 
 &SEL_STATUS [v(JOB_VA)]=
-	ifelse(u(%va/FIL_STATUS,%0,
-		dec(match(HOLD NEW UNDERWAY 25 50 75 100,%qa*))
-	),%0,)
+	u(%va/FIL_STATUS,%0,dec(match(HOLD NEW UNDERWAY 25 50 75 100,%qa*)))
 -
 
 &SEL_BUCKET [v(JOB_VA)]=
-	ifelse(u(%va/FIL_BUCKET,%0,
-		u(%va/FN_FIND-BUCKET,%qa)
-	),%0,)
+	u(%va/FIL_BUCKET,%0,u(%va/FN_FIND-BUCKET,%qa))
 -
 
 &SEL_SEARCH [v(JOB_VA)]=
-	ifelse(u(%va/FIL_SEARCH,%0,%qa),%0,)
+	u(%va/FIL_SEARCH,%0,%qa)
 -
 
 &SEL_VIEWING [v(JOB_VA)]=u(%va/SEL_MONITOR,%0)
 -
 
 &SEL_MONITOR [v(JOB_VA)]=
-	ifelse(u(%va/FN_MONITORCHECK,parent(%0),%#),%0,)
+	u(%va/FN_MONITORCHECK,parent(%0),%#)
 -
 
 &SEL_HIDDEN [v(JOB_VA)]=
-	ifelse(u(%va/IS_HIDDEN,parent(%0)),%0,)
+	u(%va/IS_HIDDEN,parent(%0))
 -
 
 &SEL_LOCKED [v(JOB_VA)]=
-	ifelse(u(%va/IS_LOCKED,%0),%0,)
+	u(%va/IS_LOCKED,%0)
 -
 
 &SEL_TAGGED [v(JOB_VA)]=
-	ifelse(u(%va/IS_TAGGED,%0),%0,)
+	u(%va/IS_TAGGED,%0)
 -
 
 &SEL_MYJOBS [v(JOB_VA)]=u(%va/SEL_PUBLIC,%0)
 -
 
 &SEL_PUBLIC [v(JOB_VA)]=
-	ifelse(u(%va/IS_PUBLIC,parent(%0)),%0,)
+	u(%va/IS_PUBLIC,parent(%0))
 -
 
 &SEL_PUBLISHED [v(JOB_VA)]=
-	ifelse(u(%va/IS_PUBLISHED,%0),%0,)
+	u(%va/IS_PUBLISHED,%0)
 -
 
 &SEL_SUMMARY [v(JOB_VA)]=
-	ifelse(u(%va/IS_SUMMARY,parent(%0)),%0,)
+	u(%va/IS_SUMMARY,parent(%0))
 -
 
 &SEL_DUE> [v(JOB_VA)]=
-	ifelse(u(%va/FIL_DUEAFTER,%0,u(FN_DATECONV,%qa)),%0,)
+	u(%va/FIL_DUEAFTER,%0,u(FN_DATECONV,%qa))
 -
 
 &SEL_DUE< [v(JOB_VA)]=
-	ifelse(not(u(%va/FIL_DUEAFTER,%0,u(FN_DATECONV,%qa))),%0,)
+	not(u(%va/FIL_DUEAFTER,%0,u(FN_DATECONV,%qa)))
 -
 
 &SORTBY_COMMENTS [v(JOB_VA)]=sub(after(%0,_),after(%1,_))

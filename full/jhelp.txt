@@ -174,7 +174,7 @@
   The <expression> may be a single selection criterion or combination of 
   several using the Boolean logic operators AND, OR, or NOT (&, |, or !), 
   along with parentheses if needed, such as:
-  	+jobs/select (new | overdue) & ! who=none
+    +jobs/select (new | overdue) & ! who=none
   which would list jobs that are either new or overdue, and not unassigned.
   
   Continued in: jobs/select2
@@ -182,7 +182,7 @@
 
   Job selection criteria include the following:
 
-	all - all jobs
+  all - all jobs
   new - new jobs (same criteria as +jobs/new)
   mine - jobs assigned to or tagged for you (same as +jobs/mine)
   overdue - jobs past their due date 
@@ -254,9 +254,9 @@
   &JOBSELECT_MINE, and &JOBSELECT_OVERDUE.
 
   A game's code staff may add additional criteria by adding &SEL_<criteria> 
-  attributes to the Job Database <JD> object. These functions take %%0 (list
-  of all job dbrefs) and %%1 (argument) and return a filtered list of job 
-  dbrefs meeting that selection criteria.
+  attributes to the Job Database <JD> object. These functions are called by
+  filter%(%) and take %%0 (a job dbref) and %%qa (the argument) and return 1
+  if the job meets that selection criteria.
 & jobs/sort
 
   [ansi(h,+jobs/sort)]
@@ -798,9 +798,9 @@
   (see 'summaries'). The only difference is that for any /sumset 
   settings, the names of the attributes are:
   
-  	MYACCESS_<setting>
-  	MYPROCESS_<setting>
-  	MYERROR_<setting>
+    MYACCESS_<setting>
+    MYPROCESS_<setting>
+    MYERROR_<setting>
   
   See also: SUMMARIES, SUMSETTING
 & myjob/sumset
