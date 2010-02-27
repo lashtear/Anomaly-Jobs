@@ -1256,13 +1256,13 @@ $+job/publish *=*:
 			@pemit %#=You have published Comment %1 on Job %0.;
 			@set %q0/COMMENT_%1=no_inherit;
 			@trigger %va/TRIG_ADD=%q0,Comment [secure(%1)] published by %n.,%#,PUB;
-			@trigger %va/TRIG_BROADCAST=%q0,%#,PUB,%q1
+			@trigger %va/TRIG_BROADCAST=%q0,%#,PUB,%1
 		},
 		{
 			@pemit %#=Job %0/Comment %1 will no longer be published.;
 			@set %q0/COMMENT_%1=!no_inherit;
 			@trigger %va/TRIG_ADD=%q0,Comment [secure(%1)] Unpublished by %n.,%#,UNP;
-			@trigger %va/TRIG_BROADCAST=%q0,%#,UNP,%q1
+			@trigger %va/TRIG_BROADCAST=%q0,%#,UNP,%1
 		}
 -
 
@@ -2518,7 +2518,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 -
 
 &FN_ADDSTAT_ART [v(JOB_VA)]=
-	set(%0,
+	null(set(%0,
 		STAT_ART:[add(
 			first(default(%0/STAT_ART,0 0)),
 			sub(
@@ -2527,7 +2527,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 			)
 		)] 
 		[inc(last(default(%0/STAT_ART,0 0)))]
-	)
+	))
 -
 
 #
@@ -3907,6 +3907,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 		1,{
 			@pemit/list 
 				[setq(0,parent(%0))]
+				[setq(0,ifelse(isdbref(%q0),%q0,%vc))]
 				[filter(%va/FIL_BROADCAST,setunion(lwho(),))]
 				=
 				[ansi(hc,JOBS:)]%b[u(%q0/BLETTER_%2,%0,%1,%3,%4)]
@@ -5217,7 +5218,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting up master parent.
 &BLETTER_OTH [v(JOB_VC)]=[name(%0)] has been created by [name(%1)] in [name(parent(%0))]: %2
 -
 
-&BLETTER_PUB [v(JOB_VC)]=[name(%0)]'s publication status has been modified by [name(%1)].
+&BLETTER_PUB [v(JOB_VC)]=[name(%0)][ifelse(t(strlen(%2)),/Comment %2,)] has been published by [name(%1)].
 -
 
 &BLETTER_SRC [v(JOB_VC)]=[name(%0)]'s source has been changed by [name(%1)].
@@ -5238,7 +5239,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting up master parent.
 &BLETTER_UNL [v(JOB_VC)]=[name(%0)] has been unlocked by [name(%1)].
 -
 
-&BLETTER_UNP [v(JOB_VC)]=[name(%0)] has been unpublished by [name(%1)].
+&BLETTER_UNP [v(JOB_VC)]=[name(%0)][ifelse(t(strlen(%2)),/Comment %2,)] has been unpublished by [name(%1)].
 -
 
 &ERROR_HIDDEN [v(JOB_VC)]=Valid options for the HIDDEN parameter are 'yes' and 'no'.

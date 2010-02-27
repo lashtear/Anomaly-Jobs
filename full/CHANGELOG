@@ -22,6 +22,7 @@ Major changes:
 - Custom widths for the fields of the JOBS display attribute. Issue 84.
 - Added action locks to prevent certain actions on buckets. Issue 26.
 - Added BLETTER support, to allow for broadcast customization. Issue 60.
+- BBoards are now stored by dbref to survive board renumbering. Issue 102.
 
 Minor changes:
 - Job numbers and bucket names are now exactly matched. Issue 16.
@@ -32,9 +33,10 @@ Minor changes:
 - Some general myjob tweaks. Issue 21.
 - +myjobs now follows skinning rules. Issue 63.
 - New WHITEBG skin. Issue 28.
-- BBoards are now stored by dbref to survive board renumbering. Issue 102.
-- All bugfixes from Version 5.2 (never released)
 - Numerous other small bugfixes and command standardization.
+- Removed redundant HOOK_APPROVE, HOOK_DENY, HOOK_COMPLETE, and HOOK_DELETE. Issue 97.
+- Removed @restart and @startup code made obsolete with @wait rewrite. Issue 100.
+- All bugfixes from Version 5.2 (never released, see below)
 
 Version 5.1
 - Removed '@trigger %vb/TRIG_APPROVE=%0,%#,%1,[get(%q0/TITLE)]' from the +job/approve command. This is deprecated code left over from the Jobs 4 days. TRIG_ADD handles the TRIG_APR hook now.
@@ -51,8 +53,7 @@ Version 5.1
 - Pulled out the tagged_for check on +myjob/add for two reasons. First, the intent is unclear considering the code is buggy. Two, removing it makes sure the job is only locked by +job/lock, making +myjob/add work like +job/add.
 - Added Maintainer line to +job/credits.
 
-Version 5.2(release candidate; never released)
-- Changed 5.0 to 5.2 in the jhelp.txt file. 
+Version 5.2(release candidate; never released) 
 - Updated the manage2 helpfile to correct the +job/set syntax.
 - Added +bucket/check with two entries in jhelp.txt. Issue 15.
 - Removed POST_COMPLETE from the REQ bucket. Issue 18.
