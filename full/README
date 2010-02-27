@@ -3,19 +3,22 @@ Anomaly Jobs
 Superior Task Tracking Technology
 Version 6.0 
 
-Written by: Starfleet @ Anomaly (eye1movies@aol.com)
-Maintained by: Halmar@Gamma One (grey419@gmail.com)
-Contributors: Firestorm @ Ephemera (+myjobs, /tags) 
-              Ian @ MUX (Pies), Minion @ Crossroads (Penn & Rhost Compat)
-Testers: nails@MUSHpark
-         Sunshine@Ashes To Ashes
-         Centauri & Pyxis@Rise From Chaos
-         Minion & Duke@Outremer
-
+Written by:    Starfleet @ Anomaly 
+Maintained by: Minion @ Crossroads
+Contributors:  Firestorm @ Ephemera (+myjobs, /tags)
+               Halmar @ Gamma One (Past maintainer, Rhost Compat contribs)
+               Ian @ MUX (Pies) 
+               Javelin @ PennMUSH (Penn Compat contribs)
+               Minion @ Crossroads (+jobs/select, +jgroups, full compat fixes)
+Testers:       nails @ MUSHpark
+               Sunshine @ Ashes To Ashes
+               Centauri & Pyxis @ Rise From Chaos
+               Minion & Duke @ Outremer
 
 Platforms supported: MUX 2.x, TinyMUSH 3.1, PennMUSH 1.8.2, RhostMUSH
+
 Requirements: Myrddin's BBS, @mail system.
-									   
+                     
 This code is provided as-is and expresses no guarantee or warranty. Use it
 entirely at your own risk. Author is not liable for any damages, real or
 implied. It is available free to benefit the online text game community at
@@ -32,7 +35,7 @@ Anomaly Jobs 6.0
 6. Automatic Logging
 7. Max Jobs
 8. Automatic Assignment
-9. Access Configutation
+9. Access Configuration
 10. Staff Checks
 
 
@@ -44,28 +47,31 @@ your game and the install is automated. However, before you install it read
 the README and the README.<dist> file for your server for any notes, and 
 read the install file notes for behavioral changes you might wish to make.
 
-	IMPORTANT!
-	
-	* You should install this with a Wizard character, preferably in an
-	  account that is not regularly logged into, as the code creates and
-	  destroys objects dynamically. This can get spammy.
-	  
-	* Do not rename your jobs objects. Patch scripts depend on these 
-	  names in order to function.
-	  
-	* You must install using a timed delay. Most clients have an upload-
-	  with-delay option. A delay of at least one second is recommended.
-	  
-	* Be patient. The install script will tell you when it is finished.
-	  Don't try to do anything until install is complete.
+  IMPORTANT!
+  
+  * You should install this with a Wizard character, preferably in an
+    account that is not regularly logged into, as the code creates and
+    destroys objects dynamically. This can get spammy.
+    
+  * Do not rename your jobs objects. Patch and plugin scripts depend on 
+    these names in order to function.
+    
+  * You must install using a timed delay. Most clients have an upload-
+    with-delay option. A delay of at least one second is recommended.
+    
+  * Be patient. The install script will tell you when it is finished.
+    Don't try to do anything until install is complete.
 
 This code REQUIRES Myrddin's BBS to be installed, as it uses the BBS to post
 completed/approved/denied jobs to. So long as your BBS is unmodified it should
 work without problems. There is no need to configure the BBS or create any
-bboards, as it will work its magic automatically. It also requires hardcoded
-@mail at this time. It will automatically set up two BBS boards to use with the
-system - a public read-only BBS for game-wide progress tracking, and a private,
-staff-only board for privately tracking player requests and other issues.
+bboards, as it will work its magic automatically. It will automatically set up
+two BBS boards to use with the system - a public read-only BBS for game-wide
+progress tracking, and a private, staff-only board for privately tracking
+player requests and other issues.
+
+It also requires hardcoded @mail at this time. The jobs system owner is
+excluded from mailings in the default setup.
 
 This script requires no modification so long as used on the servers listed
 above and you want the behavior to be for staff-only.
@@ -105,10 +111,14 @@ REQ     Player requests (Required bucket).
 RP      Hidden bucket for storing future plots.
 TECH    Technology issues, such as weapon object distribution, etc.
 THEME   Game thematic issues.
-TPS     Curringly running plots.
+TPS     Currently running plots.
 
 A bucket name is 1-5 letters long. WoD games might want to add VAMP, GAROU,
 MAGE, FAE, etc.
+
+The BUILD, CODE, PITCH, QUERY, and REQ buckets are associated with commands
+and should not be deleted; APPS is associated with TRIG_APPLY and should not
+be deleted if you use that trigger.  Other buckets may be removed if desired.
 
 
 
@@ -128,7 +138,7 @@ when a new player finished character generation. This trigger puts a character
 application into the Jobs system. To add this functionality to your game, you
 must add the following code to your 'please approve me' command:
 
-	@trigger <Job Database>/TRIG_APPLY=<player DB# to be approved>
+  @trigger <Job Database>/TRIG_APPLY=<player DB# to be approved>
 
 To change the information presented to player upon application submission,
 see the APPS bucket setup.  You can use the HOOK_APR on the APPS bucket to
@@ -194,7 +204,7 @@ For automatic assignment of jobs created other than with +job/create, use:
 
 
 
-9. Access Configutation
+9. Access Configuration
 -----------------------------------------------------------------------------
 The following attributes are located on the Jobs Database object and may be
 modified to configure access to the system.

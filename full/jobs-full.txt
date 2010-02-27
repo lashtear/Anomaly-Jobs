@@ -5065,19 +5065,19 @@ think [ansi(hc,ANOMALY JOBS:)] Installing skins.
 
 # Version/Etc
 
-&CREDITS [v(JOB_VA)]=Starfleet@Anomaly (eye1movies@aol.com)
+&CREDITS [v(JOB_VA)]=Starfleet@Anomaly
 -
 
-&MAINTAINER [v(JOB_VA)]=Halmar@Gamma One (grey419@gmail.com)
+&MAINTAINER [v(JOB_VA)]=Minion@Crossroads
 -
 
 &CONTRIBUTORS [v(JOB_VA)]=Firestorm@Ephemera, Grey@Anomaly, Ian@MUX, Minion@Crossroads
 -
 
-&LICENSE [v(JOB_VA)]=You may port this code to any game provided that these credits remain intact. Please report any and all bugs, feedback or whatnot to the email address provided above. The most recent version of this code can be found at project's home: http://code.google.com/p/anomalyjobs/
+&LICENSE [v(JOB_VA)]=You may port this code to any game provided that these credits remain intact. Please report any and all bugs, feedback, etc. to the project's home: http://code.google.com/p/anomalyjobs/
 -
 
-&RELEASE [v(JOB_VA)]=Dec ??, 2009
+&RELEASE [v(JOB_VA)]=March 1, 2010
 -
 
 &VERSION [v(JOB_VA)]=v6.0
@@ -5508,7 +5508,6 @@ think [ansi(hc,ANOMALY JOBS:)] Setting up master parent.
 		&PUBLIC %q0=1;
 		&HOOK_CRE %q0=lit(@set %0/COMMENT_1=no_inherit);
 		@parent %q0=[v(JOB_VC)];
-		@set %q0=SAFE;
 		@tel %q0=[v(JOB_VC)]
 	}
 -
