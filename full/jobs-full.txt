@@ -85,10 +85,10 @@ think [ansi(hc,ANOMALY JOBS:)] Checking current installation.
 think [ansi(hc,ANOMALY JOBS:)] Setting up commands.
 -
 
-@Startup [v(JOB_GO)]=
-	@drain me;
-	@notify me
--
+#
+# Removed
+# @Startup [v(JOB_GO)]
+#
 
 @adisconnect [v(JOB_GO)]=
 	@pemit me=[ifelse(u(%va/HAS_ACCESS,%#),set(%#,LAST_CONN:[secs()]),)]
@@ -2100,8 +2100,10 @@ $+typo *:
 think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 -
 
-@Startup [v(JOB_VA)]=@drain me;@notify me
--
+#
+# Removed
+# @Startup [v(JOB_VA)]=@drain me;@notify me
+#
 
 &CHARGRAPH [v(JOB_VA)]=@+-/!*ox#.X$^`~O>
 -
@@ -6074,21 +6076,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting locks.
 &JOBSB me=
 -
 
-# The following waits are used to let the rest of the code catch up before final
-# cleanup.
-
 @wait 10=
-	{
-		think [ansi(hc,ANOMALY JOBS:)] Restarting the game in 25 seconds.;
-		@wait 25=
-		@switch [first(version())]=
-			PennMUSH,@shutdown/reboot,
-			RhostMUSH,@reboot,
-			@restart
-	}
--
-
-@wait 11=
 {
 	think [ansi(hc,ANOMALY JOBS:)] Script complete. Thanks for using Anomaly Jobs! You should drop the Job Global Object <JGO> in the master room. If you have opened up the system to more than just ROYALTY and WIZARD, you must have #1 lock and hide the attribute LAST_CONN. You should hide & lock JOBSH and JOBSB no matter what. For example:%r%r@attribute/access JOBSB=WIZARD%r@attribute/access JOBSH=HIDDEN
 	[switch(first(version()),PennMUSH,%r%(On PennMUSH\, you must use /retroactive and also add these to a wizard's @startup.%))];
