@@ -560,7 +560,6 @@ $+job/approve *=*:
 				You have approved job #%0, adding the comments: %1;
 			@trigger %va/TRIG_BROADCAST=%q0,%#,APR;
 			@trigger %va/TRIG_ADD=%q0,[u(%va/FN_STRTRUNC,%1,get(%va/BUFFER))],%#,APR;
-			@trigger [parent(%q0)]/HOOK_APPROVE=%q0,%#;
 			@trigger %va/TRIG_DESTROY=%q0
 		}
 -
@@ -718,7 +717,6 @@ $+job/complete *=*:
 		{
 			@pemit %#=[u(%va/FN_ADDSTAT_ART,parent(%q0),%q0)][u(%va/FN_ADDSTAT_ART,%vc,%q0)]You have completed job # %0.;
 			@trigger %va/TRIG_ADD=%q0,[u(%va/FN_STRTRUNC,%1,get(%va/BUFFER))],%#,COM;
-			@trigger %q0/HOOK_COMPLETE=%q0,%#;
 			@trigger %va/TRIG_BROADCAST=%q0,%#,COM,%q1;
 			@trigger %va/TRIG_DESTROY=%q0
 		}
@@ -772,7 +770,6 @@ $+job/delete *:
 		{
 			@pemit %#=[u(%va/FN_ADDSTAT_ART,parent(%q0),%q0)][u(%va/FN_ADDSTAT_ART,%vc,%q0)]You have deleted job # %0.;
 			@trigger %va/TRIG_ADD=%q0,Job %0 Deleted,%#,DEL;
-			@trigger [parent(%q0)]/HOOK_DELETE=%q0,%#;
 			@trigger %va/TRIG_DESTROY=%q0
 		}
 -
@@ -801,7 +798,6 @@ $+job/deny *=*:
 			@pemit %#=[u(%va/FN_ADDSTAT_ART,parent(%q0),%q0)][u(%va/FN_ADDSTAT_ART,%vc,%q0)]You have denied job #%0.;
 			@trigger %va/TRIG_BROADCAST=%q0,%#,DNY;
 			@trigger %va/TRIG_ADD=%q0,[u(%va/FN_STRTRUNC,%1,get(%va/BUFFER))],%#,DNY;
-			@trigger [parent(%q0)]/HOOK_DENY=%q0,%#;
 			@trigger %vb/TRIG_DENY=%0,%#,%1,[get(%q0/TITLE)];
 			@trigger %va/TRIG_DESTROY=%q0
 		}
@@ -6074,6 +6070,33 @@ think [ansi(hc,ANOMALY JOBS:)] Setting locks.
 -
 
 &JOBSB me=
+-
+
+@switch [v(JOB_PATCH)]=
+	>0,{
+		think [ansi(hc,ANOMALY JOBS:)] Checking hooks for compatibility.;
+		@dolist [v(JOB_VC)] [lcon(v(JOB_VC))]=
+		{
+			@switch 
+				[hasattr(##,HOOK_COMPLETE)]
+				[hasattr(##,HOOK_APPROVE)]
+				[hasattr(##,HOOK_DENY)]
+				[hasattr(##,HOOK_DELETE)]
+				=
+				1???,{
+					think [ansi(hc,ANOMALY JOBS:)] ##/HOOK_COMPLETE not valid: move to ##/HOOK_COM;
+				},
+				?1??,{
+					think [ansi(hc,ANOMALY JOBS:)] ##/HOOK_APPROVE not valid: move to ##/HOOK_APR;
+				},
+				??1?,{
+					think [ansi(hc,ANOMALY JOBS:)] ##/HOOK_DENY not valid: move to ##/HOOK_DNY;
+				},
+				???1,{
+					think [ansi(hc,ANOMALY JOBS:)] ##/HOOK_DELETE not valid: move to ##/HOOK_DEL;
+				}
+		}
+	}
 -
 
 @wait 10=

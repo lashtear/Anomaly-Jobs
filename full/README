@@ -70,6 +70,16 @@ staff-only board for privately tracking player requests and other issues.
 This script requires no modification so long as used on the servers listed
 above and you want the behavior to be for staff-only.
 
+If upgrading from a 5.0 install and you have the HOOK_APPROVE, HOOK_DENY, 
+HOOK_COMPLETE, or HOOK_DELETE attributes set on your Job Parent Object or any
+buckets, move these hooks to HOOK_APR, HOOK_DNY, HOOK_COM, and HOOK_DEL,
+respectively. The previous versions were unintentionally redundant in 5.x and
+will no longer be triggered in Jobs 6. The script will notify you if it finds
+these outdated hooks.
+
+In addition to quoting the script, you will need to install the help file on
+your server.
+
 
 
 2. Buckets
@@ -104,7 +114,7 @@ MAGE, FAE, etc.
 
 3. Getting Help
 -----------------------------------------------------------------------------
-The primary location to get help and report bugs for Jobs 5 is the google 
+The primary location to get help and report bugs for Jobs 6 is the google 
 code site at http://code.google.com/p/anomalyjobs/ 
 
 
