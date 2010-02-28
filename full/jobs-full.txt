@@ -85,10 +85,8 @@ think [ansi(hc,ANOMALY JOBS:)] Checking current installation.
 think [ansi(hc,ANOMALY JOBS:)] Setting up commands.
 -
 
-#
-# Removed
-# @Startup [v(JOB_GO)]
-#
+@switch [v(JOB_PATCH)][hasattr(v(JOB_GO),STARTUP)]=11,@Startup [v(JOB_GO)]
+-
 
 @adisconnect [v(JOB_GO)]=
 	@pemit me=[ifelse(u(%va/HAS_ACCESS,%#),set(%#,LAST_CONN:[secs()]),)]
@@ -2098,10 +2096,16 @@ $+typo *:
 think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 -
 
-#
-# Removed
-# @Startup [v(JOB_VA)]=@drain me;@notify me
-#
+@switch [v(JOB_PATCH)]=
+	1,{
+		@dolist STARTUP 
+			DATA_CHARS2 DISPLAY_MYHEADERS DISPLAY_MYJOB MYJOBS_HEADER FIL_DELETE FN_ANSIFY 
+			FN_EASYPIE_PENN FN_EASYPIE_TINY PENN_PIE PENN10_PIE PENN12_PIE FN_NEW_JOBS FN_PACK 
+			IS_PLAYER JOBS_HEADER JOBS_HEADER2 MAP_ANSIFY MAP_ARTSGRAPH MAP_NAME2 MAP_NEW={
+			@switch [hasattr(v(JOB_VA),##)]=1,&## [v(JOB_VA)]
+		}
+	}
+-
 
 &CHARGRAPH [v(JOB_VA)]=@+-/!*ox#.X$^`~O>
 -
@@ -2162,11 +2166,6 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 
 &DATA_CHARS [v(JOB_VA)]=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ`1234567890-=~!@#$^&*()_+{}/;':"<>?,.
 -
-
-#
-# This isn't used any more. Delete.
-#
-# &DATA_CHARS2 [v(JOB_VA)]
 
 &DISPLAY_# [v(JOB_VA)]=[u(%va/FN_STREXACT,%0,default(%#/JOBSWIDTH_#,8))]
 -
@@ -2248,15 +2247,6 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 		default(%#/JOBSWIDTH_T,u(%va/FN_LEFTOVER))
 	)]
 -
-
-#
-# SUPERCEDED BY <skin>_MYJOBLIST
-# THIS IS NOT CALLED ANYMORE AND SHOULD BE REMOVED
-#
-# &DISPLAY_MYHEADERS [v(JOB_VA)]
-# &DISPLAY_MYJOB [v(JOB_VA)]
-# &MYJOBS_HEADER [v(JOB_VA)]
-#
 
 &DISPLAY_BUCKET [v(JOB_VA)]=
 	[rjust(ansi(h,Name:),20)] [name(%q0)] 
@@ -2387,12 +2377,6 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 
 &FIL_COMMENTS [v(JOB_VA)]=t(member(get(%va/LIST_VISCOMMENTS),first(get(%q0/%0),|)))
 -
-
-#
-# Remove, unused and was buggy anyway
-#
-# &FIL_DELETE [v(JOB_VA)]=[switch(parent(%0,%q0,1,0)]
-#
 
 &FIL_DUEAFTER [v(JOB_VA)]=or(eq(default(%0/DUE_ON,0),0),gt(get(%0/DUE_ON),%1))
 -
@@ -2531,11 +2515,6 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 		[inc(last(default(%0/STAT_ART,0 0)))]
 	))
 -
-
-#
-# Not used any more!
-#
-# &FN_ANSIFY [v(JOB_VA)]
 
 &FN_ART [v(JOB_VA)]=
 	u(%va/FN_TIME,
@@ -2704,15 +2683,6 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 		0
 	))
 -
-
-#
-# These were temporarily in 5.2 and should be removed
-# &FN_EASYPIE_PENN [v(JOB_VA)]
-# &FN_EASYPIE_TINY [v(JOB_VA)]
-# &PENN_PIE [v(JOB_VA)]
-# &PENN10_PIE [v(JOB_VA)]
-# &PENN12_PIE [v(JOB_VA)]
-#
 
 &FN_EASYPIE [v(JOB_VA)]=
 	edit(u(%va/FN_PIELEGEND,
@@ -2889,14 +2859,6 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 
 &FN_MYSUMMARY [v(JOB_VA)]=u(%va/FN_SKIN,MYSUMMARY,%0,%1,%2,%3)
 -
-
-#
-# No longer used
-#
-# &FN_NEW_JOBS [v(JOB_VA)]
-#
-# &FN_PACK [v(JOB_VA)]=
-#
 
 &FN_PCT [v(JOB_VA)]=%([mul(round(fdiv(%0,words(remove(lcon(%va),#-1))),2),100)]%%%)
 -
@@ -3106,12 +3068,6 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 &IS_LOCKED [v(JOB_VA)]=ifelse(u(%va/FN_HASATTRP,%0,CHECKOUT),switch(first(get(%0/CHECKOUT)),%1,0,1),udefault(%0/LOCKED,0))
 -
 
-#
-# Remove, unused, and should use hastype anyway
-#
-# &IS_PLAYER [v(JOB_VA)]=switch(type(%0),PLAYER,%0,)
-#
-
 &IS_PUBLIC [v(JOB_VA)]=udefault(%0/PUBLIC,0)
 -
 
@@ -3129,13 +3085,6 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 
 &JOBS_DEFAULT [v(JOB_VA)]=BTDAS
 -
-
-#
-# Unused, delete
-#
-# &JOBS_HEADER [v(JOB_VA)]
-# &JOBS_HEADER2 [v(JOB_VA)]
-#
 
 &LIST_ACTIONS [v(JOB_VA)]=
 	ADD Player input|
@@ -3175,14 +3124,6 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 
 &MAP_ACTIONS2 [v(JOB_VA)]=first(%0,|)
 -
-
-#
-# Not used anymore!
-#
-# &MAP_ANSIFY [v(JOB_VA)]
-#
-# &MAP_ARTSGRAPH [v(JOB_VA)]
-#
 
 &MAP_COLORPIE [v(JOB_VA)]=
 	foreach(
@@ -3305,14 +3246,6 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 
 &MAP_NAME [v(JOB_VA)]=name(%0)
 -
-
-#
-# Remove, unused
-#
-# &MAP_NAME2 [v(JOB_VA)]=name(*%0)
-#
-# &MAP_NEW [v(JOB_VA)]=[u(fn_pack,after(%0,#))]:[u(fn_pack,u(%0/NUM_COMMENT))]
-#
 
 &MAP_PARAMS [v(JOB_VA)]=lcstr(rest(%0,_))
 -
@@ -3965,6 +3898,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 			&NUM_COMMENT %q1=2;
 			&PRIORITY %q1=%2;
 			&COMMENT_1 %q1=CRE|[secs()]|%0|[name(%0)]|[ifelse(u(%va/FN_HASATTRP,%q0,ALETTER_%qy),u(%va/FN_STRTRUNC,u(%q0/ALETTER_%qy,%q1,%0,edit(%4,|,@@PIPE@@)),get(%va/BUFFER)),u(%va/FN_STRTRUNC,edit(%4,|,@@PIPE@@),get(%va/BUFFER)))];
+			&LIST_READERS %q1=%0|1;
 			&ASSIGNED_TO %q1=%6;
 			&JOBS_NUM %va=%q0;
 			&DUE_ON %q1=[ifelse(u(%va/FN_HASATTRP,%q1,TURNAROUND),add(secs(),mul(60,60,get(%q1/TURNAROUND))),)];
