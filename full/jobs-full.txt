@@ -1240,7 +1240,8 @@ $+job/publish *=*:
 		[not(u(%va/IS_LOCKED,%q0,%#))]
 		[u(%va/IS_PUBLIC,%q0)]
 		[u(%va/FN_HASATTRP,%q0,COMMENT_%1)]
-		[udefault(%q0/ASN_ACCESS,1,%#)]
+		[udefault(%q0/PUB_ACCESS,1,%#)]
+		[neq(u(%q0/PUBLISH),1)]
 		[hasflag(%q0/COMMENT_%1,no_inherit)]
 		=
 		0*,{@pemit %#=Permission denied.},
@@ -1251,7 +1252,8 @@ $+job/publish *=*:
 		111110*,{@pemit %#=That job is not in a bucket that is accessible to +myjobs, so publication is moot.},
 		1111110*,{@pemit %#=That is not a valid comment number.},
 		11111110*,{@pemit %#=That action is not available for that job.},
-		111111110*,
+		111111110*,{@pemit %#=That job is published. Comment publication has no effect.},
+		1111111110*,
 		{
 			@pemit %#=You have published Comment %1 on Job %0.;
 			@set %q0/COMMENT_%1=no_inherit;
