@@ -5278,7 +5278,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting up master parent.
 &PROCESS_TURNAROUND [v(JOB_VC)]=[setq(3,TURNAROUND)][setq(1,%0)][isnum(%0)]
 -
 
-@switch [hasattr([v(JOB_VC)]/STAT_ART)]=
+@switch [hasattr([v(JOB_VC)],STAT_ART)]=
 	0,{
 		&STAT_ART [v(JOB_VC)]=0 0
 	}
