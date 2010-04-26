@@ -90,9 +90,10 @@ will no longer be triggered in Jobs 6. The script will notify you if it finds
 these outdated hooks.
 
 In addition to quoting the script, you will need to install the help file on
-your server.
-
-
+your server.  Two similar files are provided: jhelp.txt is designed to be
+evaluated (e.g., using "helpfile" in MUX or the textentries() and textfile()
+functions in PennMUSH) while jhelp_ansi.txt is already preprocessed with ANSI
+sequences, suitable for "helpfile" in PennMUSH or "raw_helpfile" in MUX.
 
 2. Buckets
 -----------------------------------------------------------------------------
