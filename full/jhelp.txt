@@ -1,5 +1,5 @@
 & help
-  Anomaly Jobs v6.0
+  Anomaly Jobs v6.1
   
   Anomaly Jobs is a feature-rich task-tracker.
   
