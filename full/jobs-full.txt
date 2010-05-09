@@ -3199,7 +3199,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 		)
 	)]
 	[ifelse(
-		lte(%q2,mul(%0,%q3)),
+		lte(%q2,mul(add(%0,0.5),%q3)),
 		[ansi(v(COLORGRAPH_%q9),[repeat(%q7,%q5)])],
 		[repeat(%b,%q5)]
 	)]
