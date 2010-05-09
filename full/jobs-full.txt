@@ -2545,28 +2545,38 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 	[setq(1,ifelse(%1,%1,18))]
 	[setq(2,%q1)]
 	[setq(0,last(sort(%0,n,%q4,%q4),%q4))]
-	[setq(3,fdiv(%q1,%q0))]
+	[setq(3,fdiv(%q0,%q1))]
 	[setq(x,
 		iter(
 			lnum(%q1),
 			[setq(9,0)]
 			[switch(
 				%q2,
-				%q1,rjust(%q0,3),
+				%q1,rjust(u(FN_BARGRAPHAXIS,%q0),5),
 				ifelse(
 					mod(%q1,2),
 						inc(div(%q1,2)),
 					div(%q1,2)
-				),[rjust(div(%q0,2),3)],
-				[space(3)]
+				),rjust(u(FN_BARGRAPHAXIS,div(%q0,2)),5),
+				[space(5)]
 			)]|
 			[map(MAP_GRAPH,%0,%q4,%b)]
 			[setq(2,sub(%q2,1))],
 			%B,%R
 		)
 	)]%qx%R
-	[space(2)]0+
+	[space(4)]0+
 	[repeat(-,dec(add(mul(words(%0,%q4),%q5),words(%0,%q4))))]
+-
+
+&FN_BARGRAPHAXIS [v(JOB_VA)]=
+	switch(
+		log(%0),
+		<4,%0,
+		<6,[u(%va/FN_TRIM,u(%va/FN_STRTRUNC,fdiv(%0,1E3),4),r,.)]K,
+		<9,[u(%va/FN_TRIM,u(%va/FN_STRTRUNC,fdiv(%0,1E6),4),r,.)]M,
+		[u(%va/FN_TRIM,u(%va/FN_STRTRUNC,fdiv(%0,1E9),4),r,.)]B
+	)
 -
 
 &FN_BREAK [v(JOB_VA)]=u(%va/FN_SKIN,BREAK,%0,%1,%2,%3)
@@ -3193,13 +3203,13 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 &MAP_GRAPH [v(JOB_VA)]=
 	[setq(9,
 		ifelse(
-			gt(inc(%q9),%q6),
+			gt(inc(%q9),%q6),>
 			1,
 			inc(%q9)
 		)
 	)]
 	[ifelse(
-		lte(%q2,mul(add(%0,0.5),%q3)),
+		lte(%q2,fdiv(add(%0,0.5),%q3)),
 		[ansi(v(COLORGRAPH_%q9),[repeat(%q7,%q5)])],
 		[repeat(%b,%q5)]
 	)]
@@ -3327,7 +3337,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 -
 
-&REPORT_ACTBY [v(JOB_VA)]=
+<input type="password" &REPORT_ACTBY [v(JOB_VA)]=
 	[switch(
 		%0,
 		,This report requires you to supply an action code.%r%rUse: '+jobs/reports ACTBY=<action code>'.%r,
@@ -3354,7 +3364,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 			lt(words(%q1),1),
 			There is no action code '[ucstr(%0)]' presently in the system.%r,
 			[ulocal(FN_BARGRAPH,%q1,10,2,16,#)]%r
-				[space(4)]
+				[space(6)]
 				[iter(
 					%q0,
 					[u(%va/FN_STREXACT,name(##),2)]
@@ -3373,10 +3383,10 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 		#
 	)]
 	[setq(0,fold(FOLD_ADD,%q0,0))]%r
-	[space(4)]
+	[space(6)]
 	[setq(1,map(MAP_ACTIONS2,sort(v(LIST_STATS))))]
-	[iter(%q1,[mid(##,0,1)]%b)]%r[space(4)]
-	[iter(%q1,[mid(##,1,1)]%b)]%r[space(4)]
+	[iter(%q1,[mid(##,0,1)]%b)]%r[space(6)]
+	[iter(%q1,[mid(##,1,1)]%b)]%r[space(6)]
 	[iter(%q1,[mid(##,2,1)]%b)]
 	%r
 	%r
@@ -3433,7 +3443,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 		)
 	)]
 	[ulocal(%va/FN_BARGRAPH,%q0,15,2,16,#)]%r
-	[space(4)]
+	[space(6)]
 	[iter(
 		%q1,
 		mid([name(##)]%B,0,2)
@@ -3449,7 +3459,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 		[ifelse(
 			isdbref(%q0),
 			[ulocal(FN_BARGRAPH,map(MAP_ACTIONS,get(%q0/LIST_STATS)),15,1,16,#)]%r
-			[space(4)]
+			[space(6)]
 			[setq(1,
 				map(MAP_ACTIONS2,sort(get(%q0/LIST_STATS)))
 			)]
@@ -3457,12 +3467,12 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 				%q1,
 				mid(##,0,1)
 			)]%r
-			[space(4)]
+			[space(6)]
 			[iter(
 				%q1,
 				mid(##,1,1)
 			)]%r
-			[space(4)]
+			[space(6)]
 			[iter(
 				%q1,
 				mid(##,2,1)
@@ -3482,7 +3492,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 		)
 		,15,2,16,#
 	)]%r
-	[space(4)]
+	[space(6)]
 	[iter(
 		sortby(SORTBY_NAME,lcon(%vc)),
 		mid([name(##)]%b,0,2)
@@ -3543,18 +3553,18 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 			[ifelse(
 				u(%va/FN_HASATTR,%q0,LIST_STATS),
 				[ulocal(FN_BARGRAPH,map(MAP_ACTIONS,get(%q0/LIST_STATS)),15,1,16,#)]%r
-				[space(4)]
+				[space(6)]
 				[setq(1,map(MAP_ACTIONS2,sort(get(%q0/LIST_STATS))))]
 				[iter(
 					%q1,
 					mid(##,0,1)
 				)]%r
-				[space(4)]
+				[space(6)]
 				[iter(
 					%q1,
 					mid(##,1,1)
 				)]%r
-				[space(4)]
+				[space(6)]
 				[iter(
 					%q1,
 					mid(##,2,1)
