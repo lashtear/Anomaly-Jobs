@@ -4,6 +4,8 @@ CHANGELOG for Anomaly Jobs
 Version 6.1
 
 - Fixed STAT_ART installation bug on new MUX/TM3 installs. Issue 106.
+- Added a fourth argument to hooks, containing original text. Hooks can now
+  replicate/expand the functionality of PLETTERs and MLETTERs. Issue 109.
 - Bargraphs can now handle input up to max integer values. Issue 111.
 - Bargraph heights now round properly. Issue 112.
 

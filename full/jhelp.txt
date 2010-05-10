@@ -1331,13 +1331,14 @@
   These can be set either on the bucket or the bucket parent. If set on the 
   bucket, an action hook will be for that local bucket only. If set on the 
   parent, an action hook will be for all buckets. Setting them on a job is 
-  silly, but possible (the hook will be destroyed when the job is, and won't
-  have any powers while it is there).
+  possible (perhaps for some workflow situations), but job-based hooks have
+  no privileges or powers, and will be destroyed when the job is.
   
-  The HOOK_<action> is passed three parameters:
+  The HOOK_<action> is passed four parameters:
       %%0: Job DB#
       %%1: DB# of action’s enactor.
       %%2: DB# of the bucket.
+      %%3: Original text (same as %%3 in MLETTER and PLETTER).
 
   Continued in: hooks2
 & hooks2

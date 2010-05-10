@@ -3800,6 +3800,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 	think 
 		[setq(0,default(%0/NUM_COMMENT,1))]
 		[setq(1,last(grab(get(%0/LIST_READERS),%2|*),|))]
+		[setq(2,edit(%1,|,@@PIPE@@))]
 		[ifelse(eq(dec(%q0),%q1),
 			set(%0,LIST_READERS:
 				[setunion(
@@ -3817,13 +3818,13 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 		[name(%2)]|
 		[ifelse(
 			u(%va/FN_HASATTRP,%0,ALETTER_%3),
-			u(%va/FN_STRTRUNC,u(%0/ALETTER_%3,%0,%2,edit(%1,|,@@PIPE@@)),get(%va/BUFFER)),
-			u(%va/FN_STRTRUNC,edit(%1,|,@@PIPE@@),get(%va/BUFFER))
+			u(%va/FN_STRTRUNC,u(%0/ALETTER_%3,%0,%2,%q2),get(%va/BUFFER)),
+			u(%va/FN_STRTRUNC,%q2,get(%va/BUFFER))
 		)];
 	&NUM_COMMENT %0=[inc(%q0)];
 	&MODIFIED_ON %0=[secs()];
 	&MODIFIED_BY %0=%2;
-	@trigger parent(%0)/HOOK_%3=%0,%2,[parent(%0)];
+	@trigger parent(%0)/HOOK_%3=%0,%2,[parent(%0)],%1;
 	@trigger %va/TRIG_POST=%0,%3,%2,%1;
 	@trigger %va/TRIG_MAIL=%0,%3,%2,%1
 -
@@ -3913,7 +3914,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 			&JOBS_NUM %va=%q0;
 			&DUE_ON %q1=[ifelse(u(%va/FN_HASATTRP,%q1,TURNAROUND),add(secs(),mul(60,60,get(%q1/TURNAROUND))),)];
 			@trigger %va/TRIG_BROADCAST=%q1,%0,%qy,%3;
-			@trigger %1/HOOK_%qy=%q1,%0,%1;
+			@trigger %1/HOOK_%qy=%q1,%0,%1,%4;
 			@trigger %va/TRIG_POST=%q1,%qy,%0,%4;
 			@trigger %va/TRIG_MAIL=%q1,%qy,%0,%4;
 			think [ulocal(FN_ADDSTAT,CRE,%va)][ulocal(FN_ADDSTAT,CRE,parent(%q1))]
