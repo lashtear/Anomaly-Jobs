@@ -2811,7 +2811,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 	switch(
 		first(version()),
 		PennMUSH,lsearch(all,eplayers,\[u(%0/ISMEMBER,##)\]),
-		RhostMUSH,searchng(eplayer=u(%0/ISMEMBER,##))
+		RhostMUSH,searchng(eplayer=u(%0/ISMEMBER,##)),
 		search(eplayer=u(%0/ISMEMBER,##))
 	)
 -
