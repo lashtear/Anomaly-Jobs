@@ -1,0 +1,8 @@
+think [repeat(=,77)]%r%r[center(ansi(hc,Patching Anomaly Jobs v6.0),77)]%r%r[repeat(=,77)]
+@set me=quiet
+think [ansi(hc,ANOMALY JOBS:)] Checking current installation.
+@switch [ifelse(isdbref(setr(0,switch(first(version()),PennMUSH,lsearch(all,eobjects,\[strmatch(name(##),Job Global Object <JGO>)\]),RhostMUSH,searchng(object=Job Global Object <JGO>),search(object=Job Global Object <JGO>)))),setq(1,get(%q0/VA)),[setq(1,switch(first(version()),PennMUSH,lsearch(all,eobjects,\[strmatch(name(##),Job Database <JD>)\]),RhostMUSH,searchng(object=Job Database <JD>),search(object=Job Database <JD>)))][setq(0,loc(%q1))])][isdbref(%q0)][and(isdbref(%q1),gte(edit(first(default(%q1/version,0),.),v,),5))]=0*,{think [ansi(hc,ANOMALY JOBS:)] No jobs installation found. Unable to patch anything.;&JOB_GO %#=#-1;&JOB_VA %#=#-1;&JOB_VB %#=#-1;&JOB_VC %#=#-1;},10*,{think [ansi(hc,ANOMALY JOBS:)] [ansi(hr,Not a valid Jobs 6.0 installation. Unable to patch anything.)];&JOB_GO %#=#-1;&JOB_VA %#=#-1;&JOB_VB %#=#-1;&JOB_VC %#=#-1;},{think [ansi(hc,ANOMALY JOBS:)] Current installation found.  Patching.;&JOB_GO %#=%q0;&JOB_VA %#=%q1;&JOB_VB %#=get(%q0/VB);&JOB_VC %#=get(%q0/VC);}
+@switch [hasattr(v(JOB_VC),STAT_ART)]=0,{&STAT_ART [v(JOB_VC)]=0 0}
+@set [v(JOB_VC)]/STAT_ART=NO_INHERIT
+&FN_JGROUPMEMBERS [v(JOB_VA)]=switch(first(version()),PennMUSH,lsearch(all,eplayers,\[u(%0/ISMEMBER,##)\]),RhostMUSH,searchng(eplayer=u(%0/ISMEMBER,##)),search(eplayer=u(%0/ISMEMBER,##)))
+@wait 3={think [ansi(hc,ANOMALY JOBS:)] Script complete.;@set me=!quiet}
