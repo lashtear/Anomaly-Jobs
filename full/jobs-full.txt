@@ -3894,7 +3894,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 		1,
 		{
 			@pemit %0=[ansi(hr,JOBS ERROR:)] Creation failed. The +jobs system is full. Contact staff immediately.;
-			@trigger %va/TRIG_BROADCAST=%1,JOBS SYSTEM IS FULL! Please compress jobs or boost your MAX_JOBS configuration.
+			@trigger %va/TRIG_BROADCAST=%1,JOBS SYSTEM IS FULL! Please complete jobs or boost your MAX_JOBS configuration.
 		},
 		{
 			think [setq(0,inc(u(%va/JOBS_NUM)))][setq(1,create(Job %q0,10))][setq(y,case(%7,1,CRE,OTH))];
