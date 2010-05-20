@@ -3894,7 +3894,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 		1,
 		{
 			@pemit %0=[ansi(hr,JOBS ERROR:)] Creation failed. The +jobs system is full. Contact staff immediately.;
-			@trigger %va/TRIG_BROADCAST=%1,JOBS SYSTEM IS FULL! Please complete jobs or boost your MAX_JOBS configuration.
+			@trigger %va/TRIG_BROADCAST=%1,JOBS SYSTEM IS FULL! Please compress jobs or boost your MAX_JOBS configuration.
 		},
 		{
 			think [setq(0,inc(u(%va/JOBS_NUM)))][setq(1,create(Job %q0,10))][setq(y,case(%7,1,CRE,OTH))];
@@ -3908,7 +3908,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 			@parent %q1=[locate(%vc,%1,i)];
 			&NUM_COMMENT %q1=2;
 			&PRIORITY %q1=%2;
-			&COMMENT_1 %q1=CRE|[secs()]|%0|[name(%0)]|[ifelse(u(%va/FN_HASATTRP,%q0,ALETTER_%qy),u(%va/FN_STRTRUNC,u(%q0/ALETTER_%qy,%q1,%0,edit(%4,|,@@PIPE@@)),get(%va/BUFFER)),u(%va/FN_STRTRUNC,edit(%4,|,@@PIPE@@),get(%va/BUFFER)))];
+			&COMMENT_1 %q1=CRE|[secs()]|%0|[name(%0)]|[ifelse(u(%va/FN_HASATTRP,%q1,ALETTER_%qy),u(%va/FN_STRTRUNC,u(%q1/ALETTER_%qy,%q1,%0,edit(%4,|,@@PIPE@@)),get(%va/BUFFER)),u(%va/FN_STRTRUNC,edit(%4,|,@@PIPE@@),get(%va/BUFFER)))];
 			&LIST_READERS %q1=%0|1;
 			&ASSIGNED_TO %q1=%6;
 			&JOBS_NUM %va=%q0;

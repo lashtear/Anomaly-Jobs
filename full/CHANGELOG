@@ -9,6 +9,7 @@ Version 6.1
   replicate/expand the functionality of PLETTERs and MLETTERs. Issue 109.
 - Bargraphs can now handle input up to max integer values. Issue 111.
 - Bargraph heights now round properly. Issue 112.
+- TRIG_CREATE now uses job DB instead of # for finding ALETTERS. Issue 116.
 
 Version 6.0
 
