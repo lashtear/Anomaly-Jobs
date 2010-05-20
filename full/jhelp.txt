@@ -1320,12 +1320,12 @@
           
   See also: advanced
 & hooks
-
+ 
   Action Hooks
-
-  All actions have what are called ‘action hooks’, which are arbitrary commands 
+ 
+  All actions have what are called 'action hooks', which are arbitrary commands 
   that you can add to buckets to make the jobs process more automated and 
-  extensively expand the capabilities of the system. This is where the real
+  extensively expand the capabilities of the system. This is where the real 
   power of Anomaly Jobs is located.
   
   These can be set either on the bucket or the bucket parent. If set on the 
@@ -1339,7 +1339,7 @@
       %%1: DB# of action’s enactor.
       %%2: DB# of the bucket.
       %%3: Original text (same as %%3 in MLETTER and PLETTER).
-
+ 
   Continued in: hooks2
 & hooks2
 
