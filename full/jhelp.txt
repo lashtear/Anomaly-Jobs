@@ -1336,7 +1336,7 @@
   
   The HOOK_<action> is passed four parameters:
       %%0: Job DB#
-      %%1: DB# of action’s enactor.
+      %%1: DB# of action's enactor.
       %%2: DB# of the bucket.
       %%3: Original text (same as %%3 in MLETTER and PLETTER).
  
