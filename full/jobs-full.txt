@@ -2870,7 +2870,12 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 &FN_MYSUMMARY [v(JOB_VA)]=u(%va/FN_SKIN,MYSUMMARY,%0,%1,%2,%3)
 -
 
-&FN_PCT [v(JOB_VA)]=%([mul(round(fdiv(%0,words(remove(lcon(%va),#-1))),2),100)]%%%)
+&FN_PCT [v(JOB_VA)]=
+	mul(round(ifelse(
+		gt(get(%va/MAX_JOBS),0),
+		max(fdiv(words(remove(lcon(%va),#-1)),get(%va/MAX_JOBS)),fdiv(strlen(lcon(%va)),get(%va/BUFFER))),
+		fdiv(strlen(lcon(%va)),get(%va/BUFFER))
+	),2),100)
 -
 
 &FN_PIEESCAPE [v(JOB_VA)]=case(ord(%0),92,%%%\,91,%%%[,93,%%%],37,%%%%,%0)
@@ -3596,10 +3601,9 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 		)]%b
 		%([round(fdiv(%qa,1024),1)]k in [words(%qb)] objects%)%r
 	[rjust(ansi(hc,Open Jobs:),20)]%b
-		[setr(0,words(remove(lcon(%va),#-1)))]%r
+		[words(remove(lcon(%va),#-1))]%r
 	[rjust(ansi(hc,Capacity:),20)]%b
-		[setr(1,u(%va/MAX_JOBS))]%b
-		%([mul(round(fdiv(%q0,%q1),2),100)]%% Full%)%r
+		[u(%va/FN_PCT)]%% Full%r
 	[rjust(ansi(hc,Next Job:),20)]%b
 		[inc(u(%va/JOBS_NUM))]%r
 	[rjust(ansi(hc,Buckets:),20)]%b
@@ -3889,7 +3893,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 
 &TRIG_CREATE [v(JOB_VA)]=
 	@switch 
-		gt(words(lcon(%va)),u(%va/MAX_JOBS))
+		gte(u(%va/FN_PCT),100)
 		=
 		1,
 		{
@@ -3917,7 +3921,13 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 			@trigger %1/HOOK_%qy=%q1,%0,%1,%4;
 			@trigger %va/TRIG_POST=%q1,%qy,%0,%4;
 			@trigger %va/TRIG_MAIL=%q1,%qy,%0,%4;
-			think [ulocal(FN_ADDSTAT,CRE,%va)][ulocal(FN_ADDSTAT,CRE,parent(%q1))]
+			think [ulocal(FN_ADDSTAT,CRE,%va)][ulocal(FN_ADDSTAT,CRE,parent(%q1))];
+			@switch 
+				gt(u(%va/FN_PCT),95)
+				=
+				{
+					@trigger %va/TRIG_BROADCAST=%1,JOBS SYSTEM IS NEARING CAPACITY! Please complete jobs or boost your MAX_JOBS configuration.
+				}
 		}
 -
 

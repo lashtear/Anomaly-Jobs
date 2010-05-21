@@ -194,6 +194,9 @@ reasonable based on your game's size. A small game can stick with
 mind that boosting it also decreases security, as twinks can
 potentially spam the system through spurious job creation.
 
+Setting this to 0 or a very large number will cause jobs to be limited
+by the system based on buffer size.
+
 &MAX_JOBS Job Database <JD>=200
 
 
