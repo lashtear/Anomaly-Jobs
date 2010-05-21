@@ -3925,6 +3925,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 			@switch 
 				gt(u(%va/FN_PCT),95)
 				=
+				1,
 				{
 					@trigger %va/TRIG_BROADCAST=%1,JOBS SYSTEM IS NEARING CAPACITY! Please complete jobs or boost your MAX_JOBS configuration.
 				}
