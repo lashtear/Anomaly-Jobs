@@ -3821,8 +3821,8 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 		%2|
 		[name(%2)]|
 		[ifelse(
-			u(%va/FN_HASATTRP,%0,ALETTER_%3),
-			u(%va/FN_STRTRUNC,u(%0/ALETTER_%3,%0,%2,%q2),get(%va/BUFFER)),
+			u(%va/FN_HASATTRP,parent(%0),ALETTER_%3),
+			u(%va/FN_STRTRUNC,u([parent(%0)]/ALETTER_%3,%0,%2,%q2),get(%va/BUFFER)),
 			u(%va/FN_STRTRUNC,%q2,get(%va/BUFFER))
 		)];
 	&NUM_COMMENT %0=[inc(%q0)];
@@ -3912,7 +3912,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 			@parent %q1=[locate(%vc,%1,i)];
 			&NUM_COMMENT %q1=2;
 			&PRIORITY %q1=%2;
-			&COMMENT_1 %q1=CRE|[secs()]|%0|[name(%0)]|[ifelse(u(%va/FN_HASATTRP,%q1,ALETTER_%qy),u(%va/FN_STRTRUNC,u(%q1/ALETTER_%qy,%q1,%0,edit(%4,|,@@PIPE@@)),get(%va/BUFFER)),u(%va/FN_STRTRUNC,edit(%4,|,@@PIPE@@),get(%va/BUFFER)))];
+			&COMMENT_1 %q1=CRE|[secs()]|%0|[name(%0)]|[ifelse(u(%va/FN_HASATTRP,parent(%q1),ALETTER_%qy),u(%va/FN_STRTRUNC,u([parent(%q1)]/ALETTER_%qy,%q1,%0,edit(%4,|,@@PIPE@@)),get(%va/BUFFER)),u(%va/FN_STRTRUNC,edit(%4,|,@@PIPE@@),get(%va/BUFFER)))];
 			&LIST_READERS %q1=%0|1;
 			&ASSIGNED_TO %q1=%6;
 			&JOBS_NUM %va=%q0;

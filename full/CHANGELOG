@@ -10,6 +10,7 @@ Version 6.1
 - Bargraphs can now handle input up to max integer values. Issue 111.
 - Bargraph heights now round properly. Issue 112.
 - TRIG_CREATE now uses job DB instead of # for finding ALETTERS. Issue 116.
+- ALETTERS now use the bucket's permissions to evaluate. Issue 116.
 - Job capacity now respects buffer limits for lcon(). Issue 117.
 
 Version 6.0
