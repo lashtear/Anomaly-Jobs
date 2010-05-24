@@ -1806,12 +1806,12 @@ $+jobs/search *:
 $+jobs/select *:
 	@switch 
 	[u(%va/HAS_ACCESS,%#)]
-	[setq(0,switch(
-		u(%va/FN_HASATTR,%#,JOBSELECT_%0),
-		1,get(%#/JOBSELECT_%0),
-		%0
-	))]
-	[setq(0,u(%va/FN_INFIX2POSTFIX,%q0))]
+	[setq(0,
+		u(%va/FN_INFIX2POSTFIX,map(
+			%va/MAP_JOBSELECT,
+			u(%va/FN_TOKENLIST,%0)
+		))
+	)]
 	[not(strmatch(%q0,*#-1 MISMATCHED PARENS*))]
 	[not(strmatch(%q0,*#-1 SYNTAX ERROR*))]
 	=
@@ -2784,7 +2784,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 	[u(%va/FN_S-INIT)]
 	[setq(v,map(%va/MAP_PARAMS,lattr(%va/SEL_*)))]
 	[u(%va/FN_TRIM,squish(
-		[map(%va/MAP_INFIX2POSTFIX,u(%va/FN_TOKENLIST,%0))]%B
+		[map(%va/MAP_INFIX2POSTFIX,%0)]%B
 		[u(%va/FN_S-POP-BINARY)]
 		[switch(1,
 			t(member(%( %),u(%va/FN_S-PEEK))),
@@ -3253,6 +3253,16 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 			isdbref(u(%va/FN_FIND-JGROUP,%0))
 		),,
 		I don't recognize '%0' as a player or jgroup.
+	)
+-
+
+&MAP_JOBSELECT [v(JOB_VA)]=
+	switch(1,
+		t(match(and or not %( %) | & !,%0)),
+		%0,
+		u(%va/FN_HASATTR,%#,JOBSELECT_%0),
+		get(%#/JOBSELECT_%0),
+		%0
 	)
 -
 

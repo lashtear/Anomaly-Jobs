@@ -244,10 +244,11 @@
   Players may also store expressions using &JOBSELECT_<name> me=<expression>
   and then simply use +jobs/select <name>.  For example, if a player entered:
     &JOBSELECT_IMMINENT me=bucket=REQ & due<=36h & ! overdue
-    
-  They could then use the following command:
-    +jobs/select imminent
-      - which would return REQ bucket jobs coming due in the next 36 hours.
+    &JOBSELECT_NONGREEN me=esc=Yellow | esc=Red
+  They could then use '+jobs/select imminent' to return REQ bucket jobs coming
+  due in the next 36 hours. Multiple <name>s may be used with the +jobs/select
+  command, such as '+jobs/select imminent and nongreen'.  Names may also be
+  used in the &JOBSELECT attribute but not in &JOBSELECT_<name> attributes.
       
   Players may override the default +jobs/all, +jobs/new, +jobs/mine, and 
   +jobs/overdue lists by defining &JOBSELECT_ALL, &JOBSELECT_NEW, 
