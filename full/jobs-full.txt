@@ -1485,6 +1485,30 @@ $+job/trans *=*:
 	}
 -
 
+&CMD_JOB/UNDELETE [v(JOB_GO)]=
+$+job/undelete *:
+	@switch 
+	[u(%va/HAS_ACCESS,%#)]
+	[setq(0,u(%va/FN_FIND-JOB,%0))]
+	[isdbref(%q0)]
+	[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+	[u(%va/FN_HASATTR,%q0,GOING)]
+	[udefault(%q0/UND_ACCESS,1,%#)]
+	=
+	0*,{@pemit %#=Permission denied.},
+	10*,{@pemit %#=There is no job by that number.},
+	110*,{@pemit %#=You do not have access to that job.},
+	1110*,{@pemit %#=That job has not been deleted.},
+	11110*,{@pemit %#=That action is not available for that job.},
+	{
+		@pemit %#=You have restored job %0.;
+		@set %q0=!going;
+		&going %q0;
+		@trigger %va/TRIG_ADD=%q0,Undeleted job.,%#,UND;
+		@trigger %va/TRIG_BROADCAST=%q0,%#,UND,%q1
+	}
+-
+
 &CMD_JOB/UNLOCK [v(JOB_GO)]=
 $+job/unlock *:
 	@switch 
@@ -3133,6 +3157,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 	SUM Sumset change|
 	TAG Job tag|
 	TRN Transfer|
+	UND Undelete job|
 	UNL Unlock job|
 	UNP Unpublish|
 	COM +job/complete|
@@ -5226,6 +5251,9 @@ think [ansi(hc,ANOMALY JOBS:)] Setting up master parent.
 -
 
 &BLETTER_TRN [v(JOB_VC)]=[name(%0)] has been transferred to the [name(%2)] bucket by [name(%1)].
+-
+
+&BLETTER_UND [v(JOB_VC)]=[name(%0)] has been undeleted by [name(%1)].
 -
 
 &BLETTER_UNL [v(JOB_VC)]=[name(%0)] has been unlocked by [name(%1)].

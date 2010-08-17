@@ -570,6 +570,21 @@
   
   This command will move Job <#> from its current bucket to a new <bucket>.
   It also runs the TRN hooks.
+& job/undelete
+
+  [ansi(h,+job/undelete <#>)]
+  
+  Jobs which are completed, approved, denied, or deleted remain in the system
+  for 60 seconds before being permanently deleted.  This command restores
+  these "going" jobs. This command runs the UND hooks.
+
+  This command is intended for rare use when jobs are inadvertently deleted.
+  Note that jobs which were deleted may have run actions associated with the
+  COM, APR, DNY, and DEL hooks, as well as @mail and bulletin board postings.
+  Additional actions may be necessary to restore the system to its prior
+  state, or the UND_ACCESS attribute can be used (on buckets or jobs) to 
+  prevent restoration when the effects of the previous hooks are irreversible.
+  
 & job/unlock
 
   [ansi(h,+job/unlock <#>)]
@@ -703,6 +718,7 @@
   [ansi(h,+job/tag <#>                             )]: Tags a job for you.
   [ansi(h,+job/tag <#>=<player>                    )]: Tags a job for <player>.
   [ansi(h,+job/trans <#>=<bucket>                  )]: Transfer (or undelete) a job.
+  [ansi(h,+job/undelete <#>                        )]: Restores a deleted job.
   [ansi(h,+job/unlock <#>                          )]: Unlocks a job.
   [ansi(h,+job/untag <#>                           )]: Untags a job.
   [ansi(h,+job/untag <#>=<player list>             )]: Untags a job for <player list>.
@@ -1517,6 +1533,7 @@
   SUM   Indicates a change in the summary settings.
   TAG   Indicates a job has been tagged or untagged.
   TRN   Indicates a job has been transferred.
+  UND   Job undeleting action.
   UNL   Job unlocking action.
   UNP   Indicates a job/comment has been unpublished.
 
