@@ -2991,7 +2991,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 &FN_STRINGSECS [v(JOB_VA)]=
 	switch(
 		first(version()),
-		PennMUSH,lmath(add,map(MAP_ETIME,%0)),
+		PennMUSH,stringsecs(%0),
 		ladd(map(MAP_ETIME,%0))
 	)
 -
