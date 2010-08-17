@@ -822,7 +822,7 @@ $+job/due *=*:
 						gt(setr(1,convtime(XXX %1)),0),
 						1,
 						t(
-							gt(setr(1,convtime(XXX %1 23:59:59)),0)
+							gt(setr(1,convtime(%1 23:59:59)),0)
 						)
 					)
 				)
