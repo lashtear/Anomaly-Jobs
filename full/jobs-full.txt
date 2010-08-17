@@ -812,14 +812,21 @@ $+job/due *=*:
 		[switch(
 			lcstr(%1),
 			none,2,
-			switch(
+			ifelse(
+				gt(setr(1,u(%va/FN_STRINGSECS,%1)),0),
+				1[setq(1,add(%q1,secs()))],
 				ifelse(
-					eq(words(%1),4),
-					convtime(XXX %1),
-					convtime(%1)
+					gt(setr(1,convtime(%1)),0),
+					1,
+					ifelse(
+						gt(setr(1,convtime(XXX %1)),0),
+						1,
+						t(
+							gt(setr(1,convtime(XXX %1 23:59:59)),0)
+						)
+					)
 				)
-			,-1,0
-			,1)
+			)
 		)]
 		=
 		0*,{@@},
@@ -832,11 +839,11 @@ $+job/due *=*:
 					@pemit %#=You have cleared Job Number %0's date.;
 					&DUE_ON %q0=;
 					@trigger %va/TRIG_ADD=%q0,Due date cleared.,%#,DUE;
-					@trigger %va/TRIG_BROADCAST=%q0,%#,DUE,%q1
+					@trigger %va/TRIG_BROADCAST=%q0,%#,DUE
 				 },
 		{
 			@pemit %#=You have set Job Number %0's date to %1.;
-			&DUE_ON %q0=[ifelse(eq(words(%1),4),convtime(XXX %1),convtime(%1))];
+			&DUE_ON %q0=%q1;
 			@trigger %va/TRIG_ADD=%q0,Due on [secure(%1)].,%#,DUE,[secure(%1)];
 			@trigger %va/TRIG_BROADCAST=%q0,%#,DUE
 		}
@@ -876,7 +883,7 @@ $+job/due *=*/*/*:
 			@pemit %#=You have set Job Number %0's date to [convsecs(%q1)].;
 			&DUE_ON %q0=%q1;
 			@trigger %va/TRIG_ADD=%q0,Due on [convsecs(%q1)].,%#,DUE;
-			@trigger %va/TRIG_BROADCAST=%q0,%#,DUE,%q1
+			@trigger %va/TRIG_BROADCAST=%q0,%#,DUE
 		}
 -
 
@@ -2981,6 +2988,14 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 	ljust(u(FN_STRTRUNC,%0,%1),%1)
 -
 
+&FN_STRINGSECS [v(JOB_VA)]=
+	switch(
+		first(version()),
+		PennMUSH,lmath(add,map(MAP_ETIME,%0)),
+		ladd(map(MAP_ETIME,%0))
+	)
+-
+
 &FN_STRTRUNC [v(JOB_VA)]=
 	localize(switch([setr(0,[strtrunc(%0,%1)])],#-1*,left(%0,%1),%q0))
 -
@@ -3171,6 +3186,16 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 -
 
 &MAP_EASYPIE2 [v(JOB_VA)]=ldelete(%0,switch(%0,:*,3,2),:)
+-
+
+&MAP_ETIME [v(JOB_VA)]=
+	switch(%0,
+		*d,mul(86400,before(%0,d)),
+		*h,mul(3600,before(%0,h)),
+		*m,mul(60,before(%0,m)),
+		*s,before(%0,s),
+		0
+	)
 -
 
 &MAP_EQUALIZEPIE [v(JOB_VA)]=last(%0,:)

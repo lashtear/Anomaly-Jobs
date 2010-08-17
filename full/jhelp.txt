@@ -399,10 +399,18 @@
   [ansi(h,+job/due <#>=<<date>|none>)]
   
   This sets the due date for a job to <date>. Use the word 'none' if you want
-  to clear the date. The <date> string can be in one of two formats:
-  
-       Jan 13 10:00:00 2006
-       01/13/06
+  to clear the date. The <date> string looks for the following formats:
+
+       MM/DD/YY or MM/DD/YYYY
+       Example: 3/15/10
+        
+       Days, Hours, Minutes, Seconds from now (using ##d ##h ##m ##s)
+       Example: 7d
+       Example: 23h 59m 59s
+       
+       Any date string recognized by the convtime() function
+       Example: Mar 15 10:00:00 2010
+       Example: March 15 2010 (depending on server configuration)
        
   This command also runs the DUE hooks.
 & job/edit
