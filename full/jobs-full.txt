@@ -796,7 +796,6 @@ $+job/deny *=*:
 			@pemit %#=[u(%va/FN_ADDSTAT_ART,parent(%q0),%q0)][u(%va/FN_ADDSTAT_ART,%vc,%q0)]You have denied job #%0.;
 			@trigger %va/TRIG_BROADCAST=%q0,%#,DNY;
 			@trigger %va/TRIG_ADD=%q0,[u(%va/FN_STRTRUNC,%1,get(%va/BUFFER))],%#,DNY;
-			@trigger %vb/TRIG_DENY=%0,%#,%1,[get(%q0/TITLE)];
 			@trigger %va/TRIG_DESTROY=%q0
 		}
 -
