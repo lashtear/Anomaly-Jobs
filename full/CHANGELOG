@@ -3,16 +3,22 @@ CHANGELOG for Anomaly Jobs
 
 Version 6.1
 
-- Fixed STAT_ART installation bug on new MUX/TM3 installs. Issue 106.
-- Fixed FN_JGROUPMEMBERS bug affecting all non-Penn installs. Issue 115.
+New Features:
 - Added a fourth argument to hooks, containing original text. Hooks can now
   replicate/expand the functionality of PLETTERs and MLETTERs. Issue 109.
+- +jobs/select can now use &JOBSELECT aliases in its logic. Issue 120.
+- +job/due can take additional time formats including time-from-now. Issue 123.
+- New +job/undelete command for inadvertently deleted jobs. Issue 125.
+
+Bugfixes
+- Fixed STAT_ART installation bug on new MUX/TM3 installs. Issue 106.
 - Bargraphs can now handle input up to max integer values. Issue 111.
 - Bargraph heights now round properly. Issue 112.
+- Fixed FN_JGROUPMEMBERS bug affecting all non-Penn installs. Issue 115.
 - TRIG_CREATE now uses job DB instead of # for finding ALETTERS. Issue 116.
 - ALETTERS now use the bucket's permissions to evaluate. Issue 116.
 - Job capacity now respects buffer limits for lcon(). Issue 117.
-- +jobs/select can now use &JOBSELECT aliases in its logic. Issue 120.
+- Removed unused/legacy TRIG_DENY call. Issue 122.
 
 Version 6.0
 
