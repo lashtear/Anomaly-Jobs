@@ -1679,20 +1679,13 @@ $+jobs/credits:
 		[u(%va/FN_FOOTER)]
 -
 
-&CMD_JOBS/DATE [v(JOB_GO)]=
-$+jobs/date:
-	@switch [u(%va/HAS_ACCESS,%#)]=0*,
-	{
-		@pemit %#=Permission denied.;
-	},{
-		@pemit %#=[u(%va/FN_JOBSHEADER,%#)];
-		@dolist 
-			[sortby(%va/SORTBY_DATE,lcon(%va))]
-		={
-			@pemit %#=[ifelse(u(%va/FN_MONITORCHECK,parent(##),%#),[u(%va/FN_JOBLIST,##,%#)],)]
-		};
-		@wait 0=@pemit %#=[u(%va/FN_FOOTER,* Denotes New Activity)];
-	}
+&CMD_JOBS/DATE [v(JOB_GO)]=$+jobs/date:@fo %#=+jobs/select all sort=date
+-
+
+&CMD_JOBS/DUE [v(JOB_GO)]=$+jobs/due:@fo %#=+jobs/select all sort=due
+-
+
+&CMD_JOBS/FROM [v(JOB_GO)]=$+jobs/from *:@fo %#=+jobs/select source=%0
 -
 
 &CMD_JOBS/LIST [v(JOB_GO)]=
@@ -1709,12 +1702,7 @@ $+jobs/list *:
 	{
 		@pemit %#=[u(%va/FN_JOBSHEADER,%#)];
 		@dolist 
-			[munge(%va/SORTBY_JOB,
-				iter(remove(children(%q0),#-1),
-					rest(name(##))
-				),
-				remove(children(%q0),#-1)
-			)]
+			[sortby(%va/SORTBY_JOBNUM,remove(children(%q0),#-1))]
 		={
 			@pemit %#=[u(%va/FN_JOBLIST,##,%#)]
 		};
@@ -1731,27 +1719,7 @@ $+jobs/list *:
 &CMD_JOBS/OVERDUE [v(JOB_GO)]=$+jobs/overdue:@fo %#=+jobs/select overdue
 -
 
-&CMD_JOBS/PRI [v(JOB_GO)]=
-$+jobs/pri:
-	@switch [u(%va/HAS_ACCESS,%#)]=0*,{
-		@pemit %#=Permission denied.
-	},{
-		&JOBS_PRI %va=[sortby(%va/SORTBY_PRI,lcon(%va))];
-		@pemit %#=[u(%va/FN_JOBSHEADER,%#)];
-		@dolist 
-			[revwords(get(%va/JOBS_PRI))]
-		={
-			@pemit %#=
-				[ifelse(
-					and(
-						u(%va/FN_ACCESSCHECK,[parent(##)],%#),
-						u(%va/FN_MONITORCHECK,parent(##),%#)
-					),
-						u(%va/FN_JOBLIST,##,%#),
-				)]
-		};
-		@wait 0=@pemit %#=[u(%va/FN_FOOTER,* Denotes New Activity)];
-	}
+&CMD_JOBS/PRI [v(JOB_GO)]=$+jobs/pri:@fo %#=+jobs/select all sort=pri
 -
 
 &CMD_JOBS/REPORTS [v(JOB_GO)]=
@@ -1836,53 +1804,49 @@ $+jobs/search *:
 $+jobs/select *:
 	@switch 
 	[u(%va/HAS_ACCESS,%#)]
+	[setq(0,before(lcstr(%0),sort=))]
 	[setq(0,
 		u(%va/FN_INFIX2POSTFIX,map(
 			%va/MAP_JOBSELECT,
-			u(%va/FN_TOKENLIST,%0)
+			u(%va/FN_TOKENLIST,%q0)
 		))
 	)]
 	[not(strmatch(%q0,*#-1 MISMATCHED PARENS*))]
 	[not(strmatch(%q0,*#-1 SYNTAX ERROR*))]
+	[setq(9,u(%va/FN_TRIM,after(lcstr(%0),sort=)))]
+	[ifelse(setr(8,strmatch(%q9,-*)),setq(9,mid(%q9,1,dec(strlen(%q9)))),)]
+	[setq(9,ifelse(strlen(%q9),%q9,jobnum))]
+	[u(%va/FN_HASATTRP,%va,SORTBY_%q9)]
 	=
 	0*,@pemit %#=Permission denied.,
 	10*,@pemit %#=Mismatched parentheses.,
-	110,@pemit %#=Syntax error.,
+	110*,@pemit %#=Syntax error.,
+	1110,@pemit %#=Invalid sort type.,
 	{
 		@pemit %#=[u(%va/FN_JOBSHEADER,%#)];
 		@dolist 
-		[setq(1,filter(%va/FIL_GOING,revwords(lcon(%va))))]
+		[setq(1,filter(%va/FIL_GOING,lcon(%va)))]
 		[u(%va/FN_S-INIT)]
 		[map(%va/MAP_PARSESTACK,%q0)]
-		[sortby(%va/SORTBY_JOBNUM,u(%va/FN_S-PEEK))]
+		[ifelse(%q8,
+			revwords(sortby(%va/SORTBY_%q9,u(%va/FN_S-PEEK))),
+			sortby(%va/SORTBY_%q9,u(%va/FN_S-PEEK))
+		)]
 		={
 			@pemit %#=
 				[ifelse(
 					or(
-						u(%va/FN_ACCESSCHECK,[parent(##)],%#),
+						u(%va/FN_ACCESSCHECK,parent(##),%#),
 						u(%va/FIL_MINE,##)
 					),
 						u(%va/FN_JOBLIST,##,%#),
 				)];
 		};
-		@wait 0=@pemit %#=[u(%va/FN_FOOTER,* Denotes New Activity)];
+		@wait 0=@pemit %#=[u(%va/FN_FOOTER,* Denotes New Activity)]
 	}
 -
 
-&CMD_JOBS/SORT [v(JOB_GO)]=
-$+jobs/sort:
-	@switch [u(%va/HAS_ACCESS,%#)]=0*,{
-		@pemit %#=Permission denied.;
-	},{
-		@pemit %#=[u(%va/FN_JOBSHEADER,%#)];
-		@dolist 
-			sortby(%va/SORTBY_SORT,lcon(%va))
-		={
-			@pemit %#=
-				[ifelse(u(%va/FN_MONITORCHECK,parent(##),%#),[u(%va/FN_JOBLIST,##,%#)],)]
-		};
-		@wait 0=@pemit %#=[u(%va/FN_FOOTER,* Denotes New Activity)];
-	}
+&CMD_JOBS/SORT [v(JOB_GO)]=$+jobs/sort:@fo %#=+jobs/select all sort=bucket
 -
 
 &CMD_JOBS/WHO [v(JOB_GO)]=
@@ -2408,7 +2372,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 &FIL_COMMENTS [v(JOB_VA)]=t(member(get(%va/LIST_VISCOMMENTS),first(get(%q0/%0),|)))
 -
 
-&FIL_DUEAFTER [v(JOB_VA)]=or(eq(default(%0/DUE_ON,0),0),gt(get(%0/DUE_ON),%1))
+&FIL_DUEAFTER [v(JOB_VA)]=or(not(strlen(get(%0/DUE_ON))),eq(get(%0/DUE_ON),0),gt(get(%0/DUE_ON),%1))
 -
 
 &FIL_ESC [v(JOB_VA)]=eq(get(%0/PRIORITY),%1)
@@ -3835,13 +3799,16 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 	not(u(%va/FIL_DUEAFTER,%0,u(FN_DATECONV,%qa)))
 -
 
+&SORTBY_BUCKET [v(JOB_VA)]=comp(name(parent(%0)),name(parent(%1)))
+-
+
 &SORTBY_COMMENTS [v(JOB_VA)]=sub(after(%0,_),after(%1,_))
 -
 
-&SORTBY_DATE [v(JOB_VA)]=comp(get(%0/MODIFIED_ON),get(%1/MODIFIED_ON))
+&SORTBY_DATE [v(JOB_VA)]=sub(get(%0/MODIFIED_ON),get(%1/MODIFIED_ON))
 -
 
-&SORTBY_JOB [v(JOB_VA)]=sort(%0,n)
+&SORTBY_DUE [v(JOB_VA)]=comp(get(%0/DUE_ON),get(%1/DUE_ON))
 -
 
 &SORTBY_JOBNUM [v(JOB_VA)]=sub(last(name(%0)),last(name(%1)))
@@ -3850,13 +3817,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 &SORTBY_NAME [v(JOB_VA)]=comp(name(%0),name(%1))
 -
 
-&SORTBY_OLDEST [v(JOB_VA)]=comp(rjust(get(%0/MODIFIED_ON),20,0),rjust(get(%1/MODIFIED_ON),20,0))
--
-
-&SORTBY_PRI [v(JOB_VA)]=comp(get(%0/PRIORITY),get(%1/PRIORITY))
--
-
-&SORTBY_SORT [v(JOB_VA)]=comp(name(parent(%0)),name(parent(%1)))
+&SORTBY_PRI [v(JOB_VA)]=sub(get(%0/PRIORITY),get(%1/PRIORITY))
 -
 
 &TRIG_ADD [v(JOB_VA)]=

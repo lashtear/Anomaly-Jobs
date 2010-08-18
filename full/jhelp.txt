@@ -122,6 +122,11 @@
   [ansi(h,+jobs/credits)]
   
   Roll the credits.
+& jobs/from
+
+  [ansi(h,+jobs/from <player>)]
+  
+  This command will list all jobs opened by <player>.
 & jobs/list
 
   [ansi(h,+jobs/list <bucket>)]
@@ -200,10 +205,11 @@
   published - jobs which have been published
   summary - jobs containing summary attribute
   
-  Logical operators are left-associative. The following are equivalent:
-    +jobs/select new | overdue & mine
-    +jobs/select (new | overdue) & mine
-  Both would return new or overdue jobs that are assigned to/tagged for you.
+  If the selection ends with sort=<sorttype>, the output is sorted. Valid sort
+  types are jobnum (default), bucket, date, due, and pri.  A '-' as the first
+  character of the <sorttype> reverses the sort.  For example:
+    +jobs/select (new | overdue) & mine sort=due
+  returns new or overdue jobs that are assigned to/tagged for you.
   
   Continued in: jobs/select3
 & jobs/select3
@@ -220,8 +226,9 @@
     +jobs/select viewing 
       - would return output identical to +jobs.
 
-    +jobs/select due<="1d 12h" & (pri=yellow | pri=red)
-      - would return jobs of yellow or red priority due in the next 36 hours.
+    +jobs/select due<="1d 12h" & (pri=yellow | pri=red) sort=-due
+      - would return jobs of yellow or red priority due in the next 36 hours,
+        sorted from later to earlier due dates.
 
     +jobs/select (bucket=code | bucket=build) & due<=01/01/10
       - would return CODE or BUILD jobs due before the New Year
@@ -276,6 +283,11 @@
   
   This command will display a list of jobs, based on when they were last
   modified.
+& jobs/due
+
+  [ansi(h,+jobs/due)]
+  
+  This command will display a list of jobs, based on when they are due.
 & jobs/new
 
   [ansi(h,+jobs/new)]
@@ -659,17 +671,17 @@
 & commands
 
   [ansi(h,+jobs)]                                    : List jobs.
-  [ansi(h,+jobs/<all|mine|new>)]                     : List all/yours/new jobs.
+  [ansi(h,+jobs/<all|mine|new|overdue>)]             : List all/yours/new/overdue jobs.
   [ansi(h,+jobs/catchup)]                            : Clears new jobs.
   [ansi(h,+jobs/clean)]                              : Remove non-players from job data.
   [ansi(h,+jobs/compress)]                           : Compresses job list. (Wiz)
   [ansi(h,+jobs/credits)]                            : Display credit information.
+  [ansi(h,+jobs/from <player>)]                      : Lists jobs opened by a player.
   [ansi(h,+jobs/list <bucket>)]                      : List all jobs in <bucket>.
-  [ansi(h,+jobs/overdue)]                            : List overdue jobs.
   [ansi(h,+jobs/reports %[<report>%])]                 : Get a report.
   [ansi(h,+jobs/search <pattern>)]                   : Search jobs for <pattern>.
   [ansi(h,+jobs/select <expression>)]                : List jobs matching <expression>.
-  [ansi(h,+jobs/<sort|date|pri>)]                    : Lists jobs by bucket/mod/pri.
+  [ansi(h,+jobs/<sort|date|pri|due>)]                : Sorts jobs by bucket/mod/pri/due.
   [ansi(h,+jobs/who <player>)]                       : Lists jobs assigned to player.
   [ansi(h,+job <#>)]                                 : View a job.
   [ansi(h,+job/act <#>)]                             : Display actions on a job.
@@ -964,17 +976,20 @@
 
   [ansi(h,+jobs/sort)]
   [ansi(h,+jobs/date)]
+  [ansi(h,+jobs/due)]
   [ansi(h,+jobs/stats)]
   [ansi(h,+jobs/overdue)]
   [ansi(h,+jobs/who <player>)]
+  [ansi(h,+jobs/from <player>)]
 
-  Using the /sort switch, you can get a list of jobs sorted by bucket. The 
-  list isn't very pretty, however. Using the /date switch, you can get a list 
-  of jobs sorted by when the job was last modified, with recent modifications
-  at the bottom of the list. Using the /stats switch, you can get a list of
-  basic statistics on the jobs system. With the /overdue switch, you can list
-  all jobs that are in overdue status. The /who switch allows you to get a
-  list of jobs that have been assigned to <player>. 
+  Using the /sort switch, you can get a list of jobs sorted by bucket. Using
+  the /date switch, you can get a list of jobs sorted by when the job was last
+  modified, with recent modifications at the bottom of the list. With the /due
+  switch, jobs are sorted from earlier to later due dates. Using the /stats
+  switch, you can get a list of basic statistics on the jobs system. With the
+  /overdue switch, you can list all jobs that are in overdue status. The /who
+  switch allows you to get a list of jobs that have been assigned to <player>.
+  The /from switch lists jobs opened by <player>.
   
 & create
   Jobs can be created in a variety of ways. Players can use +pitch to put up

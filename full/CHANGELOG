@@ -6,9 +6,13 @@ Version 6.1
 New Features:
 - Added a fourth argument to hooks, containing original text. Hooks can now
   replicate/expand the functionality of PLETTERs and MLETTERs. Issue 109.
-- +jobs/select can now use &JOBSELECT aliases in its logic. Issue 120.
+- Expanded +jobs/select functionality. Issue 120.
+  - +jobs/select can now use &JOBSELECT aliases in its logic (one level only). 
+  - +jobs/select now takes a sort=<type> field to sort output. 
 - +job/due can take additional time formats including time-from-now. Issue 123.
+- New +jobs/due command to sort jobs by due date.
 - New +job/undelete command for inadvertently deleted jobs. Issue 125.
+- New +jobs/from command for jobs opened by <player>. Issue 126.
 
 Bugfixes
 - Fixed STAT_ART installation bug on new MUX/TM3 installs. Issue 106.
@@ -19,6 +23,7 @@ Bugfixes
 - ALETTERS now use the bucket's permissions to evaluate. Issue 116.
 - Job capacity now respects buffer limits for lcon(). Issue 117.
 - Removed unused/legacy TRIG_DENY call. Issue 122.
+- due<= and due>= weren't working on Penn for empty DUE_ON attribute. 
 
 Version 6.0
 
