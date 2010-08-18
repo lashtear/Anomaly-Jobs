@@ -801,11 +801,14 @@
 
   [ansi(h,+myjobs)]
   [ansi(h,+myjob <#>)]
+  [ansi(h,+myjob/last <#>=<number of comments>)]
   [ansi(h,+myjob/add <#>=<comment>)]
   
   This suite of commands allows the submitter to view and modify jobs that they 
   have submitted to the system. When viewing a job that you own, you can only 
-  see the comments that you have added, not comments added by others. 
+  see the comments that you have added, not comments added by others.  +myjobs
+  lists your jobs; you can read an individual job or the last comment(s).  You
+  can also add additional comments to the job.
   
   Jobs can be tagged by staff for you to see. In those instances, you can see
   all comments added, not just those you have added.

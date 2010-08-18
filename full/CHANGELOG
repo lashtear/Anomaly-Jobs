@@ -13,6 +13,7 @@ New Features:
 - New +jobs/due command to sort jobs by due date.
 - New +job/undelete command for inadvertently deleted jobs. Issue 125.
 - New +jobs/from command for jobs opened by <player>. Issue 126.
+- New +myjob/last command similar to +job/last. Issue 110.
 
 Bugfixes
 - Fixed STAT_ART installation bug on new MUX/TM3 installs. Issue 106.

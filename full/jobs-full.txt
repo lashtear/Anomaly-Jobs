@@ -989,7 +989,8 @@ $+job/last *=*:
 		10*,{@pemit %#=There is no job by that name. Please type '+jobs/all' for all jobs or '+jobs/<type>' to list by type.},
 		110*,{@pemit %#=You do not have access to that job.},
 		{
-			@pemit %#=[u(%va/FN_HEADER,View [name(%q0)])]%r[ulocal(%va/FN_BANNER,%q0)];
+			@pemit %#=[u(%va/FN_READERS,%q0,%#)]
+				[u(%va/FN_HEADER,View [name(%q0)])]%r[ulocal(%va/FN_BANNER,%q0)];
 			@dolist 
 				[extract(
 					setr(1,
@@ -1190,8 +1191,8 @@ $+job/new *:
 						[ifelse(
 							u(%va/IS_LOCKED,%q0,%#),
 							u(%va/FN_FOOTER,u(%va/FN_FLAGS,%q0)),
-							[u(%va/FN_FOOTER,New Activity on Job %0 since [convsecs(%q1)])])][u(%va/FN_READERS,%q0,%#
-						)]
+							[u(%va/FN_FOOTER,New Activity on Job %0 since [convsecs(%q1)])]
+						)][u(%va/FN_READERS,%q0,%#)]
 				};
 			}
 -
@@ -1996,21 +1997,62 @@ $+myjob *:
 					[ulocal(%va/FN_MYSUMMARY,%q0,%#)],
 				)];
 			@dolist 
-				[u(%va/FN_TRIM,
-					squish(
-						iter(
-							filter(%va/FIL_COMMENTS,lattr(%q0/COMMENT_*)),
-							switch(
-								or(
-									u(%q0/PUBLISH),
-									hasflag(%q0/##,no_inherit),
-									gt(member(get(%q0/TAGGED_FOR),%#),0),
-									strmatch(extract(get(%q0/##),3,1,|),%#)
-								),
-								1,
-							##)
-						)
+				[filter(
+					%va/FIL_PUBLISHED,
+					filter(
+						%va/FIL_COMMENTS,
+						sortby(%va/SORTBY_COMMENTS,lattr(%q0/COMMENT_*))
 					)
+				)]
+				={@pemit %#=[u(%va/FN_READJOB,##,%q0)]};
+			@wait 0=@pemit %#=[u(%va/FN_FOOTER)]
+		}
+-
+
+&CMD_MYJOB/LAST [v(JOB_GO)]=
+$+myjob/last *=*:
+	@switch 
+		[not(haspower(%#,guest))]
+		[setq(0,u(%va/FN_FIND-JOB,%0))]
+		[isdbref(%q0)]
+		[or(
+			gt(member(get(%q0/TAGGED_FOR),%#),0),
+			u(%va/IS_TRANSPARENT,%q0),
+			and(
+				get(%q0/PUBLIC),
+				match(get(%q0/OPENED_BY),%#)
+			)
+		)]
+		=
+		0*,{@pemit %#=Permission denied.},
+		10*,{@pemit %#=That is not a valid job number.},
+		110*,{@pemit %#=Job %0 is not yours. You can only view your own jobs.},
+		{
+			@pemit %#=
+				[u(%va/FN_READERS,%q0,%#)]
+				[u(%va/FN_HEADER,View [name(%q0)])]
+				%r
+				[u(%va/FN_MYBANNER,%q0)]
+				[ifelse(u(%va/FN_HASATTRP,%q0,MYSUMMARY),
+					[ulocal(%va/FN_MYSUMMARY,%q0,%#)],
+				)];
+			@dolist 
+				[extract(
+					setr(1,
+						filter(
+							%va/FIL_PUBLISHED,
+							filter(
+								%va/FIL_COMMENTS,
+								sortby(%va/SORTBY_COMMENTS,lattr(%q0/COMMENT_*))
+							)
+						)
+					),
+					ifelse(
+						lt(sub(words(%q1),%1),1),
+						1,
+						inc(sub(words(%q1),%1))
+					),
+					inc(%1)
 				)]
 				={@pemit %#=[u(%va/FN_READJOB,##,%q0)]};
 			@wait 0=@pemit %#=[u(%va/FN_FOOTER)]
@@ -2443,6 +2485,15 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 -
 
 &FIL_OVERDUE [v(JOB_VA)]=ifelse(get(%0/DUE_ON),gt(secs(),get(%0/DUE_ON)),0)
+-
+
+&FIL_PUBLISHED [v(JOB_VA)]=
+	or(
+		u(%q0/PUBLISH),
+		hasflag(%q0/%0,no_inherit),
+		member(get(%q0/TAGGED_FOR),%#),
+		strmatch(extract(get(%q0/%0),3,1,|),%#)
+	)
 -
 
 &FIL_SOURCE [v(JOB_VA)]=t(member(get(%0/OPENED_BY),%1))
