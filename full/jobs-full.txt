@@ -3416,7 +3416,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 -
 
-<input type="password" &REPORT_ACTBY [v(JOB_VA)]=
+&REPORT_ACTBY [v(JOB_VA)]=
 	[switch(
 		%0,
 		,This report requires you to supply an action code.%r%rUse: '+jobs/reports ACTBY=<action code>'.%r,
