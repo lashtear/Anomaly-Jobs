@@ -703,16 +703,16 @@
   [ansi(h,+job/complete <#>=<comment>)]              : Complete a job.
   [ansi(h,+job/create <bucket>/<title>=<comments>)]  : Create a job manually.
   [ansi(h,+job/delete <#>)]                          : Delete a job. (Wiz)
-  [ansi(h,+job/deny <#>=<comment>                  )]: Deny a player request.
-  [ansi(h,+job/due <#>=<<date>|none>               )]: Set job due date.
-  [ansi(h,+job/edit <#>/<entry#>=<old>/<new>       )]: Edits a job.
-  [ansi(h,+job/esc <#>=<green|yellow|red>          )]: Escalate a job's priority.
-  [ansi(h,+job/help <#>                            )]: Display help for a job's bucket.
-  [ansi(h,+job/last <#>=<X>                        )]: List last <X> entries in <#>.
-  [ansi(h,+job/lock <#>                            )]: Locks a job and prevents changes.
-  [ansi(h,+job/log <#>                             )]: Logs a job.
-  [ansi(h,+job/mail <#>=<message>                  )]: Mails opener with <message>.
-  [ansi(h,+job/merge <source>=<destination>        )]: Merge <source> into <destination>.
+  [ansi(h,+job/deny <#>=<comment>)]                  : Deny a player request.
+  [ansi(h,+job/due <#>=<<date>|none>)]               : Set job due date.
+  [ansi(h,+job/edit <#>/<entry#>=<old>/<new>)]       : Edits a job.
+  [ansi(h,+job/esc <#>=<green|yellow|red>)]          : Escalate a job's priority.
+  [ansi(h,+job/help <#>)]                            : Display help for a job's bucket.
+  [ansi(h,+job/last <#>=<X>)]                        : List last <X> entries in <#>.
+  [ansi(h,+job/lock <#>)]                            : Locks a job and prevents changes.
+  [ansi(h,+job/log <#>)]                             : Logs a job.
+  [ansi(h,+job/mail <#>=<message>)]                  : Mails opener with <message>.
+  [ansi(h,+job/merge <source>=<destination>)]        : Merge <source> into <destination>.
 
   You can get details on each command with '+jhelp <command>/<switch>' without
   the + symbol. i.e., '+jhelp jobs/all'.
@@ -720,20 +720,20 @@
   Continued in: commands3
 & commands3
 
-  [ansi(h,+job/name <#>=<name>                     )]: Rename a job.
-  [ansi(h,+job/publish <#>[=<comment>]             )]: Publishes a job or <comment>.
-  [ansi(h,+job/query <players>/<title>=<query>     )]: Sends a query to <players>.
-  [ansi(h,+job/set <#>=<status>                    )]: Set progress status on a job.
-  [ansi(h,+job/source <#>=<player list>            )]: Changes opened-by to <player list>.
-  [ansi(h,+job/summary <#>                         )]: Views a job's header & SUMMARY.
-  [ansi(h,+job/sumset <#>/<set>=<value>            )]: Changes a job SUMMARY setting.
-  [ansi(h,+job/tag <#>                             )]: Tags a job for you.
-  [ansi(h,+job/tag <#>=<player>                    )]: Tags a job for <player>.
-  [ansi(h,+job/trans <#>=<bucket>                  )]: Transfer (or undelete) a job.
-  [ansi(h,+job/undelete <#>                        )]: Restores a deleted job.
-  [ansi(h,+job/unlock <#>                          )]: Unlocks a job.
-  [ansi(h,+job/untag <#>                           )]: Untags a job.
-  [ansi(h,+job/untag <#>=<player list>             )]: Untags a job for <player list>.
+  [ansi(h,+job/name <#>=<name>)]                     : Rename a job.
+  [ansi(h,+job/publish <#>%[=<comment>%])]             : Publishes a job or <comment>.
+  [ansi(h,+job/query <players>/<title>=<query>)]     : Sends a query to <players>.
+  [ansi(h,+job/set <#>=<status>)]                    : Set progress status on a job.
+  [ansi(h,+job/source <#>=<player list>)]            : Changes opened-by to <player list>.
+  [ansi(h,+job/summary <#>)]                         : Views a job's header & SUMMARY.
+  [ansi(h,+job/sumset <#>/<set>=<value>)]            : Changes a job SUMMARY setting.
+  [ansi(h,+job/tag <#>)]                             : Tags a job for you.
+  [ansi(h,+job/tag <#>=<player>)]                    : Tags a job for <player>.
+  [ansi(h,+job/trans <#>=<bucket>)]                  : Transfer (or undelete) a job.
+  [ansi(h,+job/undelete <#>)]                        : Restores a deleted job.
+  [ansi(h,+job/unlock <#>)]                          : Unlocks a job.
+  [ansi(h,+job/untag <#>)]                           : Untags a job.
+  [ansi(h,+job/untag <#>=<player list>)]             : Untags a job for <player list>.
 
   You can get details on each command with '+jhelp <command>/<switch>' without
   the + symbol. i.e., '+jhelp jobs/all'.
