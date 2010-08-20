@@ -1,0 +1,146 @@
+Anomaly Jobs 6.1 HOWTO
+-----------------------------------------------------------------------------
+1. Introduction
+2. Integrating Commands with Jobs
+3. Enforcing workflow with hooks
+4. New command aliases
+5. New +job/select options - Red jobs
+
+
+
+1. Introduction
+-----------------------------------------------------------------------------
+This file gives more in-depth examples of integrating Jobs with your game.
+It is assumed you have already read the README file and appropriate sections
+of the help files.
+
+If you have custom +jobs additions that you would like to include in this file
+as an example for other users, please feel free to submit them as an attachment
+to a new issue at http://code.google.com/p/anomalyjobs
+
+
+
+2. Integrating Commands with Jobs
+-----------------------------------------------------------------------------
+As noted in the README file, the <Job Database> already includes a quick
+shortcut to add a job to the APPS bucket.  The intent is for this to be
+included as a portion of the player's submission process, e.g., 
+
+&CMD_SUBMIT Application Object=$+submit:
+  @pemit %#=You submit your application.;
+  <actions to lock the player's background, etc.>;
+  @trigger <Job Database>/TRIG_APPLY=%#
+
+To adapt other commands to create a job, you can look at TRIG_APPLY to see
+that it's just a preformatted call to TRIG_CREATE:
+
+&TRIG_APPLY Job Database=
+  @trigger %va/TRIG_CREATE=%0,[locate(%vc,APPS,i)],2,Application by [name(%0)]
+
+Let's assume you have an area where players can request a room to build with.
+They fill out appropriate information on an "application" type object and then
+type +submit:
+
+&CMD_SUBMIT BuildRequest Object=$+submit:
+  @pemit %#=You submit your building request.;
+  @trigger %va/TRIG_CREATE=
+    %0,[locate(%vc,BUILD,i)],2,Build request by [name(%0)]
+
+Consult +jhelp TRIG_CREATE to see how you might add more to this.
+
+
+
+3. Enforcing workflow with hooks, triggers, and checkout
+-----------------------------------------------------------------------------
+Continuing the above example, the below is a workflow system actually used on
+a MUSH running Jobs 6.0:
+
+a) Player requests a build project via a build tracker. This creates a BUILD 
+job and &PROJECT-%# attribute with other information.
+
+b) HOOK_CRE on the BUILD bucket interfaces with a Building Tracker code object
+based on the zone the player is building in. This stores the job db# on the
+Building Tracker, stores the building Zone on the job, and also checks out
+the job to the Building Tracker:
+&HOOK_CRE BUILD=
+  &JOB-%1 <Building Tracker DB#>=%0;
+  &ZONE <job DB#>=<Building Zone>;
+  &CHECKOUT <job DB#>=<Building Tracker DB#> [secs()];
+
+The checkout prevents the job from being altered outside the Building Tracker.
+Building tracker code permits adding comments to the job by having the Tracker
+itself execute +job/add #=<text>.
+
+c) Staff reviews the job and sets up the project as needed with the Building 
+Tracker code.  They set a builder, an amount of quota, etc., and then finalize
+the project.  Using JOB-<player>, the Tracker clears the &CHECKOUT attribute
+on the job.  Staff then /approves the job.
+
+d) HOOK_APR triggers a command list that actually pcreates the builder,
+sets its quota, and digs an initial room in the building nexus for the project.
+The MLETTER_APR gives the player appropriate information to build.
+
+e) The Builder builds their project and submits it for approval. This creates
+a new job, again checked out to the Building Tracker. Build staff can check
+the project to make sure appropriate attributes are set. Once the staffer
+has reviewed the build, they set a link location, and finalize the build. 
+The finalize function removes the checkout.
+
+f) The builder finally approves the job, and the HOOK_APR links it to the grid.
+
+
+
+4. New command aliases
+-----------------------------------------------------------------------------
+The +jobs/select command is a powerful filtering and sorting tool that can
+replicate the functionality of most of the +jobs/<switch> commands.  In fact,
+most of them are just aliases to the appropriate +jobs/select equivalent. For
+example:
+  &CMD_JOBS/OVERDUE <JGO>=$+jobs/overdue:@fo %#=+jobs/select overdue
+  &CMD_JOBS/PRI <JGO>=$+jobs/pri:@fo %#=+jobs/select all sort=pri
+
+The &JOBSELECT attribute allows individual players to create their own custom
+aliases/replacements for jobs commands.  To create a permanent global alias, 
+just make a similar command:
+
+  &CMD_JOBS/TRIAGE <JGO>=$+jobs/triage:
+  	@fo %#=+jobs/select (overdue & who=none) | mine | new
+
+
+
+5. New +job/select options - Red jobs, more buildercode
+-----------------------------------------------------------------------------
+Valid options in +job/select are not hardcoded; rather, the code simply checks
+for a &SEL_<option> attribute on the Job Database <JD> object.  These are used
+with filter(), and should return a 1 or 0.  (In fact, many of them simply call
+an existing &FIL_<option> filter.)
+
+There has been some debate on whether +jobs/select pri=red should return
+overdue jobs, or just those with an actual red priority set.  The latter option
+was chosen, but some players/games would still like to treat overdue jobs as 
+red.  There are three ways of going about this:
+
+a) Individual players can just define:
+  &JOBSELECT_RED me=pri=red or overdue
+This would allow that player to use "+jobs/select red" (or an expression using
+red) to get overdue or red priority jobs.
+
+b) The game can create a &CMD_JOBS/RED <JGO> which @forces a player to run
+"+jobs/select pri=red or overdue".  This will not allow it to be combined with
+other +jobs/select options, however.
+
+c) A new "red" selection can be created, so "+jobs/select red" (or an 
+expression) will return the appropriate "red" jobs.  To do this, just define
+&SEL_RED to return 1 for both situations:
+  &SEL_RED Job Database <JD>=
+    or(u(%va/FIL_OVERDUE,%0),u(%va/FIL_ESC,%0,3))
+
+For a different application, we'll return to the builder code example above.
+Assume there are two zones: housing (dbref #123) and apartments (dbref #234).
+The A register is used if a job selection parameter uses an = sign, such as
++jobs/select zone=housing (housing is stored in %qA).  So:
+  &SEL_ZONE Job Database <JD>=
+    eq(
+      match(#123 #234 #-1,default(%0/zone,#-1)),
+      match(housing apartments,%qa*)
+    )
