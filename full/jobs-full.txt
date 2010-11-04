@@ -1903,13 +1903,16 @@ $+myjob/add *=*:
 		[not(haspower(%#,guest))]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
-		[and(u(%va/IS_PUBLIC,%q0),match(get(%q0/opened_by),%#))]
+		[or(
+			and(u(%va/IS_PUBLIC,%q0),match(get(%q0/OPENED_BY),%#)),
+			gt(member(get(%q0/TAGGED_FOR),%#),0),
+		)]
 		[not(u(%va/FN_HASATTR,%q0,LOCKED))]
 		=
-		0*,{@pemit %#=This command is not available to guests.},
-		10*,@pemit %#={That is an invalid job number.},
-		110*,{@pemit %#=Job %0 is not yours. You can only modify your own jobs.},
-		1110*,{@pemit %#=That job is locked and cannot be changed at this time.},
+		0*,@pemit %#=This command is not available to guests.,
+		10*,@pemit %#=That is an invalid job number.,
+		110*,@pemit %#=Job %0 is not yours. You can only modify your own jobs.,
+		1110*,@pemit %#=That job is locked and cannot be changed at this time.,
 		{
 			@pemit %#=Comments to job number %0 added.;
 			@trigger %va/TRIG_ADD=%q0,%1,%#,ADD;

@@ -6,6 +6,7 @@ Version 6.2
 New Features:
 
 Bugfixes:
+- Players tagged on a job can now +myjob/add as well as read. Issue 128.
 - Finding jobs, buckets, and jgroups now prefer Things to Players. Issue 129.
 
 Version 6.1
