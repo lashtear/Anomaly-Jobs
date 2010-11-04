@@ -842,7 +842,7 @@ $+job/due *=*:
 					@trigger %va/TRIG_BROADCAST=%q0,%#,DUE
 				 },
 		{
-			@pemit %#=You have set Job Number %0's date to %1.;
+			@pemit %#=You have set Job %0's date to [convsecs(%q1)].;
 			&DUE_ON %q0=%q1;
 			@trigger %va/TRIG_ADD=%q0,Due on [secure(%1)].,%#,DUE,[secure(%1)];
 			@trigger %va/TRIG_BROADCAST=%q0,%#,DUE
