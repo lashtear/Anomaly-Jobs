@@ -8,6 +8,7 @@ New Features:
 Bugfixes:
 - Players tagged on a job can now +myjob/add as well as read. Issue 128.
 - Finding jobs, buckets, and jgroups now prefer Things to Players. Issue 129.
+- New jobs with &JOBSN=1 weren't showing on some Penn games. Issue 130.
 
 Version 6.1
 

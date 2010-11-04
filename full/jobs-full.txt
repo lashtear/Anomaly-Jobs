@@ -2453,7 +2453,11 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 &FIL_NEW0 [v(JOB_VA)]=gt(get(%0/MODIFIED_ON),get(%#/LAST_CONN))
 -
 
-&FIL_NEW1 [v(JOB_VA)]=gt(dec(get(%0/NUM_COMMENT)),last(grab(get(%0/LIST_READERS),%#|*),|))
+&FIL_NEW1 [v(JOB_VA)]=
+	or(
+		not(match(get(%0/LIST_READERS),%#|*)),
+		gt(dec(get(%0/NUM_COMMENT)),last(grab(get(%0/LIST_READERS),%#|*),|))
+	)
 -
 
 &FIL_NEWCOMMENTS0 [v(JOB_VA)]=
