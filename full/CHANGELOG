@@ -1,6 +1,13 @@
 
 CHANGELOG for Anomaly Jobs
 
+Version 6.2
+
+New Features:
+
+Bugfixes:
+- Finding jobs, buckets, and jgroups now prefer Things to Players. Issue 129.
+
 Version 6.1
 
 New Features:
@@ -15,7 +22,7 @@ New Features:
 - New +jobs/from command for jobs opened by <player>. Issue 126.
 - New +myjob/last command similar to +job/last. Issue 110.
 
-Bugfixes
+Bugfixes:
 - Fixed STAT_ART installation bug on new MUX/TM3 installs. Issue 106.
 - Bargraphs can now handle input up to max integer values. Issue 111.
 - Bargraph heights now round properly. Issue 112.

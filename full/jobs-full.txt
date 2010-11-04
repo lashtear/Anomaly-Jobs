@@ -2766,7 +2766,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 
 &FN_FIND-BUCKET [v(JOB_VA)]=
 	localize(ifelse(
-		strmatch(name(setr(0,locate(%vc,%0,i))),%0),
+		strmatch(name(setr(0,locate(%vc,%0,iT))),%0),
 		%q0,
 		#-1
 	))
@@ -2774,7 +2774,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 
 &FN_FIND-JGROUP [v(JOB_VA)]=
 	localize(ifelse(
-		strmatch(name(setr(0,locate(%vb,%0,i))),%0),
+		strmatch(name(setr(0,locate(%vb,%0,iT))),%0),
 		%q0,
 		#-1
 	))
@@ -2782,7 +2782,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 
 &FN_FIND-JOB [v(JOB_VA)]=
 	localize(ifelse(
-		strmatch(name(setr(0,locate(%va,Job %0,i))),Job %0),
+		strmatch(name(setr(0,locate(%va,Job %0,iT))),Job %0),
 		%q0,
 		#-1
 	))
