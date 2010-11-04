@@ -331,7 +331,7 @@ $+bug *=*:
 		0*,{@pemit %#=Permission Denied.},
 		{
 			@pemit %#=You have notified production staff of the [secure(u(%va/FN_STRTRUNC,%0,30))] bug, with the details '[secure(u(%va/FN_STRTRUNC,%1,get(%va/BUFFER)))]';
-			@trigger %va/TRIG_CREATE=%#,locate(%vc,CODE,i),3,BUG: [u(%va/FN_STRTRUNC,%0,30)],[u(%va/FN_STRTRUNC,%1,get(%va/BUFFER))],,,5
+			@trigger %va/TRIG_CREATE=%#,u(%va/FN_FIND-BUCKET,CODE),3,BUG: [u(%va/FN_STRTRUNC,%0,30)],[u(%va/FN_STRTRUNC,%1,get(%va/BUFFER))],,,5
 		}
 -
 
@@ -1291,7 +1291,7 @@ $+job/query */*=*:
 				0,{@pemit %#='[extract(secure(%0),%q2,1)]' is not a valid player or jgroup.},
 				{
 					@pemit %#=You have sent a query to '%0' regarding '%1'.;
-					@trigger %va/TRIG_CREATE=%#,locate(%vc,QUERY,i),2,[u(%va/FN_STRTRUNC,secure(%1),30)],Queried [u(%va/FN_ITEMIZE,map(%va/MAP_NAME,%q1,%b,|),|)]:%r%r[u(%va/FN_STRTRUNC,%2,get(%va/BUFFER))],%q1,,0
+					@trigger %va/TRIG_CREATE=%#,u(%va/FN_FIND-BUCKET,QUERY),2,[u(%va/FN_STRTRUNC,secure(%1),30)],Queried [u(%va/FN_ITEMIZE,map(%va/MAP_NAME,%q1,%b,|),|)]:%r%r[u(%va/FN_STRTRUNC,%2,get(%va/BUFFER))],%q1,,0
 				}
 		}
 -
@@ -2099,7 +2099,7 @@ $+pitch *=*:
 			You have pitched your idea to staff about '[secure(%0)]'. 
 			Please remember that this is merely an idea [ansi(hu,pitch)], and not a request. 
 			Staff, for one reason or many, may decide not to go with the idea.;
-		@trigger %va/TRIG_CREATE=%#,locate(%vc,PITCH,i),1,[u(%va/FN_STRTRUNC,secure(%0),30)],%1,,,3
+		@trigger %va/TRIG_CREATE=%#,u(%va/FN_FIND-BUCKET,PITCH),1,[u(%va/FN_STRTRUNC,secure(%0),30)],%1,,,3
 	}
 -
 
@@ -2111,7 +2111,7 @@ $+request *=*:
 		@pemit %#=
 			You have requested [secure(u(%va/FN_STRTRUNC,%0,30))] from staff. 
 			Please allow for some time to process it. Do not page staff about it - you will hear back soon.;
-		@trigger %va/TRIG_CREATE=%#,[locate(%vc,REQ,i)],2,[u(%va/FN_STRTRUNC,secure(%0),30)],[u(%va/FN_STRTRUNC,%1,get(%va/BUFFER))],,,2
+		@trigger %va/TRIG_CREATE=%#,u(%va/FN_FIND-BUCKET,REQ),2,[u(%va/FN_STRTRUNC,secure(%0),30)],[u(%va/FN_STRTRUNC,%1,get(%va/BUFFER))],,,2
 	}
 -
 
@@ -2122,7 +2122,7 @@ $+typo *:
 	},{
 		@pemit %#=
 			You have notified production staff of the typo, with the details '[u(%va/FN_STRTRUNC,%0,get(%va/BUFFER))]';
-			@trigger %va/TRIG_CREATE=%#,locate(%vc,BUILD,i),2,Typo Reported,[u(%va/FN_STRTRUNC,%0,get(%va/BUFFER))],,,4
+			@trigger %va/TRIG_CREATE=%#,u(%va/FN_FIND-BUCKET,BUILD),2,Typo Reported,[u(%va/FN_STRTRUNC,%0,get(%va/BUFFER))],,,4
 	}
 -
 
@@ -3700,13 +3700,13 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 	[rjust(ansi(hc,ART:),20)]%b
 		[u(%va/FN_ART,%vc)][space(10)] ART=Average Resolution Time%r
 	[rjust(ansi(hc,REQ ART:),20)]%b
-		[u(%va/FN_ART,locate(%vc,REQ,i))][space(18)]DD:HH:MM:SS%r
+		[u(%va/FN_ART,u(%va/FN_FIND-BUCKET,REQ))][space(18)]DD:HH:MM:SS%r
 	[rjust(ansi(hc,CODE ART:),20)]%b
-		[u(%va/FN_ART,locate(%vc,CODE,i))]%r
+		[u(%va/FN_ART,u(%va/FN_FIND-BUCKET,CODE))]%r
 	[rjust(ansi(hc,TPS ART:),20)]%b
-		[u(%va/FN_ART,locate(%vc,TPS,i))]%r
+		[u(%va/FN_ART,u(%va/FN_FIND-BUCKET,TPS))]%r
 	[rjust(ansi(hc,BUILD ART:),20)]%b
-		[u(%va/FN_ART,locate(%vc,BUILD,i))]%r
+		[u(%va/FN_ART,u(%va/FN_FIND-BUCKET,BUILD))]%r
 -
 
 &REPORT_STATUS [v(JOB_VA)]=
@@ -3914,7 +3914,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 &TRIG_APPLY [v(JOB_VA)]=
 	@trigger %va/TRIG_CREATE=
 		%0,
-		[locate(%vc,APPS,i)],
+		u(%va/FN_FIND-BUCKET,APPS),
 		2,
 		Application by [name(%0)],
 -
@@ -3987,7 +3987,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 			&MODIFIED_ON %q1=[secs()];
 			&STATUS %q1=1;
 			&TITLE %q1=%3;
-			@parent %q1=[locate(%vc,%1,i)];
+			@parent %q1=[u(%va/FN_FIND-BUCKET,%1)];
 			&NUM_COMMENT %q1=2;
 			&PRIORITY %q1=%2;
 			&COMMENT_1 %q1=CRE|[secs()]|%0|[name(%0)]|[ifelse(u(%va/FN_HASATTRP,parent(%q1),ALETTER_%qy),u(%va/FN_STRTRUNC,u([parent(%q1)]/ALETTER_%qy,%q1,%0,edit(%4,|,@@PIPE@@)),get(%va/BUFFER)),u(%va/FN_STRTRUNC,edit(%4,|,@@PIPE@@),get(%va/BUFFER)))];
