@@ -1947,7 +1947,7 @@ $+myjob/add *=*:
 		[isdbref(%q0)]
 		[or(
 			and(u(%va/IS_PUBLIC,%q0),match(get(%q0/OPENED_BY),%#)),
-			gt(member(get(%q0/TAGGED_FOR),%#),0),
+			u(%va/FN_MYACCESSCHECK,parent(%q0),%#,%q0),
 		)]
 		[not(u(%va/FN_HASATTR,%q0,LOCKED))]
 		=
@@ -2021,7 +2021,7 @@ $+myjob *:
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
 		[or(
-			gt(member(get(%q0/TAGGED_FOR),%#),0),
+			u(%va/FN_MYACCESSCHECK,parent(%q0),%#,%q0),
 			u(%va/IS_TRANSPARENT,%q0),
 			and(
 				get(%q0/PUBLIC),
@@ -2061,7 +2061,7 @@ $+myjob/last *=*:
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
 		[or(
-			gt(member(get(%q0/TAGGED_FOR),%#),0),
+			u(%va/FN_MYACCESSCHECK,parent(%q0),%#,%q0),
 			u(%va/IS_TRANSPARENT,%q0),
 			and(
 				get(%q0/PUBLIC),
@@ -2116,14 +2116,14 @@ $+myjobs:
 				{
 					@pemit %#=[ifelse(
 						or(
-							gt(member(get(##/TAGGED_FOR),%#),0),
-							[or(
+							u(%va/FN_MYACCESSCHECK,parent(##),%#,##),
+							or(
 								and(
 									get([parent(##)]/PUBLIC),
 									match(get(##/OPENED_BY),%#)
 								),
 								u(%va/IS_TRANSPARENT,##)
-							)]
+							)
 						),
 						[u(%va/FN_MYJOBLIST,##,%#)],
 						)]
@@ -2540,7 +2540,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 	or(
 		u(%q0/PUBLISH),
 		hasflag(%q0/%0,no_inherit),
-		member(get(%q0/TAGGED_FOR),%#),
+		member(get(%q0/JOBACCESS),u(%va/FN_OBJID,%#)),
 		strmatch(extract(get(%q0/%0),3,1,|),%#)
 	)
 -
@@ -2580,6 +2580,23 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 			),1)
 		)
 	)
+-
+
+#
+# FN_MYACCESSCHECK checks user acceses to myjobs, takes 3 params
+# %0 = bucket dbref
+# %1 = player to check access
+# %2 = job dbref
+#
+&FN_MYACCESSCHECK [v(JOB_VA)]=
+	band(add(
+		elock(%0/speech,%1),
+		gt(member(get(%1/JOBSB),u(FN_OBJID,%0)),0),
+		ifelse(strlen(%2),
+			gt(member(get(%2/JOBACCESS),u(FN_OBJID,%1)),0),
+			0
+		)
+	),1)
 -
 
 &FN_ADDSTAT [v(JOB_VA)]=
@@ -6208,10 +6225,10 @@ think [ansi(hc,ANOMALY JOBS:)] Setting locks.
 			RhostMUSH,searchng(eplayer=hasattr(##,JOBSB)),
 			search(eplayer=hasattr(##,JOBSB))
 		)={
-			think [name(##)] has access to buckets: [u([v(JOB_VA)]/FN_ITEMIZE,iter(get(##/JOBSB),name(itext(0)),|),|)];
+			think [name(##)] has access to buckets: [u([v(JOB_VA)]/FN_ITEMIZE,iter(get(##/JOBSB),name(first(itext(0),:)),|),|)];
 			&JOBSB ##=iter(
 				get(##/JOBSB),
-				u([v(JOB_VA)]/FN_OBJID,itext(0))
+				u([v(JOB_VA)]/FN_OBJID,first(itext(0),:))
 			)
 		}
 	}
