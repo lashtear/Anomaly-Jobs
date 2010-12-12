@@ -309,6 +309,14 @@
   The number in brackets before each comment is the number of that comment. A
   + or - after that number indicates publication status of the comment (a plus
   means the comment is published, a minus means the comment is not published).
+& job/access
+
+  [ansi(h,+job/access <player>=<#>)]
+  
+  This command toggles access to Job <#> for <player>.  If <player> has access
+  to the +jobs system this behaves similarly to the +bucket/access command,
+  but for a single job. For players without +jobs system access, this permits
+  the <player> to use the +myjob commands to list, view, and add to the job.
 & job/act
 
   [ansi(h,+job/act <#>)]
@@ -684,11 +692,10 @@
   [ansi(h,+jobs/<sort|date|pri|due>)]                : Sorts jobs by bucket/mod/pri/due.
   [ansi(h,+jobs/who <player>)]                       : Lists jobs assigned to player.
   [ansi(h,+job <#>)]                                 : View a job.
+  [ansi(h,+job/access <#>)]                          : Toggle access to a job.
   [ansi(h,+job/act <#>)]                             : Display actions on a job.
   [ansi(h,+job/add <#>=<comments>)]                  : Add comments to a job.
   [ansi(h,+job/all <#>)]                             : Displays all comments in a job.
-  [ansi(h,+job/approve <#>=<comment>)]               : Approve a player request.
-  [ansi(h,+job/assign <#>=<<player>|none>)]          : Assign a job to player.
   
   You can get details on each command with '+jhelp <command>/<switch>' without
   the + symbol. i.e., '+jhelp jobs/all'.
@@ -696,6 +703,8 @@
   Continued in: commands2
 & commands2
 
+  [ansi(h,+job/approve <#>=<comment>)]               : Approve a player request.
+  [ansi(h,+job/assign <#>=<<player>|none>)]          : Assign a job to player.
   [ansi(h,+job/checkin <#>)]                         : Checks in a job
   [ansi(h,+job/checkout <#>)]                        : Checks out a job.
   [ansi(h,+job/claim <#>)]                           : Assign a job to yourself.

@@ -2540,7 +2540,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 	or(
 		u(%q0/PUBLISH),
 		hasflag(%q0/%0,no_inherit),
-		member(get(%q0/JOBACCESS),u(%va/FN_OBJID,%#)),
+		u(%va/FN_MYACCESSCHECK,parent(%q0),%#,%q0),
 		strmatch(extract(get(%q0/%0),3,1,|),%#)
 	)
 -
