@@ -114,23 +114,28 @@ $+bucket/access *=*:
 		1110*,{@pemit %#=That player does not have +jobs access.},
 		11111*,{@pemit %#=That player can always access all buckets.},
 		111100*,
-			{
-				@pemit %#=You have given [name(%q0)] access to the [name(%q1)] bucket.;
-				&JOBSB %q0=
-					[ifelse(
-						member(get(%q0/JOBSB),%q1),
-						remove(get(%q0/JOBSB),%q1),
-						setunion(get(%q0/JOBSB),%q1)
-					)]
-			}
-		,{
-			@pemit %#=You have removed [name(%q0)]'s access to the [name(%q1)] bucket.;
+		{
+			@pemit %#=You have given [name(%q0)] access to the [name(%q1)] bucket and all jobs in it.;
 			&JOBSB %q0=
 				[ifelse(
-					member(get(%q0/JOBSB),%q1),
-					remove(get(%q0/JOBSB),%q1),
-					setunion(get(%q0/JOBSB),%q1)
-				)]
+					member(get(%q0/JOBSB),u(%va/FN_OBJID,%q1)),
+					remove(get(%q0/JOBSB),u(%va/FN_OBJID,%q1)),
+					setunion(get(%q0/JOBSB),u(%va/FN_OBJID,%q1))
+				)];
+			@dolist children(%q1)={
+				&JOBACCESS itext(0)=[remove(get([itext(0)]/JOBACCESS),u(%va/FN_OBJID,%q0))]
+			}
+		},{
+			@pemit %#=You have removed [name(%q0)]'s access to the [name(%q1)] bucket and all jobs in it.;
+			&JOBSB %q0=
+				[ifelse(
+					member(get(%q0/JOBSB),u(%va/FN_OBJID,%q1)),
+					remove(get(%q0/JOBSB),u(%va/FN_OBJID,%q1)),
+					setunion(get(%q0/JOBSB),u(%va/FN_OBJID,%q1))
+				)];
+			@dolist children(%q1)={
+				&JOBACCESS itext(0)=[remove(get([itext(0)]/JOBACCESS),u(%va/FN_OBJID,%q0))]
+			}
 		}
 -
 
@@ -451,6 +456,43 @@ $+jgroup/member *=*:
 		}
 -
 
+&CMD_JOB/ACCESS [v(JOB_GO)]=
+$+job/access *=*:
+	@switch 
+		[u(%va/GIVE_ACCESS,%#)]
+		[setq(0,pmatch(%0))]
+		[setq(1,u(%va/FN_FIND-JOB,%1))]
+		[isdbref(%q0)]
+		[isdbref(%q1)]
+		[u(%va/HAS_ACCESS,%q0)]
+		[u(%va/FN_WIZONLY,%q0)]
+		[u(%va/FN_ACCESSCHECK,parent(%q1),%q0,%q1)]
+		=
+		0*,{@pemit %#=Permission denied.},
+		10*,{@pemit %#=There is no player by that name.},
+		110*,{@pemit %#=There is no job by that name. Please type '[ansi(h,+jobs/all)]' for all jobs or '[ansi(h,+jobs/list <bucket>)]' to list by bucket.},
+		1110*,{@pemit %#=That player does not have +jobs access.},
+		11111*,{@pemit %#=That player can always access all jobs.},
+		111100*,
+		{
+			@pemit %#=You have given [name(%q0)] access to [name(%q1)].;
+			&JOBACCESS %q1=
+				[ifelse(
+					member(get(%q1/JOBACCESS),u(%va/FN_OBJID,%q0)),
+					remove(get(%q1/JOBACCESS),u(%va/FN_OBJID,%q0)),
+					setunion(get(%q1/JOBACCESS),u(%va/FN_OBJID,%q0))
+				)]
+		},{
+			@pemit %#=You have removed [name(%q0)]'s access to [name(%q1)].;
+			&JOBACCESS %q1=
+				[ifelse(
+					member(get(%q1/JOBACCESS),u(%va/FN_OBJID,%q0)),
+					remove(get(%q1/JOBACCESS),u(%va/FN_OBJID,%q0)),
+					setunion(get(%q1/JOBACCESS),u(%va/FN_OBJID,%q0))
+				)]
+		}
+-
+
 &CMD_JOB/ACT [v(JOB_GO)]=
 $+job/act *:
 	@switch 
@@ -459,7 +501,7 @@ $+job/act *:
 		[isdbref(%q0)]
 		[or(
 			u(%va/FN_STAFFALL,%#),
-			u(%va/FN_ACCESSCHECK,parent(%q0),%#)
+			u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)
 		)]
 		=
 		0*,{@pemit %#=Permission denied.},
@@ -489,7 +531,7 @@ $+job/add *=*:
 		[u(%va/HAS_ACCESS,%#)]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
-		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[not(u(%va/IS_LOCKED,%q0,%#))]
 		[udefault(%q0/ADD_ACCESS,1,%#)]
 		=
@@ -512,7 +554,7 @@ $+job/all *:
 		[u(%va/HAS_ACCESS,%#)]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
-		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		=0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=There is no job by that name. Please type '[ansi(h,+jobs/all)]' for all jobs or '[ansi(h,+jobs/list <bucket>)]' to list by bucket.},
 		110*,{@pemit %#=You do not have access to that job.},
@@ -541,7 +583,7 @@ $+job/approve *=*:
 		[u(%va/APPROVE_ACCESS,%#)]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
-		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[not(u(%va/IS_LOCKED,%q0,%#))]
 		[udefault(%q0/APR_ACCESS,1,%#)]
 		=
@@ -574,7 +616,7 @@ $+job/assign *=*:
 		[or(isdbref(%q1),%q2)]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
-		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[not(u(%va/IS_LOCKED,%q0,%#))]
 		[udefault(%q0/ASN_ACCESS,1,%#)]
 		[switch(
@@ -584,11 +626,11 @@ $+job/assign *=*:
 			[setq(3,u(%va/FN_JGROUPMEMBERS,%q1))]
 			[setq(4,iter(
 				%q3,
-				u(%va/FN_ACCESSCHECK,parent(%q0),itext(0))
+				u(%va/FN_ACCESSCHECK,parent(%q0),itext(0),%q0)
 			))]
 			[setq(5,member(%q4,0))]
 			[not(gt(%q5,0))],
-			u(%va/FN_ACCESSCHECK,parent(%q0),%q1)
+			u(%va/FN_ACCESSCHECK,parent(%q0),%q1,%q0)
 		)]
 		=0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=There is no player or jgroup by that name.},
@@ -621,7 +663,7 @@ $+job/checkout *:
 		[u(%va/HAS_ACCESS,%#)]
 		[setq(0,u(%va/FN_FIND-JOB,secure(%0)))]
 		[isdbref(%q0)]
-		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[not(u(%va/IS_LOCKED,%q0,%#))]
 		[not(u(%va/FN_HASATTR,%q0,CHECKOUT))]
 		[udefault(%q0/CKO_ACCESS,1,%#)]
@@ -647,7 +689,7 @@ $+job/checkin *:
 		[u(%va/HAS_ACCESS,%#)]
 		[setq(0,u(%va/FN_FIND-JOB,secure(%0)))]
 		[isdbref(%q0)]
-		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[u(%va/FN_HASATTR,%q0,CHECKOUT)]
 		[or(u(%va/FN_WIZONLY,%#),switch(first(get(%q0/CHECKOUT)),%#,1,0))]
 		[udefault(%q0/CKI_ACCESS,1,%#)]
@@ -677,7 +719,7 @@ $+job/clone *:
 		[u(%va/HAS_ACCESS,%#)]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
-		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[udefault(%q0/CLN_ACCESS,1,%#)]
 		=
 		0*,{@pemit %#=Permission denied.},
@@ -702,7 +744,7 @@ $+job/complete *=*:
 		[u(%va/COMPLETE_ACCESS,%#)]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
-		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[not(u(%va/IS_LOCKED,%q0,%#))]
 		[udefault(%q0/COM_ACCESS,1,%#)]
 		=
@@ -727,7 +769,7 @@ $+job/create */*=*:
 		[u(%va/CREATE_ACCESS,%#)]
 		[setq(0,u(%va/FN_FIND-BUCKET,%0))]
 		[isdbref(%q0)]
-		[u(%va/FN_ACCESSCHECK,%q0,%#)]
+		[u(%va/FN_ACCESSCHECK,%q0,%#,%q0)]
 		[udefault(%q0/CRE_ACCESS,1,%#)]
 		=
 		0*,{@pemit %#=Permission denied.},
@@ -755,7 +797,7 @@ $+job/delete *:
 		)]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
-		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[not(u(%va/IS_LOCKED,%q0,%#))]
 		[udefault(%q0/DEL_ACCESS,1,%#)]
 		=
@@ -782,7 +824,7 @@ $+job/deny *=*:
 		)]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
-		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[not(u(%va/IS_LOCKED,%q0,%#))]
 		[udefault(%q0/DNY_ACCESS,1,%#)]
 		=
@@ -807,7 +849,7 @@ $+job/due *=*:
 		[u(%va/HAS_ACCESS,%#)]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
-		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[udefault(%q0/DUE_ACCESS,1,%#)]
 		[switch(
 			lcstr(%1),
@@ -871,7 +913,7 @@ $+job/due *=*/*/*:
 				12,Dec
 			)] [rjust(%2,2,0)] 23:59:00 [switch(strlen(%3),2,20[rjust(%3,2,0)],%3)]))]
 		[gt(%q1,0)]
-		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[udefault(%q0/DUE_ACCESS,1,%#)]
 		=
 		0*,{@pemit %#=Permission denied.},
@@ -894,7 +936,7 @@ $+job/edit */*=*/*:
 		[u(%va/EDIT_ACCESS,%#)]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
-		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[setq(1,get(%q0/COMMENT_%1))]
 		[switch(first(%q1,|),ADD,1,CRE,1,0)]
 		[not(u(%va/IS_LOCKED,%q0,%#))]
@@ -936,7 +978,7 @@ $+job/esc *=*:
 		[u(%va/HAS_ACCESS,%#)]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
-		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[setq(1,match(green yellow red,%1*))]
 		[setq(2,extract(GREEN YELLOW RED,%q1,1))]
 		[gt(%q1,0)]
@@ -963,7 +1005,7 @@ $+job/help *:
 		[u(%va/HAS_ACCESS,%#)]
 		[setq(0,parent(u(%va/FN_FIND-JOB,%0)))]
 		[isdbref(%q0)]
-		[u(%va/FN_ACCESSCHECK,%q0,%#)]
+		[u(%va/FN_ACCESSCHECK,%q0,%#,%q0)]
 		=
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=That is not a valid job. Type '[ansi(h,+jobs)]' for a list of valid jobs.},
@@ -983,7 +1025,7 @@ $+job/last *=*:
 		[u(%va/HAS_ACCESS,%#)]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
-		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		=
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=There is no job by that name. Please type '+jobs/all' for all jobs or '+jobs/<type>' to list by type.},
@@ -1019,7 +1061,7 @@ $+job/lock *:
 		[u(%va/HAS_ACCESS,%#)]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
-		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[not(u(%va/FN_HASATTR,%q0,LOCKED))]
 		[udefault(%q0/LOK_ACCESS,1,%#)]
 		=
@@ -1044,7 +1086,7 @@ $+job/log *:
 		[u(%va/LOG_ACCESS,%#)]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
-		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[u(%va/FN_HASATTRP,%q0,LOGFILE)]
 		=
 		0*,{@pemit %#=Permission denied.},
@@ -1071,7 +1113,7 @@ $+job/mail *=*:
 		[u(%va/MAIL_ACCESS,%#)]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
-		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[u(%va/IS_PUBLIC,%q0)]
 		[not(u(%va/IS_LOCKED,%q0,%#))]
 		[udefault(%q0/MAI_ACCESS,1,%#)]
@@ -1098,8 +1140,8 @@ $+job/merge *=*:
 		[setq(1,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q1)]
 		[isdbref(%q0)]
-		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
-		[u(%va/FN_ACCESSCHECK,parent(%q1),%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
+		[u(%va/FN_ACCESSCHECK,parent(%q1),%#,%q0)]
 		[setq(2,u(%q0/NUM_COMMENT))]
 		[setq(3,u(%q1/NUM_COMMENT))]
 		[and(
@@ -1141,7 +1183,7 @@ $+job/name *=*:
 		[u(%va/HAS_ACCESS,%#)]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
-		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[not(u(%va/IS_LOCKED,%q0,%#))]
 		[udefault(%q0/NAM_ACCESS,1,%#)]
 		=
@@ -1164,7 +1206,7 @@ $+job/new *:
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[setq(1,default(%#/LAST_CONN,0))]
 		[isdbref(%q0)]
-		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		=
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=There is no job by that name. Please type '+jobs/all' for all jobs or '+jobs/<type>' to list jobs by type.},
@@ -1205,7 +1247,7 @@ $+job/publish *:
 		[u(%va/EDIT_ACCESS,%#)]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
-		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[u(%va/FN_HASATTRP,%q0,PUBLIC)]
 		[not(u(%va/IS_LOCKED,%q0,%#))]
 		[udefault(%q0/PUB_ACCESS,1,%#)]
@@ -1241,7 +1283,7 @@ $+job/publish *=*:
 		[u(%va/EDIT_ACCESS,%#)]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
-		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[not(u(%va/IS_LOCKED,%q0,%#))]
 		[u(%va/IS_PUBLIC,%q0)]
 		[u(%va/FN_HASATTRP,%q0,COMMENT_%1)]
@@ -1303,7 +1345,7 @@ $+job/set *=*:
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[setq(2,dec(member(setr(a,HOLD NEW UNDERWAY 25 50 75 100),ucstr(%1))))]
 		[isdbref(%q0)]
-		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[and(isnum(%q2),gt(%q2,-1),lt(%q2,7))]
 		[not(u(%va/IS_LOCKED,%q0,%#))]
 		[udefault(%q0/STA_ACCESS,1,%#)]
@@ -1328,7 +1370,7 @@ $+job/source *=*:
 		[u(%va/HAS_ACCESS,%#)]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
-		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[not(u(%va/IS_LOCKED,%q0,%#))]
 		[setq(1,map(%va/MAP_SOURCE,secure(%1)))]
 		[setq(2,member(%q1,#-1))]
@@ -1355,7 +1397,7 @@ $+job/summary *:
 		[u(%va/HAS_ACCESS,%#)]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
-		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		=
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=There is no job by that name. Please type '[ansi(h,+jobs/all)]' for all jobs or '[ansi(h,+jobs/list <bucket>)]' to list by bucket.},
@@ -1426,7 +1468,7 @@ $+job/tag *:
 		[setq(6,u(%va/fn_trim,squish(map(%va/MAP_JGROUPERROR,%q9))))]
 		[setq(0,u(%va/FN_FIND-JOB,%q8))]
 		[isdbref(%q0)]
-		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[not(u(%va/IS_LOCKED,%q0,%#))]
 		[udefault(%q0/TAG_ACCESS,1,%#)]
 		=
@@ -1463,7 +1505,7 @@ $+job/trans *=*:
 	[u(%va/HAS_ACCESS,%#)]
 	[setq(0,u(%va/FN_FIND-JOB,%0))]
 	[isdbref(%q0)]
-	[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+	[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 	[isdbref(setr(1,u(%va/FN_FIND-BUCKET,%1)))]
 	[udefault(%q0/TRN_ACCESS,1,%#)]
 	[udefault(%q1/TRN_ACCESS,1,%#)]
@@ -1492,7 +1534,7 @@ $+job/undelete *:
 	[u(%va/HAS_ACCESS,%#)]
 	[setq(0,u(%va/FN_FIND-JOB,%0))]
 	[isdbref(%q0)]
-	[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+	[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 	[u(%va/FN_HASATTR,%q0,GOING)]
 	[udefault(%q0/UND_ACCESS,1,%#)]
 	=
@@ -1516,7 +1558,7 @@ $+job/unlock *:
 	[u(%va/HAS_ACCESS,%#)]
 	[setq(0,u(%va/FN_FIND-JOB,%0))]
 	[isdbref(%q0)]
-	[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+	[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 	[u(%va/FN_HASATTRP,%q0,LOCKED)]
 	[udefault(%q0/UNL_ACCESS,1,%#)]
 	=
@@ -1550,7 +1592,7 @@ $+job/untag *:
 		[setq(6,u(%va/fn_trim,squish(map(%va/MAP_JGROUPERROR,%q9))))]
 		[setq(0,u(%va/FN_FIND-JOB,%q8))]
 		[isdbref(%q0)]
-		[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[not(u(%va/IS_LOCKED,%q0,%#))]
 		[udefault(%q0/TAG_ACCESS,1,%#)]
 		=
@@ -1587,7 +1629,7 @@ $+job *:
 	[u(%va/HAS_ACCESS,%#)]
 	[setq(0,u(%va/FN_FIND-JOB,%0))]
 	[isdbref(%q0)]
-	[u(%va/FN_ACCESSCHECK,parent(%q0),%#)]
+	[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 	=
 	0*,{@pemit %#=Permission denied.},
 	10*,{@pemit %#=There is no job by that name. Please type '[ansi(h,+jobs/all)]' for all jobs or '[ansi(h,+jobs/list <bucket>)]' to list by bucket.},
@@ -1786,7 +1828,7 @@ $+jobs/search *:
 			@pemit [setq(0,%b)]%#=
 				ifelse(
 					and(
-						u(%va/FN_ACCESSCHECK,parent(##),%#),
+						u(%va/FN_ACCESSCHECK,parent(##),%#,##),
 						gt(
 							words(
 								grepi(##,*,%0)
@@ -1794,7 +1836,7 @@ $+jobs/search *:
 							0
 						)
 					),
-						[u(%va/FN_JOBLIST,##,%#)],
+					[u(%va/FN_JOBLIST,##,%#)],
 				)
 		};
 		@wait 0=@pemit %#=[u(%va/FN_FOOTER,* Denotes New Activity)];
@@ -1837,7 +1879,7 @@ $+jobs/select *:
 			@pemit %#=
 				[ifelse(
 					or(
-						u(%va/FN_ACCESSCHECK,parent(##),%#),
+						u(%va/FN_ACCESSCHECK,parent(##),%#,##),
 						u(%va/FIL_MINE,##)
 					),
 						u(%va/FN_JOBLIST,##,%#),
@@ -1882,7 +1924,7 @@ $+jobs/who *:
 				)
 			)]
 		={
-			@pemit %#=[ifelse(u(%va/FN_ACCESSCHECK,parent(##),%#),[u(%va/FN_JOBLIST,##,%#)],)]
+			@pemit %#=[ifelse(u(%va/FN_ACCESSCHECK,parent(##),%#,##),[u(%va/FN_JOBLIST,##,%#)],)]
 		};
 		@wait 0=@pemit %#=[u(%va/FN_FOOTER,* Denotes New Activity)];
 	}
@@ -2514,20 +2556,29 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 
 &FIL_WHO [v(JOB_VA)]=strmatch(get(%0/ASSIGNED_TO),%1)
 -
-
+#
+# FN_ACCESSCHECK checks user acceses to buckets or jobs, takes 2 or 3 params
+# %0 = bucket dbref
+# %1 = player to check access
+# %2 (optional) = job dbref
+#
+# Bucket access toggle by player's JOBSB attribute
+# Jobs access toggle by job's ACCESS attribute
+#
 &FN_ACCESSCHECK [v(JOB_VA)]=
 	and(
+		u(%va/HAS_ACCESS,%1),
 		or(
 			u(%va/FN_WIZONLY,%1),
-			switch(
-				[elock(%0/speech,%1)][gt(member(get(%1/JOBSB),%0),0)],
-				01,1,
-				10,1,
-				11,0,
-				0
-			)
-		),
-		u(%va/HAS_ACCESS,%1)
+			band(add(
+				elock(%0/speech,%1),
+				gt(member(get(%1/JOBSB),u(FN_OBJID,%0)),0),
+				ifelse(strlen(%2),
+					gt(member(get(%2/JOBACCESS),u(FN_OBJID,%1)),0),
+					0
+				)
+			),1)
+		)
 	)
 -
 
@@ -2920,6 +2971,16 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 -
 
 &FN_MYSUMMARY [v(JOB_VA)]=u(%va/FN_SKIN,MYSUMMARY,%0,%1,%2,%3)
+-
+
+&FN_OBJID [v(JOB_VA)]=
+	localize(switch(1,
+		and(isint(setr(0,convtime(ctime(%0)))),gt(%q0,0)),
+		%0:%q0,
+		and(isint(setr(0,convtime(createtime(%0)))),gt(%q0,0)),
+		%0:%q0,
+		%0
+	))
 -
 
 &FN_PCT [v(JOB_VA)]=
@@ -5114,7 +5175,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing skins.
 &LICENSE [v(JOB_VA)]=You may port this code to any game provided that these credits remain intact. Please report any and all bugs, feedback, etc. to the project's home: http://code.google.com/p/anomalyjobs/
 -
 
-&RELEASE [v(JOB_VA)]=December 12, 2010
+&RELEASE [v(JOB_VA)]=December XX, 2010
 -
 
 &VERSION [v(JOB_VA)]=v6.2
@@ -6134,6 +6195,24 @@ think [ansi(hc,ANOMALY JOBS:)] Setting locks.
 				???1,{
 					think [ansi(hc,ANOMALY JOBS:)] ##/HOOK_DELETE not valid: move to ##/HOOK_DEL;
 				}
+		}
+	}
+-
+
+@switch [v(JOB_PATCH)]=
+	>0,{
+		think [ansi(hc,ANOMALY JOBS:)] Updating special job access to unique player ID.;
+		@dolist switch(
+			first(version()),
+			PennMUSH,lsearch(all,eplayers,\[hasattrval(##,JOBSB)\]),
+			RhostMUSH,searchng(eplayer=hasattr(##,JOBSB)),
+			search(eplayer=hasattr(##,JOBSB))
+		)={
+			think [name(##)] has access to buckets: [u([v(JOB_VA)]/FN_ITEMIZE,iter(get(##/JOBSB),name(itext(0)),|),|)];
+			&JOBSB ##=iter(
+				get(##/JOBSB),
+				u([v(JOB_VA)]/FN_OBJID,itext(0))
+			)
 		}
 	}
 -
