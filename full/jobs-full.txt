@@ -1308,8 +1308,8 @@ $+job/publish *=*:
 			@trigger %va/TRIG_BROADCAST=%q0,%#,PUB,%1
 		},
 		{
-			@pemit %#=Job %0/Comment %1 will no longer be published.;
-			@set %q0/COMMENT_[name(%q0)]=!no_inherit;
+			@pemit %#=[name(%q0)]/Comment [trim(%1)] will no longer be published.;
+			@set %q0/COMMENT_[trim(%1)]=!no_inherit;
 			@trigger %va/TRIG_ADD=%q0,Comment [trim(%1)] Unpublished by %n.,%#,UNP;
 			@trigger %va/TRIG_BROADCAST=%q0,%#,UNP,trim(%1)
 		}
