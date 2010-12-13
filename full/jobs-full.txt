@@ -220,7 +220,7 @@ $+bucket/delete *:
 				)]
 				={
 					&JOBSH ##=[remove(get(##/JOBSH),%q0)];
-					&JOBSB ##=[remove(get(##/JOBSB),%q0)]
+					&JOBSB ##=[remove(get(##/JOBSB),u(%va/FN_OBJID,%q0))]
 				}
 		}
 -
