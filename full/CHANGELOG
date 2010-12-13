@@ -4,11 +4,13 @@ CHANGELOG for Anomaly Jobs
 Version 6.2
 
 New Features:
+- +job/access command offers more +job and +myjob access choices. Issue 128.
 
 Bugfixes:
-- Players tagged on a job can now +myjob/add as well as read. Issue 128.
+- Tagging behavior made consistent and properly documented. Issue 128.
 - Finding jobs, buckets, and jgroups now prefer Things to Players. Issue 129.
 - New jobs with &JOBSN=1 weren't showing on some Penn games. Issue 130.
+- TRIG_CLEAN functionality expanded. Issue 131.
 
 Version 6.1
 
