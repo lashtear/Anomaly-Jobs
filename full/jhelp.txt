@@ -1,5 +1,5 @@
 & help
-  Anomaly Jobs v6.1
+  Anomaly Jobs v6.2
   
   Anomaly Jobs is a feature-rich task-tracker.
   
@@ -570,13 +570,15 @@
 
   [ansi(h,+job/tag <#>%[=<player list>%])]
   
-  This command tags a job for a player, letting them see the job in +myjobs.
-  The player will see all of Job <#> as if they had access to the bucket that
-  it was in. Even if the job is not in a +myjobs-accessible bucket, the player
-  will still be able to read all of it.
+  This command tags a job for a player, so that it appears in their +jobs/mine
+  list.  Tags are intended to draw multiple players' attention to jobs, and 
+  jobs are automatically untagged when read.
   
   If used without <player list>, the tagging is accomplished for yourself. It
   runs the TAG hooks.
+
+  Since version 6.2, tagged jobs no longer provide special access. To allow
+  users to see jobs in buckets they would otherwise not see, use +job/access.
 & job/untag
 
   [ansi(h,+job/untag <#>%[=<player list>%])]
@@ -737,7 +739,7 @@
   [ansi(h,+job/summary <#>)]                         : Views a job's header & SUMMARY.
   [ansi(h,+job/sumset <#>/<set>=<value>)]            : Changes a job SUMMARY setting.
   [ansi(h,+job/tag <#>)]                             : Tags a job for you.
-  [ansi(h,+job/tag <#>=<player>)]                    : Tags a job for <player>.
+  [ansi(h,+job/tag <#>=<player list>)]               : Tags a job for <player list>.
   [ansi(h,+job/trans <#>=<bucket>)]                  : Transfer (or undelete) a job.
   [ansi(h,+job/undelete <#>)]                        : Restores a deleted job.
   [ansi(h,+job/unlock <#>)]                          : Unlocks a job.
@@ -819,8 +821,8 @@
   lists your jobs; you can read an individual job or the last comment(s).  You
   can also add additional comments to the job.
   
-  Jobs can be tagged by staff for you to see. In those instances, you can see
-  all comments added, not just those you have added.
+  Staff can give you access to jobs you could not otherwise see. In those 
+  instances, you can see all comments added, not just those you have added.
 
   [ansi(h,+myjob/help <#>)]
   [ansi(h,+myjob/sumset <#>/<setting>=<value>)]
@@ -898,7 +900,7 @@
   to review all comments that are going to be published very carefully for
   any information that would be untoward if released.
   
-  If you /tag a job for a player, they can see the whole job no matter the
+  If you /access a job for a player, they can see the whole job no matter the
   publication status, and no matter where the job is located.
   
   By default, +job/mail will set the @mail'd comment published.
@@ -1042,7 +1044,6 @@
   
        > cd logs
        > touch M-joblog.log
-     
 
 & tagging
 
@@ -1051,7 +1052,8 @@
   
   The /tag command tags a job for you to watch. Tagged jobs will show up on
   your +jobs/mine list (or <player>'s list), even if it is not assigned to 
-  you.
+  you.  Tags are automatically removed when a player reads or comments on a
+  job.
   
   [ansi(h,+job/untag <#>)]
   [ansi(h,+job/untag <#>=<player list>)]
@@ -1059,10 +1061,8 @@
   This will untag a job from the watch list, for yourself in the first 
   instance and for <player list> in the second.
   
-  If you tag a job to a player that does not have access to the jobs system, 
-  then the job will show up in +myjobs, and they will have FULL ACCESS to that
-  job (i.e., they will be able to read all entries, and they will be able to 
-  add to that job), no matter if the job is in a public bucket or not.
+  Since version 6.2, tagged jobs no longer provide special access. To allow
+  users to see jobs in buckets they would otherwise not see, use +job/access.
   
 & manage
   
@@ -1558,7 +1558,7 @@
   SRC   Indicates when a job's OPENED_BY (source) has changed.
   STA   A +job/set status change.
   SUM   Indicates a change in the summary settings.
-  TAG   Indicates a job has been tagged or untagged.
+  TAG   Indicates a job has been tagged or (manually) untagged.
   TRN   Indicates a job has been transferred.
   UND   Job undeleting action.
   UNL   Job unlocking action.
