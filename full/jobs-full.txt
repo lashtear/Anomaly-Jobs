@@ -1677,6 +1677,38 @@ $+jobs:@fo %#=
 		}
 -
 
+&CMD_JOBS/CATCHUP2 [v(JOB_GO)]=
+$+jobs/catchup *:
+	@switch 
+	[u(%va/HAS_ACCESS,%#)]
+	[setq(0,lcstr(%0))]
+	[setq(0,
+		u(%va/FN_INFIX2POSTFIX,map(
+			%va/MAP_JOBSELECT,
+			u(%va/FN_TOKENLIST,%q0)
+		))
+	)]
+	[not(strmatch(%q0,*#-1 MISMATCHED PARENS*))]
+	[not(strmatch(%q0,*#-1 SYNTAX ERROR*))]
+	[default(%#/JOBSN,0)]
+	=
+	0*,@pemit %#=Permission denied.,
+	10*,@pemit %#=Mismatched parentheses.,
+	110*,@pemit %#=Syntax error.,
+	1110*,@pemit %#=You must set &JOBSN me=1 to make use of this command.,
+	{
+		@pemit %#=You are now caught up on jobs matching %q0.;
+		@dolist 
+		[setq(1,filter(%va/FIL_GOING,lcon(%va)))]
+		[u(%va/FN_S-INIT)]
+		[map(%va/MAP_PARSESTACK,%q0)]
+		[u(%va/FN_S-PEEK)]
+		={
+			think [u(%va/FN_READERS,##,%#)]
+		}
+	}
+-
+
 &CMD_JOBS/CLEAN [v(JOB_GO)]=
 $+jobs/clean:
 	@switch [u(%va/HAS_ACCESS,%#)]=0*,
@@ -2130,6 +2162,15 @@ $+myjobs:
 						)]
 				};
 				@wait 0=@pemit %#=[u(%va/FN_FOOTER,[ansi(hr,*)] [ansi(hy,Denotes New Activity)])]
+		}
+-
+
+&CMD_MYJOBS/CATCHUP [v(JOB_GO)]=$+myjobs/catchup:
+	@pemit %#=You are now caught up on jobs.;
+	&LAST_CONN %#=[secs()];
+	@dolist lcon(%va)=
+		{
+			think [u(%va/FN_READERS,##,%#)]
 		}
 -
 

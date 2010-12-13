@@ -274,9 +274,14 @@
 & jobs/catchup
 
   [ansi(h,+jobs/catchup)]
+  [ansi(h,+jobs/catchup <expression>)]
   
   This command will catch you up on the jobs system, clearing all unread
   jobs as being new. This works for both versions of new jobs.
+  
+  If an <expression> (using +jobs/select syntax) is included then the new job
+  indicator will be cleared only for those jobs. This only works with the new
+  version of new jobs (if the user has selected &JOBSN me=1).
 & jobs/date
 
   [ansi(h,+jobs/date)]
@@ -683,6 +688,7 @@
   [ansi(h,+jobs)]                                    : List jobs.
   [ansi(h,+jobs/<all|mine|new|overdue>)]             : List all/yours/new/overdue jobs.
   [ansi(h,+jobs/catchup)]                            : Clears new jobs.
+  [ansi(h,+jobs/catchup <expression>)]               : Clears selected new jobs.
   [ansi(h,+jobs/clean)]                              : Remove non-players from job data.
   [ansi(h,+jobs/compress)]                           : Compresses job list. (Wiz)
   [ansi(h,+jobs/credits)]                            : Display credit information.
@@ -697,7 +703,6 @@
   [ansi(h,+job/access <#>)]                          : Toggle access to a job.
   [ansi(h,+job/act <#>)]                             : Display actions on a job.
   [ansi(h,+job/add <#>=<comments>)]                  : Add comments to a job.
-  [ansi(h,+job/all <#>)]                             : Displays all comments in a job.
   
   You can get details on each command with '+jhelp <command>/<switch>' without
   the + symbol. i.e., '+jhelp jobs/all'.
@@ -705,6 +710,7 @@
   Continued in: commands2
 & commands2
 
+  [ansi(h,+job/all <#>)]                             : Displays all comments in a job.
   [ansi(h,+job/approve <#>=<comment>)]               : Approve a player request.
   [ansi(h,+job/assign <#>=<<player>|none>)]          : Assign a job to player.
   [ansi(h,+job/checkin <#>)]                         : Checks in a job
@@ -723,7 +729,6 @@
   [ansi(h,+job/lock <#>)]                            : Locks a job and prevents changes.
   [ansi(h,+job/log <#>)]                             : Logs a job.
   [ansi(h,+job/mail <#>=<message>)]                  : Mails opener with <message>.
-  [ansi(h,+job/merge <source>=<destination>)]        : Merge <source> into <destination>.
 
   You can get details on each command with '+jhelp <command>/<switch>' without
   the + symbol. i.e., '+jhelp jobs/all'.
@@ -731,6 +736,7 @@
   Continued in: commands3
 & commands3
 
+  [ansi(h,+job/merge <source>=<destination>)]        : Merge <source> into <destination>.
   [ansi(h,+job/name <#>=<name>)]                     : Rename a job.
   [ansi(h,+job/publish <#>%[=<comment>%])]             : Publishes a job or <comment>.
   [ansi(h,+job/query <players>/<title>=<query>)]     : Sends a query to <players>.
@@ -814,12 +820,14 @@
   [ansi(h,+myjob <#>)]
   [ansi(h,+myjob/last <#>=<number of comments>)]
   [ansi(h,+myjob/add <#>=<comment>)]
+  [ansi(h,+myjobs/catchup)]
   
   This suite of commands allows the submitter to view and modify jobs that they 
   have submitted to the system. When viewing a job that you own, you can only 
   see the comments that you have added, not comments added by others.  +myjobs
   lists your jobs; you can read an individual job or the last comment(s).  You
-  can also add additional comments to the job.
+  can also add additional comments to the job.  Catching up jobs clears the new
+  job indicator.
   
   Staff can give you access to jobs you could not otherwise see. In those 
   instances, you can see all comments added, not just those you have added.
