@@ -100,7 +100,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting up commands.
 $+bucket/access *=*:
 	@switch 
 		[u(%va/GIVE_ACCESS,%#)]
-		[setq(0,pmatch(%0))]
+		[setq(0,pmatch(trim(%0)))]
 		[setq(1,u(%va/FN_FIND-BUCKET,%1))]
 		[isdbref(%q0)]
 		[isdbref(%q1)]
@@ -142,7 +142,7 @@ $+bucket/access *=*:
 &CMD_BUCKET/CHECK [v(JOB_GO)]=
 $+bucket/check *:
 	@switch 
-		[isdbref(setr(0,pmatch(%0)))]
+		[isdbref(setr(0,pmatch(trim(%0))))]
 		=
 		0,{@pemit %#=There is no such player.},
 		{
@@ -169,16 +169,16 @@ $+bucket/create *=*:
 		[setq(0,u(%va/FN_FIND-BUCKET,%0))]
 		[u(%va/FN_WIZONLY,%#)]
 		[not(isdbref(%q0))]
-		[not(gt(strlen(%0),5))]
+		[not(gt(strlen(trim(%0)),5))]
 		=
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=There is already a bucket by that name.},
 		110*,{@pemit %#=The name of a bucket is limited to five letters.},
 		{
-			@pemit %#=You have created a bucket named [ucstr(%0)].[setq(0,create(ucstr(%0),10))] Be sure to change %q0/ACCESS to establish who can access the bucket. Presently, it is set to 1, which means that anyone who can access +jobs can access the bucket.;
+			@pemit %#=You have created a bucket named [ucstr(trim(%0))].[setq(0,create(ucstr(trim(%0)),10))] Be sure to change %q0/ACCESS to establish who can access the bucket. Presently, it is set to 1, which means that anyone who can access +jobs can access the bucket.;
 			@tel %q0=%vc;
 			@parent %q0=%vc;
-			@desc %q0=[secure(%1)];
+			@desc %q0=[trim(secure(%1))];
 			@set %q0=inherit !safe !halted !no_command;
 			&ACCESS %q0=1;
 			@lock/speech %q0=ACCESS/1
@@ -301,17 +301,17 @@ $+bucket/set */*=*:
 		[and(
 			u(%va/HAS_ACCESS,%#),
 			u(%va/CONFIG_ACCESS,%#),
-			u(%q0/ACCESS_%1,%#)
+			u(%q0/ACCESS_[trim(%1)],%#)
 		)]
 		[isdbref(%q0)]
 		[u(%va/FN_HASATTRP,%q0,ACCESS_%1)]
-		[u(%q0/PROCESS_%1,%2,%q0,%#)]
+		[u(%q0/PROCESS_[trim(%1)],trim(%2),%q0,%#)]
 		=
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=There is no bucket by that name. See '[ansi(h,+buckets)]' for a list of valid buckets.},
 		110*,{@pemit %#='%1' is not a valid parameter. Valid parameters for [name(%q0)] are [u(%va/FN_ITEMIZE,map(%va/MAP_PARAMS,lattr(%vc/PROCESS_*)))].},
-		1110*,{@pemit %#=[u(%q0/ERROR_%1%q2)]},
-		{@pemit %#=[name(%q0)]'s [ucstr(%1)] successfully updated to: '%2'.;&%q3 %q0=%q1}
+		1110*,{@pemit %#=[u(%q0/ERROR_[trim(%1)]%q2)]},
+		{@pemit %#=[name(%q0)]'s [ucstr(trim(%1))] successfully updated to: '[trim(%2)]'.;&%q3 %q0=%q1}
 -
 
 &CMD_BUCKETS [v(JOB_GO)]=
@@ -335,8 +335,8 @@ $+bug *=*:
 		=
 		0*,{@pemit %#=Permission Denied.},
 		{
-			@pemit %#=You have notified production staff of the [secure(u(%va/FN_STRTRUNC,%0,30))] bug, with the details '[secure(u(%va/FN_STRTRUNC,%1,get(%va/BUFFER)))]';
-			@trigger %va/TRIG_CREATE=%#,u(%va/FN_FIND-BUCKET,CODE),3,BUG: [u(%va/FN_STRTRUNC,%0,30)],[u(%va/FN_STRTRUNC,%1,get(%va/BUFFER))],,,5
+			@pemit %#=You have notified production staff of the [secure(u(%va/FN_STRTRUNC,trim(%0),30))] bug, with the details '[secure(u(%va/FN_STRTRUNC,trim(%1),get(%va/BUFFER)))]';
+			@trigger %va/TRIG_CREATE=%#,u(%va/FN_FIND-BUCKET,CODE),3,BUG: [u(%va/FN_STRTRUNC,trim(%0),30)],[u(%va/FN_STRTRUNC,trim(%1),get(%va/BUFFER))],,,5
 		}
 -
 
@@ -375,9 +375,9 @@ $+jgroup/create *=*:
 		110*,{@pemit %#=Jgroup names must begin with +.},
 		1110*,{@pemit %#=Jgroup names may not contain spaces.},
 		{
-			@pemit %#=You have created a jgroup named %0.[setq(0,create(%0,10))] The %q0/ISMEMBER is set to use the %q0/MEMBERLIST attribute and +jgroup/member command. Override %q0/ISMEMBER if you wish to change this.;
+			@pemit %#=You have created a jgroup named [trim(%0)].[setq(0,create(trim(%0),10))] The %q0/ISMEMBER is set to use the %q0/MEMBERLIST attribute and +jgroup/member command. Override %q0/ISMEMBER if you wish to change this.;
 			@tel %q0=%vb;
-			@desc %q0=[secure(%1)];
+			@desc %q0=[secure(trim(%1))];
 			&ISMEMBER %q0=lit(t(member(v(MEMBERLIST),%0)));
 			@set %q0=inherit !safe !halted !no_command;
 		}
@@ -460,7 +460,7 @@ $+jgroup/member *=*:
 $+job/access *=*:
 	@switch 
 		[u(%va/GIVE_ACCESS,%#)]
-		[setq(0,pmatch(%0))]
+		[setq(0,pmatch(trim(%0)))]
 		[setq(1,u(%va/FN_FIND-JOB,%1))]
 		[isdbref(%q0)]
 		[isdbref(%q1)]
@@ -541,9 +541,9 @@ $+job/add *=*:
 		1110*,{@pemit %#=That job is presently [ifelse(u(%va/FN_HASATTRP,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		11110*,{@pemit %#=That action is not available for that job.},
 		{
-			@pemit %#=Comments to job number %0 added.;
+			@pemit %#=Comments to [name(%q0)] added.;
 			&TAGGED_FOR %q0=[remove(get(%q0/TAGGED_FOR),%#)];
-			@trigger %va/TRIG_ADD=%q0,%1,%#,ADD;
+			@trigger %va/TRIG_ADD=%q0,trim(%1),%#,ADD;
 			@trigger %va/TRIG_BROADCAST=%q0,%#,ADD
 		}
 -
@@ -598,9 +598,9 @@ $+job/approve *=*:
 			@pemit %#=
 				[u(%va/FN_ADDSTAT_ART,parent(%q0),%q0)]
 				[u(%va/FN_ADDSTAT_ART,%vc,%q0)]
-				You have approved job #%0, adding the comments: %1;
+				You have approved [name(%q0)], adding the comments: [trim(%1)];
 			@trigger %va/TRIG_BROADCAST=%q0,%#,APR;
-			@trigger %va/TRIG_ADD=%q0,[u(%va/FN_STRTRUNC,%1,get(%va/BUFFER))],%#,APR;
+			@trigger %va/TRIG_ADD=%q0,[u(%va/FN_STRTRUNC,trim(%1),get(%va/BUFFER))],%#,APR;
 			@trigger %va/TRIG_DESTROY=%q0
 		}
 -
@@ -609,11 +609,11 @@ $+job/approve *=*:
 $+job/assign *=*:
 	@switch 
 		[u(%va/HAS_ACCESS,%#)]
-		[setq(1,switch(%1,
+		[setq(1,switch(trim(%1),
 			+*,u(%va/FN_FIND-JGROUP,%1),
-			pmatch(%1)
+			pmatch(trim(%1))
 		))]
-		[setq(2,switch(%1,NONE,1,0))]
+		[setq(2,switch(trim(%1),NONE,1,0))]
 		[or(isdbref(%q1),%q2)]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
@@ -662,7 +662,7 @@ $+job/assign *=*:
 $+job/checkout *:
 	@switch 
 		[u(%va/HAS_ACCESS,%#)]
-		[setq(0,u(%va/FN_FIND-JOB,secure(%0)))]
+		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
 		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[not(u(%va/IS_LOCKED,%q0,%#))]
@@ -688,7 +688,7 @@ $+job/checkout *:
 $+job/checkin *:
 	@switch 
 		[u(%va/HAS_ACCESS,%#)]
-		[setq(0,u(%va/FN_FIND-JOB,secure(%0)))]
+		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
 		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[u(%va/FN_HASATTR,%q0,CHECKOUT)]
@@ -731,8 +731,7 @@ $+job/clone *:
 			@pemit [setq(1,inc(get(%va/JOBS_NUM)))]%#=Job copied as Job %q1.;
 			&JOBS_NUM %va=%q1;
 			@clone %q0=Job %q1;
-			@pemit me=[setq(2,num(Job %q1))];
-			@tel %q2=%va;
+			@tel [setr(2,num(Job %q1))]=%va;
 			@trigger %va/TRIG_ADD=%q2,Cloned job.,%#,CLN,%q0;
 			@trigger %va/TRIG_BROADCAST=%q0,%#,CLN,%q1
 		}
@@ -756,8 +755,8 @@ $+job/complete *=*:
 		11110*,{@pemit %#=That job is presently [ifelse(u(%va/FN_HASATTRP,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		111110*,{@pemit %#=That action is not available for that job.},
 		{
-			@pemit %#=[u(%va/FN_ADDSTAT_ART,parent(%q0),%q0)][u(%va/FN_ADDSTAT_ART,%vc,%q0)]You have completed job # %0.;
-			@trigger %va/TRIG_ADD=%q0,[u(%va/FN_STRTRUNC,%1,get(%va/BUFFER))],%#,COM;
+			@pemit %#=[u(%va/FN_ADDSTAT_ART,parent(%q0),%q0)][u(%va/FN_ADDSTAT_ART,%vc,%q0)]You have completed [name(%q0)].;
+			@trigger %va/TRIG_ADD=%q0,[u(%va/FN_STRTRUNC,trim(%1),get(%va/BUFFER))],%#,COM;
 			@trigger %va/TRIG_BROADCAST=%q0,%#,COM,%q1;
 			@trigger %va/TRIG_DESTROY=%q0
 		}
@@ -779,8 +778,8 @@ $+job/create */*=*:
 		1110*,{@pemit %#=You cannot access that bucket.},
 		11110*,{@pemit %#=That action is not available for that bucket.},
 		{
-			@pemit [setq(1,inc(get(%va/JOBS_NUM)))]%#=You have created job number %q1 entitled '[u(%va/FN_STRTRUNC,%1,30)]'.;
-			@trigger %va/TRIG_CREATE=%#,%q0,1,[u(%va/FN_STRTRUNC,%1,30)],[u(%va/FN_STRTRUNC,%2,u(%va/BUFFER))],,,1
+			@pemit [setq(1,inc(get(%va/JOBS_NUM)))]%#=You have created job number %q1 entitled '[u(%va/FN_STRTRUNC,trim(%1),30)]'.;
+			@trigger %va/TRIG_CREATE=%#,%q0,1,[u(%va/FN_STRTRUNC,trim(%1),30)],[u(%va/FN_STRTRUNC,trim(%2),u(%va/BUFFER))],,,1
 		}
 -
 
@@ -809,7 +808,7 @@ $+job/delete *:
 		11110*,{@pemit %#=That job is presently [ifelse(u(%va/FN_HASATTRP,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		111110*,{@pemit %#=That action is not available for that job.},
 		{
-			@pemit %#=[u(%va/FN_ADDSTAT_ART,parent(%q0),%q0)][u(%va/FN_ADDSTAT_ART,%vc,%q0)]You have deleted job # %0.;
+			@pemit %#=[u(%va/FN_ADDSTAT_ART,parent(%q0),%q0)][u(%va/FN_ADDSTAT_ART,%vc,%q0)]You have deleted [name(%q0)].;
 			@trigger %va/TRIG_ADD=%q0,Job %0 Deleted,%#,DEL;
 			@trigger %va/TRIG_DESTROY=%q0
 		}
@@ -836,9 +835,9 @@ $+job/deny *=*:
 		11110*,{@pemit %#=That job is presently [ifelse(u(%va/FN_HASATTRP,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		111110*,{@pemit %#=That action is not available for that job.},
 		{
-			@pemit %#=[u(%va/FN_ADDSTAT_ART,parent(%q0),%q0)][u(%va/FN_ADDSTAT_ART,%vc,%q0)]You have denied job #%0.;
+			@pemit %#=[u(%va/FN_ADDSTAT_ART,parent(%q0),%q0)][u(%va/FN_ADDSTAT_ART,%vc,%q0)]You have denied [name(%q0)].;
 			@trigger %va/TRIG_BROADCAST=%q0,%#,DNY;
-			@trigger %va/TRIG_ADD=%q0,[u(%va/FN_STRTRUNC,%1,get(%va/BUFFER))],%#,DNY;
+			@trigger %va/TRIG_ADD=%q0,[u(%va/FN_STRTRUNC,trim(%1),get(%va/BUFFER))],%#,DNY;
 			@trigger %va/TRIG_DESTROY=%q0
 		}
 -
@@ -846,26 +845,26 @@ $+job/deny *=*:
 &CMD_JOB/DUE [v(JOB_GO)]=
 $+job/due *=*:
 	@switch 
-		[not(eq(words(%1,/),3))]
+		[not(eq(words(trim(%1),/),3))]
 		[u(%va/HAS_ACCESS,%#)]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
 		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[udefault(%q0/DUE_ACCESS,1,%#)]
 		[switch(
-			lcstr(%1),
+			lcstr(trim(%1)),
 			none,2,
 			ifelse(
-				gt(setr(1,u(%va/FN_STRINGSECS,%1)),0),
+				gt(setr(1,u(%va/FN_STRINGSECS,trim(%1))),0),
 				1[setq(1,add(%q1,secs()))],
 				ifelse(
-					gt(setr(1,convtime(%1)),0),
+					gt(setr(1,convtime(trim(%1))),0),
 					1,
 					ifelse(
-						gt(setr(1,convtime(XXX %1)),0),
+						gt(setr(1,convtime(trim(XXX %1))),0),
 						1,
 						t(
-							gt(setr(1,convtime(%1 23:59:59)),0)
+							gt(setr(1,convtime(trim(%1 23:59:59))),0)
 						)
 					)
 				)
@@ -879,13 +878,13 @@ $+job/due *=*:
 		11110*,{@pemit %#=That action is not available for that job.},
 		111110*,{@pemit %#=Invalid date. Use date formatting as '[rest(time())]'.},
 		111112*,{
-					@pemit %#=You have cleared Job Number %0's date.;
+					@pemit %#=You have cleared [name(%q0)]'s date.;
 					&DUE_ON %q0=;
 					@trigger %va/TRIG_ADD=%q0,Due date cleared.,%#,DUE;
 					@trigger %va/TRIG_BROADCAST=%q0,%#,DUE
 				 },
 		{
-			@pemit %#=You have set Job %0's date to [convsecs(%q1)].;
+			@pemit %#=You have set [name(%q0)]'s date to [convsecs(%q1)].;
 			&DUE_ON %q0=%q1;
 			@trigger %va/TRIG_ADD=%q0,Due on [secure(%1)].,%#,DUE,[secure(%1)];
 			@trigger %va/TRIG_BROADCAST=%q0,%#,DUE
@@ -899,7 +898,7 @@ $+job/due *=*/*/*:
 		[isdbref(setr(0,u(%va/FN_FIND-JOB,%0)))]
 		[setq(1,convtime(XXX 
 			[switch(
-				[rjust(%1,2,0)],
+				[rjust(trim(%1),2,0)],
 				01,Jan,
 				02,Feb,
 				03,Mar,
@@ -912,7 +911,7 @@ $+job/due *=*/*/*:
 				10,Oct,
 				11,Nov,
 				12,Dec
-			)] [rjust(%2,2,0)] 23:59:00 [switch(strlen(%3),2,20[rjust(%3,2,0)],%3)]))]
+			)] [rjust(trim(%2),2,0)] 23:59:00 [switch(strlen(trim(%3)),2,20[rjust(trim(%3),2,0)],trim(%3))]))]
 		[gt(%q1,0)]
 		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[udefault(%q0/DUE_ACCESS,1,%#)]
@@ -923,7 +922,7 @@ $+job/due *=*/*/*:
 		1110*,{@pemit %#=You do not have access to that job.},
 		11110*,{@pemit %#=That action is not available for that job.},
 		{
-			@pemit %#=You have set Job Number %0's date to [convsecs(%q1)].;
+			@pemit %#=You have set [name(%q0)]'s date to [convsecs(%q1)].;
 			&DUE_ON %q0=%q1;
 			@trigger %va/TRIG_ADD=%q0,Due on [convsecs(%q1)].,%#,DUE;
 			@trigger %va/TRIG_BROADCAST=%q0,%#,DUE
@@ -938,7 +937,7 @@ $+job/edit */*=*/*:
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
 		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
-		[setq(1,get(%q0/COMMENT_%1))]
+		[setq(1,get(%q0/COMMENT_[trim(%1)]))]
 		[switch(first(%q1,|),ADD,1,CRE,1,0)]
 		[not(u(%va/IS_LOCKED,%q0,%#))]
 		[switch(
@@ -957,10 +956,10 @@ $+job/edit */*=*/*:
 		1111110*,{@pemit %#=You can only edit entries that belong to you.},
 		11111110*,{@pemit %#=That action is not available for that job.},
 		{
-			&COMMENT_%1 %q0=[extract(%q1,1,4,|)]|[edit(last(%q1,|),edit(%2,|,@@PIPE@@),edit(%3,|,@@PIPE@@))];
-			@pemit %#=Edited: [last(u(%q0/COMMENT_%1),|)];
+			&COMMENT_[trim(%1)] %q0=[extract(%q1,1,4,|)]|[edit(last(%q1,|),edit(%2,|,@@PIPE@@),edit(%3,|,@@PIPE@@))];
+			@pemit %#=Edited: [last(u(%q0/COMMENT_[trim(%1)]),|)];
 			@trigger %va/TRIG_ADD=%q0,Comment %1 edited by %n.,%#,EDT,[objeval(%#,secure(%1))];
-			@trigger %va/TRIG_BROADCAST=%q0,%#,EDT,[objeval(%#,secure(%1))]
+			@trigger %va/TRIG_BROADCAST=%q0,%#,EDT
 		}
 -
 
@@ -980,7 +979,7 @@ $+job/esc *=*:
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
 		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
-		[setq(1,match(green yellow red,%1*))]
+		[setq(1,match(green yellow red,[trim(%1)]*))]
 		[setq(2,extract(GREEN YELLOW RED,%q1,1))]
 		[gt(%q1,0)]
 		[not(u(%va/IS_LOCKED,%q0,%#))]
@@ -995,7 +994,7 @@ $+job/esc *=*:
 		{
 			@pemit %#=You have escalated job # %0 to %q2 status.;
 			&PRIORITY %q0=%q1;
-			@trigger %va/TRIG_ADD=%q0,Priority To %q2.,%#,ESC,ucstr(secure(%1));
+			@trigger %va/TRIG_ADD=%q0,Priority To %q2.,%#,ESC,ucstr(trim(%1));
 			@trigger %va/TRIG_BROADCAST=%q0,%#,ESC,%q2
 		}
 -
@@ -1043,11 +1042,11 @@ $+job/last *=*:
 						)
 					),
 					ifelse(
-						lt(sub(words(%q1),%1),1),
+						lt(sub(words(%q1),trim(%1)),1),
 						1,
-						inc(sub(words(%q1),%1))
+						inc(sub(words(%q1),trim(%1)))
 					),
-					inc(%1)
+					inc(trim(%1))
 				)]
 				={
 					@pemit %#=[u(%va/FN_READJOB,##,%q0)]
@@ -1072,7 +1071,7 @@ $+job/lock *:
 		1110*,{@pemit %#=That job is already locked.},
 		11110*,{@pemit %#=That action is not available for that job.},
 		{
-			@pemit %#=You have locked job %0. No further modifications can be made to this job until it is unlocked.;
+			@pemit %#=You have locked [name(%q0)]. No further modifications can be made to this job until it is unlocked.;
 			&LOCKED_BY %q0=%#;
 			&LOCKED %q0=1;
 			@trigger %va/TRIG_ADD=%q0,Locked by %n.,%#,LOK;
@@ -1096,7 +1095,7 @@ $+job/log *:
 		1110*,{@pemit %#=You do not have access to that job.},
 		11110*,{@pemit %#=There is no logfile for that bucket.},
 		{
-			@pemit %#=Logging Job %0 to game/[switch(
+			@pemit %#=Logging [name(%q0)] to game/[switch(
 				first(version()),
 				PennMUSH,log/command.log,
 				TinyMUSH,netmush.log,
@@ -1127,8 +1126,8 @@ $+job/mail *=*:
 		111110*,{@pemit %#=That job is presently [ifelse(u(%va/FN_HASATTRP,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		1111110*,{@pemit %#=That action is not available for that job.},
 		{
-			@pemit %#=You have mailed [u(%va/FN_PLAYERLIST,%q0)] about job #%0, with the comments: %1;
-			@trigger %va/TRIG_ADD=%q0,[u(%va/FN_STRTRUNC,ansi(h,Mail sent to [u(%va/FN_PLAYERLIST,%q0)]:)%r%r%1,get(%va/BUFFER))],%#,MAI;
+			@pemit %#=You have mailed [u(%va/FN_PLAYERLIST,%q0)] about [name(%q0)], with the comments: [trim(%1)];
+			@trigger %va/TRIG_ADD=%q0,[u(%va/FN_STRTRUNC,ansi(h,Mail sent to [u(%va/FN_PLAYERLIST,%q0)]:)%r%r[trim(%1)],get(%va/BUFFER))],%#,MAI;
 			@trigger %va/TRIG_BROADCAST=%q0,%#,MAI,%q1
 		}
 -
@@ -1163,7 +1162,7 @@ $+job/merge *=*:
 		11111110*,{@pemit %#=That action is not available for [name(%q0)].},
 		111111110*,{@pemit %#=That action is not available for [name(%q1)].},
 		{
-			@trigger %va/TRIG_ADD=%q0,Job [secure(%0)] merged into this one.,%#,MRG;
+			@trigger %va/TRIG_ADD=%q0,[name(%q1)] merged into this one.,%#,MRG;
 			@trigger %va/TRIG_BROADCAST=%q0,%#,MRG,%q1;
 			@wait 0=
 			{
@@ -1194,9 +1193,9 @@ $+job/name *=*:
 		1110*,{@pemit %#=That job is presently [ifelse(u(%va/FN_HASATTRP,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		11110*,{@pemit %#=That action is not available for that job.},
 		{
-			@pemit %#=You have changed the name of Job %0 to %1.;
-			&TITLE %q0=[secure(%1)];@trigger %va/TRIG_ADD=%q0,Renamed to '[secure(%1)]'.,%#,NAM;
-			@trigger %va/TRIG_BROADCAST=%q0,%#,NAM,[secure(%1)]
+			@pemit %#=You have changed the name of [name(%q0)] to [trim(%1)].;
+			&TITLE %q0=[secure(trim(%1))];@trigger %va/TRIG_ADD=%q0,Renamed to '[secure(trim(%1))]'.,%#,NAM;
+			@trigger %va/TRIG_BROADCAST=%q0,%#,NAM,[secure(trim(%1))]
 		}
 -
 
@@ -1214,7 +1213,7 @@ $+job/new *:
 		110*,{@pemit %#=You do not have access to that job.},
 		{
 			@pemit %#=
-				[u(%va/FN_HEADER,View Job Number %0)]%r
+				[u(%va/FN_HEADER,View [name(%q0)])]%r
 				[ulocal(%va/FN_BANNER,%q0)]
 				[ifelse(
 					u(%va/FN_HASATTRP,%q0,SUMMARY),
@@ -1234,7 +1233,7 @@ $+job/new *:
 						[ifelse(
 							u(%va/IS_LOCKED,%q0,%#),
 							u(%va/FN_FOOTER,u(%va/FN_FLAGS,%q0)),
-							[u(%va/FN_FOOTER,New Activity on Job %0 since [convsecs(%q1)])]
+							[u(%va/FN_FOOTER,New Activity on [name(%q0)] since [convsecs(%q1)])]
 						)][u(%va/FN_READERS,%q0,%#)]
 				};
 			}
@@ -1264,13 +1263,13 @@ $+job/publish *:
 		11111110*,{@pemit %#=That action is not available for that job.},
 		111111110*,
 		{
-			@pemit %#=You have published Job %0.;
+			@pemit %#=You have published [name(%q0)].;
 			&PUBLISH %q0=1;
 			@trigger %va/TRIG_ADD=%q0,Published by %n.,%#,PUB;
 			@trigger %va/TRIG_BROADCAST=%q0,%#,PUB
 		},
 		{
-			@pemit %#=Job %0 will now no longer be published.;
+			@pemit %#=[name(%q0)] will now no longer be published.;
 			&PUBLISH %q0=0;
 			@trigger %va/TRIG_ADD=%q0,Unpublished by %n.,%#,UNP;
 			@trigger %va/TRIG_BROADCAST=%q0,%#,UNP
@@ -1287,7 +1286,7 @@ $+job/publish *=*:
 		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[not(u(%va/IS_LOCKED,%q0,%#))]
 		[u(%va/IS_PUBLIC,%q0)]
-		[u(%va/FN_HASATTRP,%q0,COMMENT_%1)]
+		[u(%va/FN_HASATTRP,%q0,COMMENT_[trim(%1)])]
 		[udefault(%q0/PUB_ACCESS,1,%#)]
 		[neq(u(%q0/PUBLISH),1)]
 		[hasflag(%q0/COMMENT_%1,no_inherit)]
@@ -1303,16 +1302,16 @@ $+job/publish *=*:
 		111111110*,{@pemit %#=That job is published. Comment publication has no effect.},
 		1111111110*,
 		{
-			@pemit %#=You have published Comment %1 on Job %0.;
-			@set %q0/COMMENT_%1=no_inherit;
-			@trigger %va/TRIG_ADD=%q0,Comment [secure(%1)] published by %n.,%#,PUB;
+			@pemit %#=You have published Comment [trim(%1)] on [name(%q0)].;
+			@set %q0/COMMENT_[trim(%1)]=no_inherit;
+			@trigger %va/TRIG_ADD=%q0,Comment [trim(%1)] published by %n.,%#,PUB;
 			@trigger %va/TRIG_BROADCAST=%q0,%#,PUB,%1
 		},
 		{
 			@pemit %#=Job %0/Comment %1 will no longer be published.;
-			@set %q0/COMMENT_%1=!no_inherit;
-			@trigger %va/TRIG_ADD=%q0,Comment [secure(%1)] Unpublished by %n.,%#,UNP;
-			@trigger %va/TRIG_BROADCAST=%q0,%#,UNP,%1
+			@set %q0/COMMENT_[name(%q0)]=!no_inherit;
+			@trigger %va/TRIG_ADD=%q0,Comment [trim(%1)] Unpublished by %n.,%#,UNP;
+			@trigger %va/TRIG_BROADCAST=%q0,%#,UNP,trim(%1)
 		}
 -
 
@@ -1327,14 +1326,14 @@ $+job/query */*=*:
 		0*,{@pemit %#=Permission denied.},
 		{
 			@switch 
-				[setq(1,map(%va/MAP_SOURCE,secure(%0)))]
+				[setq(1,map(%va/MAP_SOURCE,secure(trim(%0))))]
 				[setq(2,member(%q1,#-1))]
 				[not(gt(%q2,0))]
 				=
-				0,{@pemit %#='[extract(secure(%0),%q2,1)]' is not a valid player or jgroup.},
+				0,{@pemit %#='[extract(secure(trim(%0)),%q2,1)]' is not a valid player or jgroup.},
 				{
-					@pemit %#=You have sent a query to '%0' regarding '%1'.;
-					@trigger %va/TRIG_CREATE=%#,u(%va/FN_FIND-BUCKET,QUERY),2,[u(%va/FN_STRTRUNC,secure(%1),30)],Queried [u(%va/FN_ITEMIZE,map(%va/MAP_NAME,%q1,%b,|),|)]:%r%r[u(%va/FN_STRTRUNC,%2,get(%va/BUFFER))],%q1,,0
+					@pemit %#=You have sent a query to '[trim(%0)]' regarding '[trim(%1)]'.;
+					@trigger %va/TRIG_CREATE=%#,u(%va/FN_FIND-BUCKET,QUERY),2,[u(%va/FN_STRTRUNC,secure(trim(%1)),30)],Queried [u(%va/FN_ITEMIZE,map(%va/MAP_NAME,%q1,%b,|),|)]:%r%r[u(%va/FN_STRTRUNC,trim(%2),get(%va/BUFFER))],%q1,,0
 				}
 		}
 -
@@ -1344,7 +1343,7 @@ $+job/set *=*:
 	@switch 
 		[u(%va/HAS_ACCESS,%#)]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
-		[setq(2,dec(member(setr(a,HOLD NEW UNDERWAY 25 50 75 100),ucstr(%1))))]
+		[setq(2,dec(member(setr(a,HOLD NEW UNDERWAY 25 50 75 100),ucstr(trim(%1)))))]
 		[isdbref(%q0)]
 		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[and(isnum(%q2),gt(%q2,-1),lt(%q2,7))]
@@ -1358,7 +1357,7 @@ $+job/set *=*:
 		11110*,{@pemit %#=That job is presently [ifelse(u(%va/FN_HASATTRP,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		111110*,{@pemit %#=That action is not available for that job.},
 		{
-			@pemit %#=You set Job Number [secure(%0)] to [setq(1,switch(%q2,0,ON HOLD,1,NEW,2,UNDERWAY,3,1/4 COMPLETE,4,1/2 COMPLETE,5,3/4 COMPLETE,COMPLETE))]%q1 status.;
+			@pemit %#=You set [name(%q0)] to [setr(1,switch(%q2,0,ON HOLD,1,NEW,2,UNDERWAY,3,1/4 COMPLETE,4,1/2 COMPLETE,5,3/4 COMPLETE,COMPLETE))] status.;
 			&STATUS %q0=%q2;
 			@trigger %va/TRIG_ADD=%q0,Set to %q1.,%#,STA;
 			@trigger %va/TRIG_BROADCAST=%q0,%#,STA,%q1
@@ -1373,7 +1372,7 @@ $+job/source *=*:
 		[isdbref(%q0)]
 		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
 		[not(u(%va/IS_LOCKED,%q0,%#))]
-		[setq(1,map(%va/MAP_SOURCE,secure(%1)))]
+		[setq(1,map(%va/MAP_SOURCE,secure(trim(%1))))]
 		[setq(2,member(%q1,#-1))]
 		[not(gt(%q2,0))]
 		[udefault(%q0/SRC_ACCESS,1,%#)]
@@ -1382,7 +1381,7 @@ $+job/source *=*:
 		10*,{@pemit %#=There is no job by that number.},
 		110*,{@pemit %#=You do not have access to that job.},
 		1110*,{@pemit %#=That job is presently [ifelse(u(%va/FN_HASATTRP,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
-		11110*,{@pemit %#='[extract(secure(%1),%q2,1)]' is not a valid player or jgroup.},
+		11110*,{@pemit %#='[extract(secure(trim(%1)),%q2,1)]' is not a valid player or jgroup.},
 		111110*,{@pemit %#=That action is not available for that job.},
 		{
 			&opened_by %q0=%q1;
@@ -1428,16 +1427,16 @@ $+job/sumset */*=*:
 		[u(%va/HAS_ACCESS,%#)]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
-		[u(%va/FN_HASATTRP,%q0,ACCESS_%1)]
-		[and(u(%va/CONFIG_ACCESS,%#),u(%q0/ACCESS_%1,%#))]
+		[u(%va/FN_HASATTRP,%q0,ACCESS_[trim(%1)])]
+		[and(u(%va/CONFIG_ACCESS,%#),u(%q0/ACCESS_[trim(%1)],%#))]
 		[not(u(%va/IS_LOCKED,%q0,%#))]
-		[u(%q0/PROCESS_%1,%2,%q0,%#)]
+		[u(%q0/PROCESS_[trim(%1)],trim(%2),%q0,%#)]
 		[udefault(%q0/SUM_ACCESS,1,%#)]
 		=
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=There is no such job. See '[ansi(h,+jobs)]' for a list of valid jobs.},
 		110*,{
-			@pemit %#='%1' is not a valid parameter. Valid parameters for [name(%q0)] are 
+			@pemit %#='[trim(%1)]' is not a valid parameter. Valid parameters for [name(%q0)] are 
 				[u(%va/FN_ITEMIZE,
 					map(%va/MAP_PARAMS,
 						lattr(parent(%q0)/PROCESS_*)
@@ -1446,12 +1445,12 @@ $+job/sumset */*=*:
 		},
 		1110*,{@pemit %#=You either can not use the +job/sumset command, or set that parameter.},
 		11110*,{@pemit %#=That job is presently [ifelse(u(%va/FN_HASATTRP,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
-		111110*,{@pemit %#=[u(%q0/ERROR_%1%q2)]},
+		111110*,{@pemit %#=[u(%q0/ERROR_[trim(%1)]%q2)]},
 		1111110*,{@pemit %#=That action is not available for that job.},
 		{
-			@trigger %va/TRIG_BROADCAST=%q0,%#,SUM,[ucstr(%1)];
+			@trigger %va/TRIG_BROADCAST=%q0,%#,SUM,[ucstr(trim(%1))];
 			&%q3 %q0=%q1;
-			@trigger %va/TRIG_ADD=%q0,[ucstr(%1)] parameter updated to '%2',%#,SUM
+			@trigger %va/TRIG_ADD=%q0,[ucstr(trim(%1))] parameter updated to '[trim(%2)]',%#,SUM
 		}
 -
 
@@ -1461,9 +1460,9 @@ $+job/tag *:
 		[u(%va/HAS_ACCESS,%#)]
 		[switch(strmatch(%0,*=*),
 			1,
-				[setq(8,secure(first(%0,=)))]
-				[setq(9,secure(rest(%0,=)))],
-			[setq(8,secure(%0))][setq(9,%#)]
+				[setq(8,first(%0,=))]
+				[setq(9,trim(secure(rest(%0,=))))],
+			[setq(8,%0)][setq(9,%#)]
 		)]
 		[setq(7,map(%va/MAP_JGROUP,%q9))]
 		[setq(6,u(%va/fn_trim,squish(map(%va/MAP_JGROUPERROR,%q9))))]
@@ -1492,7 +1491,7 @@ $+job/tag *:
 					&tagged_for %q0=[setunion(get(%q0/tagged_for),%q7)];
 					@trigger %va/TRIG_ADD=%q0,Added tags for [setr(5,u(%va/FN_ITEMIZE,map(%va/MAP_NAME,%q7,%b,|),|))],%#,TAG,%q7;
 					@trigger %va/TRIG_BROADCAST=%q0,%#,TAG,%q5;
-					@pemit %#={Job %q8 updated - tags added. Now tagged for: [u(%va/FN_ITEMIZE,
+					@pemit %#={[name(%q0)] updated - tags added. Now tagged for: [u(%va/FN_ITEMIZE,
 						map(%va/MAP_NAME,get(%q0/tagged_for),%b,|),|
 					)]}
 				}
@@ -1545,7 +1544,7 @@ $+job/undelete *:
 	1110*,{@pemit %#=That job has not been deleted.},
 	11110*,{@pemit %#=That action is not available for that job.},
 	{
-		@pemit %#=You have restored job %0.;
+		@pemit %#=You have restored [name(%q0)].;
 		@set %q0=!going;
 		&going %q0;
 		@trigger %va/TRIG_ADD=%q0,Undeleted job.,%#,UND;
@@ -1569,7 +1568,7 @@ $+job/unlock *:
 	1110*,{@pemit %#=That job is not locked.},
 	11110*,{@pemit %#=That action is not available for that job.},
 	{
-		@pemit %#=You have unlocked job %0.;
+		@pemit %#=You have unlocked [name(%q0)].;
 		&LOCKED %q0=;
 		&LOCKED_BY %q0=;
 		@trigger %va/TRIG_ADD=%q0,Unlocked by %n.,%#,UNL;
@@ -1584,9 +1583,9 @@ $+job/untag *:
 		[u(%va/HAS_ACCESS,%#)]
 		[switch(strmatch(%0,*=*),
 			1,
-				[setq(8,secure(first(%0,=)))]
-				[setq(9,secure(rest(%0,=)))],
-			[setq(8,secure(%0))]
+				[setq(8,first(%0,=))]
+				[setq(9,trim(secure(rest(%0,=))))],
+			[setq(8,%0)]
 			[setq(9,%#)]
 		)]
 		[setq(7,map(%va/MAP_JGROUP,%q9))]
@@ -1616,7 +1615,7 @@ $+job/untag *:
 					&tagged_for %q0=[setdiff(get(%q0/tagged_for),%q7)];
 					@trigger %va/TRIG_ADD=%q0,Removed tags for [setr(5,u(%va/FN_ITEMIZE,map(%va/MAP_NAME,%q7,%b,|),|))],%#,TAG;
 					@trigger %va/TRIG_BROADCAST=%q0,%#,TAG,%q5;
-					@pemit %#={Job %q8 updated - tags removed. Now tagged for: [u(%va/FN_ITEMIZE,
+					@pemit %#={[name(%q0)] updated - tags removed. Now tagged for: [u(%va/FN_ITEMIZE,
 						map(%va/MAP_NAME,get(%q0/tagged_for),%b,|),|
 					)]}
 				}
@@ -1898,8 +1897,8 @@ $+jobs/select *:
 $+jobs/who *:
 	@switch 
 	[u(%va/HAS_ACCESS,%#)]
-	[setq(0,pmatch(%0))]
-	[or(match(%0,none),isdbref(%q0))]
+	[setq(0,pmatch(trim(%0)))]
+	[or(match(trim(%0),none),isdbref(%q0))]
 	=
 	0*,{@pemit %#=Permission denied.},
 	10*,{@pemit %#={There is no player by that name. Request must be by player or 'none'.}},
@@ -1955,11 +1954,11 @@ $+myjob/add *=*:
 		=
 		0*,@pemit %#=This command is not available to guests.,
 		10*,@pemit %#=That is an invalid job number.,
-		110*,@pemit %#=Job %0 is not yours. You can only modify your own jobs.,
+		110*,@pemit %#=[name(%q0)] is not yours. You can only modify your own jobs.,
 		1110*,@pemit %#=That job is locked and cannot be changed at this time.,
 		{
-			@pemit %#=Comments to job number %0 added.;
-			@trigger %va/TRIG_ADD=%q0,%1,%#,ADD;
+			@pemit %#=Comments to [name(%q0)] added.;
+			@trigger %va/TRIG_ADD=%q0,trim(%1),%#,ADD;
 			@trigger %va/TRIG_BROADCAST=%q0,%#,ADD
 		}
 -
@@ -1986,16 +1985,16 @@ $+myjob/sumset */*=*:
 	@switch 
 		[not(haspower(%#,guest))]
 		[isdbref(setr(0,u(%va/FN_FIND-JOB,%0)))]
-		[u(%va/FN_HASATTRP,%q0,MYACCESS_[objeval(%#,%1)])]
-		[and(u(%va/CONFIG_ACCESS,%#),u(%q0/MYACCESS_[objeval(%#,%1)],%#))]
+		[u(%va/FN_HASATTRP,%q0,MYACCESS_[trim(%1)])]
+		[and(u(%va/CONFIG_ACCESS,%#),u(%q0/MYACCESS_[trim(%1)],%#))]
 		[not(u(%va/IS_LOCKED,%q0,%#))]
-		[u(%q0/MYPROCESS_[objeval(%#,%1)],objeval(%#,%2),%q0,%#)]
+		[u(%q0/MYPROCESS_[trim(%1)],trim(%2),%q0,%#)]
 		=
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=There is no such job. See '[ansi(h,+jobs)]' for a list of valid jobs.},
 		110*,
 			{
-				@pemit %#='%1' is not a valid parameter. Valid parameters for [name(%q0)] are 
+				@pemit %#='[trim(%1)]' is not a valid parameter. Valid parameters for [name(%q0)] are 
 					[u(%va/FN_ITEMIZE,
 						map(%va/MAP_PARAMS,
 						lattr(parent(%q0)/MYPROCESS_*))
@@ -2008,11 +2007,11 @@ $+myjob/sumset */*=*:
 				@pemit %#=That job is presently [ifelse(u(%va/FN_HASATTRP,%q0,CHECKOUT),checked out to%b
 					[name(first(get(%q0/CHECKOUT)))],locked)]
 			},
-		111110*,{@pemit %#=[u(%q0/MYERROR_[objeval(%#,%1)]%q2)]},
+		111110*,{@pemit %#=[u(%q0/MYERROR_[trim(%1)]%q2)]},
 		{
-			@trigger %va/TRIG_BROADCAST=%q0,%#,MYS,[ucstr([objeval(%#,%1)])];
+			@trigger %va/TRIG_BROADCAST=%q0,%#,MYS,[ucstr(trim(%1))];
 			&%q3 %q0=%q1;
-			@trigger %va/TRIG_ADD=%q0,[ucstr([objeval(%#,%1)])] parameter updated to '[objeval(%#,%2)]',%#,MYS
+			@trigger %va/TRIG_ADD=%q0,[ucstr(trim(%1))] parameter updated to '[trim(%2)]',%#,MYS
 		}
 -
 
@@ -2033,7 +2032,7 @@ $+myjob *:
 		=
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=That is not a valid job number.},
-		110*,{@pemit %#=Job %0 is not yours. You can only view your own jobs.},
+		110*,{@pemit %#=[name(%q0)] is not yours. You can only view your own jobs.},
 		{
 			@pemit %#=
 				[u(%va/FN_READERS,%q0,%#)]
@@ -2073,7 +2072,7 @@ $+myjob/last *=*:
 		=
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=That is not a valid job number.},
-		110*,{@pemit %#=Job %0 is not yours. You can only view your own jobs.},
+		110*,{@pemit %#=[name(%q0)] is not yours. You can only view your own jobs.},
 		{
 			@pemit %#=
 				[u(%va/FN_READERS,%q0,%#)]
@@ -2095,11 +2094,11 @@ $+myjob/last *=*:
 						)
 					),
 					ifelse(
-						lt(sub(words(%q1),%1),1),
+						lt(sub(words(%q1),trim(%1)),1),
 						1,
-						inc(sub(words(%q1),%1))
+						inc(sub(words(%q1),trim(%1)))
 					),
-					inc(%1)
+					inc(trim(%1))
 				)]
 				={@pemit %#=[u(%va/FN_READJOB,##,%q0)]};
 			@wait 0=@pemit %#=[u(%va/FN_FOOTER)]
@@ -2140,10 +2139,10 @@ $+pitch *=*:
 		@pemit %#=Permission Denied.
 	},{
 		@pemit %#=
-			You have pitched your idea to staff about '[secure(%0)]'. 
+			You have pitched your idea to staff about '[trim(secure(%0))]'. 
 			Please remember that this is merely an idea [ansi(hu,pitch)], and not a request. 
 			Staff, for one reason or many, may decide not to go with the idea.;
-		@trigger %va/TRIG_CREATE=%#,u(%va/FN_FIND-BUCKET,PITCH),1,[u(%va/FN_STRTRUNC,secure(%0),30)],%1,,,3
+		@trigger %va/TRIG_CREATE=%#,u(%va/FN_FIND-BUCKET,PITCH),1,[u(%va/FN_STRTRUNC,trim(secure(%0)),30)],trim(%1),,,3
 	}
 -
 
@@ -2153,9 +2152,9 @@ $+request *=*:
 		@pemit %#=Permission denied.
 	},{
 		@pemit %#=
-			You have requested [secure(u(%va/FN_STRTRUNC,%0,30))] from staff. 
+			You have requested [secure(u(%va/FN_STRTRUNC,trim(%0),30))] from staff. 
 			Please allow for some time to process it. Do not page staff about it - you will hear back soon.;
-		@trigger %va/TRIG_CREATE=%#,u(%va/FN_FIND-BUCKET,REQ),2,[u(%va/FN_STRTRUNC,secure(%0),30)],[u(%va/FN_STRTRUNC,%1,get(%va/BUFFER))],,,2
+		@trigger %va/TRIG_CREATE=%#,u(%va/FN_FIND-BUCKET,REQ),2,[u(%va/FN_STRTRUNC,trim(secure(%0)),30)],[u(%va/FN_STRTRUNC,trim(%1),get(%va/BUFFER))],,,2
 	}
 -
 
@@ -2165,8 +2164,8 @@ $+typo *:
 		@pemit %#=Permission denied.
 	},{
 		@pemit %#=
-			You have notified production staff of the typo, with the details '[u(%va/FN_STRTRUNC,%0,get(%va/BUFFER))]';
-			@trigger %va/TRIG_CREATE=%#,u(%va/FN_FIND-BUCKET,BUILD),2,Typo Reported,[u(%va/FN_STRTRUNC,%0,get(%va/BUFFER))],,,4
+			You have notified production staff of the typo, with the details '[u(%va/FN_STRTRUNC,trim(%0),get(%va/BUFFER))]';
+			@trigger %va/TRIG_CREATE=%#,u(%va/FN_FIND-BUCKET,BUILD),2,Typo Reported,[u(%va/FN_STRTRUNC,trim(%0),get(%va/BUFFER))],,,4
 	}
 -
 
@@ -2846,8 +2845,8 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 &FN_FIND-BUCKET [v(JOB_VA)]=
 	localize(ifelse(
 		or(
-			strmatch(name(setr(0,locate(%vc,%0,iT))),%0),
-			strmatch(%q0,%0)
+			strmatch(name(setr(0,locate(%vc,trim(%0),iT))),trim(%0)),
+			strmatch(%q0,trim(%0))
 		),
 		%q0,
 		#-1
@@ -2857,8 +2856,8 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 &FN_FIND-JGROUP [v(JOB_VA)]=
 	localize(ifelse(
 		or(
-			strmatch(name(setr(0,locate(%vb,%0,iT))),%0),
-			strmatch(%q0,%0)
+			strmatch(name(setr(0,locate(%vb,trim(%0),iT))),trim(%0)),
+			strmatch(%q0,trim(%0))
 		),
 		%q0,
 		#-1
@@ -2868,8 +2867,8 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 &FN_FIND-JOB [v(JOB_VA)]=
 	localize(ifelse(
 		or(
-			strmatch(name(setr(0,locate(%va,Job %0,iT))),Job %0),
-			strmatch(%q0,%0)
+			strmatch(name(setr(0,locate(%va,Job [trim(%0)],iT))),Job [trim(%0)]),
+			strmatch(%q0,trim(%0))
 		),
 		%q0,
 		#-1
