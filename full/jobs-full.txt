@@ -560,7 +560,7 @@ $+job/all *:
 		110*,{@pemit %#=You do not have access to that job.},
 		{
 			@pemit %#=
-				[u(%va/FN_READERS,%q0,%#)]
+				[u(%va/FN_READERS,%q0,%#,1)]
 				[u(%va/FN_HEADER,View [name(%q0)])]%r
 				[ulocal(%va/FN_BANNER,%q0,%#)]
 				[ifelse(
@@ -1031,7 +1031,7 @@ $+job/last *=*:
 		10*,{@pemit %#=There is no job by that name. Please type '+jobs/all' for all jobs or '+jobs/<type>' to list by type.},
 		110*,{@pemit %#=You do not have access to that job.},
 		{
-			@pemit %#=[u(%va/FN_READERS,%q0,%#)]
+			@pemit %#=[u(%va/FN_READERS,%q0,%#,1)]
 				[u(%va/FN_HEADER,View [name(%q0)])]%r[ulocal(%va/FN_BANNER,%q0)];
 			@dolist 
 				[extract(
@@ -1234,7 +1234,7 @@ $+job/new *:
 							u(%va/IS_LOCKED,%q0,%#),
 							u(%va/FN_FOOTER,u(%va/FN_FLAGS,%q0)),
 							[u(%va/FN_FOOTER,New Activity on [name(%q0)] since [convsecs(%q1)])]
-						)][u(%va/FN_READERS,%q0,%#)]
+						)][u(%va/FN_READERS,%q0,%#,1)]
 				};
 			}
 -
@@ -1636,7 +1636,7 @@ $+job *:
 	110*,{@pemit %#=You do not have access to that job.},
 	{
 		@pemit %#=
-			[u(%va/FN_READERS,%q0,%#)]
+			[u(%va/FN_READERS,%q0,%#,1)]
 			[u(%va/FN_HEADER,View [name(%q0)])]%r
 			[ulocal(%va/FN_BANNER,%q0,%#)]
 			[ifelse(u(%va/FN_HASATTRP,%q0,SUMMARY),[ulocal(%va/FN_SUMMARY,%q0,%#)],)];
@@ -2067,7 +2067,7 @@ $+myjob *:
 		110*,{@pemit %#=[name(%q0)] is not yours. You can only view your own jobs.},
 		{
 			@pemit %#=
-				[u(%va/FN_READERS,%q0,%#)]
+				[u(%va/FN_READERS,%q0,%#,1)]
 				[u(%va/FN_HEADER,View [name(%q0)])]
 				%r
 				[u(%va/FN_MYBANNER,%q0)]
@@ -2107,7 +2107,7 @@ $+myjob/last *=*:
 		110*,{@pemit %#=[name(%q0)] is not yours. You can only view your own jobs.},
 		{
 			@pemit %#=
-				[u(%va/FN_READERS,%q0,%#)]
+				[u(%va/FN_READERS,%q0,%#,1)]
 				[u(%va/FN_HEADER,View [name(%q0)])]
 				%r
 				[u(%va/FN_MYBANNER,%q0)]
@@ -2546,8 +2546,8 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 
 &FIL_NEW1 [v(JOB_VA)]=
 	or(
-		not(match(get(%0/LIST_READERS),%#|*)),
-		gt(dec(get(%0/NUM_COMMENT)),last(grab(get(%0/LIST_READERS),%#|*),|))
+		not(match(get(%0/LIST_JOBSN),%#|*)),
+		gt(dec(get(%0/NUM_COMMENT)),last(grab(get(%0/LIST_JOBSN),%#|*),|))
 	)
 -
 
@@ -2567,7 +2567,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 	)
 -
 
-&FIL_NEWCOMMENTS1 [v(JOB_VA)]=gt(last(%0,_),last(grab(get(%q0/LIST_READERS),%#|*),|))
+&FIL_NEWCOMMENTS1 [v(JOB_VA)]=gt(last(%0,_),last(grab(get(%q0/LIST_JOBSN),%#|*),|))
 -
 
 &FIL_NOSPAM [v(JOB_VA)]=not(u(%va/FN_HASATTR,%0,JOBS_NOSPAM))
@@ -3086,11 +3086,20 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 		[last(%0,switch(%1,,%b,%1))]
 	)
 -
-
+#
+# If a 1 is passed as the 3rd argument, it's an "actual" read. Otherwise
+# it only clears the new job indicator.
+#
 &FN_READERS [v(JOB_VA)]=
-	[set(%0,LIST_READERS:
+	[ifelse(%2,set(%0,LIST_READERS:
 		[setunion(
 			setdiff(get(%0/LIST_READERS),grab(get(%0/LIST_READERS),%1|*)),
+			%1|[dec(get(%0/NUM_COMMENT))]
+		)]
+	),)]
+	[set(%0,LIST_JOBSN:
+		[setunion(
+			setdiff(get(%0/LIST_JOBSN),grab(get(%0/LIST_JOBSN),%1|*)),
 			%1|[dec(get(%0/NUM_COMMENT))]
 		)]
 	)]
@@ -4012,12 +4021,12 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 &TRIG_ADD [v(JOB_VA)]=
 	think 
 		[setq(0,default(%0/NUM_COMMENT,1))]
-		[setq(1,last(grab(get(%0/LIST_READERS),%2|*),|))]
+		[setq(1,last(grab(get(%0/LIST_JOBSN),%2|*),|))]
 		[setq(2,edit(%1,|,@@PIPE@@))]
 		[ifelse(eq(dec(%q0),%q1),
-			set(%0,LIST_READERS:
+			set(%0,LIST_JOBSN:
 				[setunion(
-					remove(get(%0/LIST_READERS),%2|%q1),
+					remove(get(%0/LIST_JOBSN),%2|%q1),
 					%2|%q0
 				)]
 			),
@@ -4124,7 +4133,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 			&NUM_COMMENT %q1=2;
 			&PRIORITY %q1=%2;
 			&COMMENT_1 %q1=CRE|[secs()]|%0|[name(%0)]|[ifelse(u(%va/FN_HASATTRP,parent(%q1),ALETTER_%qy),u(%va/FN_STRTRUNC,u([parent(%q1)]/ALETTER_%qy,%q1,%0,edit(%4,|,@@PIPE@@)),get(%va/BUFFER)),u(%va/FN_STRTRUNC,edit(%4,|,@@PIPE@@),get(%va/BUFFER)))];
-			&LIST_READERS %q1=%0|1;
+			&LIST_JOBSN %q1=%0|1;
 			&ASSIGNED_TO %q1=%6;
 			&JOBS_NUM %va=%q0;
 			&DUE_ON %q1=[ifelse(u(%va/FN_HASATTRP,%q1,TURNAROUND),add(secs(),mul(60,60,get(%q1/TURNAROUND))),)];
@@ -6285,6 +6294,15 @@ think [ansi(hc,ANOMALY JOBS:)] Setting locks.
 				get(##/JOBSB),
 				u([v(JOB_VA)]/FN_OBJID,first(itext(0),:))
 			)
+		}
+	}
+-
+
+@switch [v(JOB_PATCH)]=
+	>0,{
+		think [ansi(hc,ANOMALY JOBS:)] Updating new job indicators.;
+		@dolist lcon(v(JOB_VA))={
+			&LIST_JOBSN ##=[get(##/LIST_READERS)];
 		}
 	}
 -
