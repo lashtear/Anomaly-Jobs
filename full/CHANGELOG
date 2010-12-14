@@ -5,12 +5,15 @@ Version 6.2
 
 New Features:
 - +job/access command offers more +job and +myjob access choices. Issue 128.
+- +jobs/catchup <expression> will catch up selected jobs. Issue 136.
+- +myjobs/catchup command. Issue 136.
 
 Bugfixes:
 - Tagging behavior made consistent and properly documented. Issue 128.
 - Finding jobs, buckets, and jgroups now prefer Things to Players. Issue 129.
 - New jobs with &JOBSN=1 weren't showing on some Penn games. Issue 130.
 - TRIG_CLEAN functionality expanded. Issue 131.
+- Read jobs and "new" jobs (/catchup) are now tracked separately. Issue 137.
 
 Version 6.1
 
