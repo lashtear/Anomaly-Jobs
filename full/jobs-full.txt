@@ -645,7 +645,8 @@ $+job/assign *=*:
 			name(%q1)
 		)] does not have access to that bucket.},
 		{
-			@pemit %#=You have assigned Job number %0 to [ifelse(isdbref(%q1),name(%q1),nobody)].;
+			@pemit %#=You have [ifelse(strmatch(%q1,%#),claimed,assigned)] [name(%q0)]
+				[ifelse(strmatch(%q1,%#),.,%bto [ifelse(isdbref(%q1),name(%q1),nobody)])];
 			&ASSIGNED_TO %q0=[ifelse(%q2,,%q1)];
 			@trigger %va/TRIG_ADD=%q0,
 				[ifelse(
@@ -5345,7 +5346,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting up master parent.
 &BLETTER_APR [v(JOB_VC)]=[name(%0)] has been approved by [name(%1)].
 -
 
-&BLETTER_ASN [v(JOB_VC)]=[name(%0)] has been assigned to [switch(%2,,nobody,name(%2))] by [name(%1)].
+&BLETTER_ASN [v(JOB_VC)]=[name(%0)] has been [ifelse(strmatch(%1,%2),claimed,assigned to [switch(%2,,nobody,name(%2))])] by [name(%1)].
 -
 
 &BLETTER_CKI [v(JOB_VC)]=[name(%0)] has been checked in by [name(%1)].
