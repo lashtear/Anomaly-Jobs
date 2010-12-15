@@ -2230,6 +2230,9 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 		}
 	}
 -
+#
+# Symbols and colors to be used for bar graphs
+#
 
 &CHARGRAPH [v(JOB_VA)]=@+-/!*ox#.X$^`~O>
 -
@@ -2284,12 +2287,18 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 
 &COLORGRAPH_17 [v(JOB_VA)]=hC
 -
+#
+# Array of unique characters which will become pie wedges
+#
 
 &DATA_31-15 [v(JOB_VA)]=@@@@####$$$^^^&&&**((())__+++{{}}//;;'':::""<<<>>>???,,,....aaa !!@@@@###$$$^^^&&&**(()))__++{{}}//;;''::""<<<>>???,,,....aaaab !!!!@@@@###$$$^^&&&**(())__++{{}}//;''::"""<<>>???,,,...aaaabbb ~~!!!!@@@@###$$^^^&&**(())_++{{}}/;;''::""<<>>???,,...aaaabbbbc =~~~~!!!@@@###$$^^^&&**())__+{{}//;;'::""<<>>??,,,..aaabbbbcccc ===~~~~!!!@@@###$$^^&&*(())_++{}//;'':""<<>>??,,..aaabbbbccccdd --====~~~~!!!@@##$$^^&&*(()_++{}//;'::"<<>??,,...aabbbccccdddde 0----====~~~!!!@@##$$^&&*())_+{}/;;':"<<>??,,..aabbbcccddddeeee 00000----===~~~!!@@#$$^&&*()_+{}/;':"<<>?,,..aabbcccdddeeeeefff 99990000----===~~!!@@#$^^&*()+{}/;':"<>?,..aabbccdddeeeefffffgg 888999990000---==~~!!@##$^&()_+}/':"<>?,.abbccdddeeeffffggggggh 7778888889999000--==~~!@#$^&()+};'"<?,.abbcddeeefffggggghhhhhhh 66777777778888999900--=~!@#^&(+};:<?.abcddeeffgggghhhhhiiiiiiii 566666666666777778889900-=~@$&)}'<,abdeefggghhhiiiiiijjjjjjjjjj 5555555555555555666666778890=@&}<adegghiiijjjjjjjkkkkkkkkkkkkkk 4444444444444444444444444444444llllllllllllllllllllllllllllllll 3333332222222222221111```ZYXVSOHBwusrqppoooonnnnnnnnmmmmmmmmmmm 2222211111111`````ZZZYYXWVUSQOLHEBywvutsrrqqppppoooooooonnnnnnn 1111```````ZZZZYYYXXWWVUTSRQOMKHFDBzywvuutssrrrqqqqppppppoooooo ````ZZZZZZYYYYXXXWWVVUTSRQPOMLJHGECBAyxwwvuuttssrrrrqqqqqpppppp ZZZZZYYYYXXXXWWWVVUUTSSRQPONLKJHGFDCBAzyxwwvvuuttssssrrrrqqqqqq YYYYYXXXXWWWWVVUUTTSSRQQPONMLKJHGFEDCBAzyyxwwvvuuutttssssrrrrrq YXXXXXWWWVVVVUUTTSSRRQPPONMLKJIHGFEDDCBAzzyxxwwvvvuuutttsssssrr XXWWWWVVVVUUUTTSSRRQQPPONMMLKJIHHGFEDCCBAAzyyxxwwwvvuuuuttttsss WWWVVVVUUUTTTSSSRRQQPOONNMLKKJIHHGFEEDCCBAAzzyyxxwwwvvvuuuutttt VVVVUUUUTTTSSSRRQQPPOONNMLLKJJIHHGFFEDDCBBAAzzyyyxxwwwvvvvuuuut VVUUUUTTTSSSRRRQQPPOONNMMLKKJJIHHGFFEEDDCBBAAzzzyyxxxwwwvvvvuuu UUUTTTTSSSRRRQQQPPOONNMMLLKKJJIHHGGFFEDDCCBBAAAzzyyyxxxwwwwvvvv UTTTTSSSSRRRQQPPPOONNNMMLLKKJIIHHGGFFEEDDCCBBAAAzzzyyyxxxwwwwvv TTTSSSSRRRQQQPPPOONNNMMLLKKJJIIHHGGFFEEDDDCCBBBAAzzzyyyxxxxwwww TSSSSRRRRQQQPPPOONNNMMLLLKKJJIIHHGGGFFEEDDCCCBBBAAzzzzyyyxxxxww
 -
 
 &DATA_CHARS [v(JOB_VA)]=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ`1234567890-=~!@#$^&*()_+{}/;':"<>?,.
 -
+#
+# Formats for columns in jobs listings, displayed in order by JOBS attribute
+#
 
 &DISPLAY_# [v(JOB_VA)]=[u(%va/FN_STREXACT,%0,default(%#/JOBSWIDTH_#,8))]
 -
@@ -2489,6 +2498,9 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 		16,|,21
 	)]
 -
+#
+# Filters, used internally with filter(). Return 1 or 0.
+#
 
 &FIL_ACCESS [v(JOB_VA)]=u(%va/FN_ACCESSCHECK,%0,%#)
 -
@@ -2643,6 +2655,9 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 		)
 	),1)
 -
+#
+# Tallies types of activities on jobs
+#
 
 &FN_ADDSTAT [v(JOB_VA)]=
 	[setq(x,
@@ -2667,6 +2682,9 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 		)]
 	)]
 -
+#
+# Tallies number of closed jobs and accumulates seconds open
+#
 
 &FN_ADDSTAT_ART [v(JOB_VA)]=
 	null(set(%0,
@@ -2701,6 +2719,15 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 
 &FN_BANNER [v(JOB_VA)]=u(%va/FN_SKIN,BANNER,%0,%1,%2,%3)
 -
+#
+# Creates a bar graph
+# %0 - list of heights to plot
+# %1 - bargraph height in rows (default 18)
+# %2 - width of each bar (default 2)
+# %3 - # of colors before they repeat (max 16)
+# %4 - symbol for colors 9-16 (default #)
+# %5 - delimiter for %0
+#
 
 &FN_BARGRAPH [v(JOB_VA)]=
 	[setq(4,ifelse(%5,%5,%B))]
@@ -2858,6 +2885,14 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 		0
 	))
 -
+#
+# Creates a pie chart
+# %0 - radius of pie in rows
+# %1 - list: @Gg:value:legendtext (@Gg = Symbol, ansi colors)
+# %2 - delimiter for %1 (but legend hardcoded to need |)
+# %3 - legend start row
+# %4 - degrees to rotate start
+#
 
 &FN_EASYPIE [v(JOB_VA)]=
 	edit(u(%va/FN_PIELEGEND,
@@ -3111,6 +3146,9 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 
 &FN_ROTATESTR [v(JOB_VA)]=mid(%0,%1,3999)[mid(%0,0,%1)]
 -
+#
+# Stack functions. All use S-register
+#
 
 &FN_S-INIT [v(JOB_VA)]=setq(S,)
 -
@@ -3243,6 +3281,9 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 		0
 	))]
 -
+#
+# For jobs display controlled by JOBS attribute. Headers for &DISPLAY_
+#
 
 &HEADER_# [v(JOB_VA)]=u(FN_STREXACT,DB#,default(%#/JOBSWIDTH_#,8))
 -
@@ -3563,7 +3604,9 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 
 think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 -
-
+#
+# Arbitrary reports produced by +jobs/reports <text>
+#
 &REPORT_ACTBY [v(JOB_VA)]=
 	[switch(
 		%0,
@@ -4324,6 +4367,9 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 -
 
 # SKINS Setup
+#
+# Name before _ is skin name. If nothing given will use DEFAULT
+#
 
 think [ansi(hc,ANOMALY JOBS:)] Installing skins.
 -
