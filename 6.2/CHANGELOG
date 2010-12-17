@@ -1,0 +1,113 @@
+
+CHANGELOG for Anomaly Jobs
+
+Version 6.2
+
+New Features:
+- +job/access command offers more +job and +myjob access choices. Issue 128.
+- +jobs/catchup <expression> will catch up selected jobs. Issue 136.
+- +myjobs/catchup command. Issue 136.
+
+Bugfixes:
+- Tagging behavior made consistent and properly documented. Issue 128.
+- Finding jobs, buckets, and jgroups now prefer Things to Players. Issue 129.
+- New jobs with &JOBSN=1 weren't showing on some Penn games. Issue 130.
+- TRIG_CLEAN functionality expanded. Issue 131.
+- Read jobs and "new" jobs (/catchup) are now tracked separately. Issue 137.
+
+Version 6.1
+
+New Features:
+- Added a fourth argument to hooks, containing original text. Hooks can now
+  replicate/expand the functionality of PLETTERs and MLETTERs. Issue 109.
+- Expanded +jobs/select functionality. Issue 120.
+  - +jobs/select can now use &JOBSELECT aliases in its logic (one level only). 
+  - +jobs/select now takes a sort=<type> field to sort output. 
+- +job/due can take additional time formats including time-from-now. Issue 123.
+- New +jobs/due command to sort jobs by due date.
+- New +job/undelete command for inadvertently deleted jobs. Issue 125.
+- New +jobs/from command for jobs opened by <player>. Issue 126.
+- New +myjob/last command similar to +job/last. Issue 110.
+
+Bugfixes:
+- Fixed STAT_ART installation bug on new MUX/TM3 installs. Issue 106.
+- Bargraphs can now handle input up to max integer values. Issue 111.
+- Bargraph heights now round properly. Issue 112.
+- Fixed FN_JGROUPMEMBERS bug affecting all non-Penn installs. Issue 115.
+- TRIG_CREATE now uses job DB instead of # for finding ALETTERS. Issue 116.
+- ALETTERS now use the bucket's permissions to evaluate. Issue 116.
+- Job capacity now respects buffer limits for lcon(). Issue 117.
+- Removed unused/legacy TRIG_DENY call. Issue 122.
+- due<= and due>= weren't working on Penn for empty DUE_ON attribute. 
+
+Version 6.0
+
+Major changes:
+- Extended full compatibility to PennMUSH and RhostMUSH servers.
+  - Modified destruction behavior; Jobs will now remain GOING for one minute 
+    after closure in which they may be saved by +job/trans.
+  - Various other changes in functions, flags, @wait, null arguments, 
+    integer division, and ansi.
+- Completed full implementation of TinyMUSH 3.1 compatibility.
+- +jobs/select command, allowing filtering of which jobs to display using
+  multiple criteria and logical combinations. Issue 62.
+- +jobs/checkout and /checkin support. 
+- Added +jgroups - user groupings for assignment/tagging/source. Issue 22.
+- Added +myjob summaries so users can use +myjob/sumset. Issue 25.
+- Added +jobs/catchup to clear new job indication flags. Issue 91.
+- +jobs/clean command and associated cron-capable &TRIG_CLEAN to remove 
+  non-players from jobs data. Issue 9.
+- Variable-width support using width() or user entered value. Issue 84.
+- Custom widths for the fields of the JOBS display attribute. Issue 84.
+- Added action locks to prevent certain actions on buckets. Issue 26.
+- Added BLETTER support, to allow for broadcast customization. Issue 60.
+- BBoards are now stored by dbref to survive board renumbering. Issue 102.
+
+Minor changes:
+- Job numbers and bucket names are now exactly matched. Issue 16.
+- Identify tagged users in jobs header.  Issue 77.
+- Added total Job Actions to STATS and ACTIONS reports.
+- Added closure stats to +bucket/info. Issue 12.
+- +job/help <#> is now an alias for +bucket/help. Issue 69.
+- Some general myjob tweaks. Issue 21.
+- +myjobs now follows skinning rules. Issue 63.
+- New WHITEBG skin. Issue 28.
+- Numerous other small bugfixes and command standardization.
+- Removed redundant HOOK_APPROVE, HOOK_DENY, HOOK_COMPLETE, and HOOK_DELETE. Issue 97.
+- Removed @restart and @startup code made obsolete with @wait rewrite. Issue 100.
+- All bugfixes from Version 5.2 (never released, see below)
+
+Version 5.1
+- Removed '@trigger %vb/TRIG_APPROVE=%0,%#,%1,[get(%q0/TITLE)]' from the +job/approve command. This is deprecated code left over from the Jobs 4 days. TRIG_ADD handles the TRIG_APR hook now.
+- Edited the BBoard configuration, making sure that POST_DELETE was set on the Job Parent Object <JPO> and pointing to the Staff Job Tracker bulletin board.
+- Fixed bracket matching and missed get() in +myjob/add command attribute.
+- Changed +myjob view command to use @dolist instead of iter(). This stop the command from hitting buffer limits.
+- Made sure that flag setting on PUB occurred befor teleportation of the PUB object into storage.
+- Updated the Version and Credits information.
+- Corrected @wait on final restart so it runs after final @pemit.
+- Fixed +job/sumset so that checks are in the correct order.
+- Udpated +job/set in jhelp.txt &commands2
+- Updated +myjob/view with missing @pemit.
+- More fixes and updates to +job/sumset. 
+- Pulled out the tagged_for check on +myjob/add for two reasons. First, the intent is unclear considering the code is buggy. Two, removing it makes sure the job is only locked by +job/lock, making +myjob/add work like +job/add.
+- Added Maintainer line to +job/credits.
+
+Version 5.2(release candidate; never released) 
+- Updated the manage2 helpfile to correct the +job/set syntax.
+- Added +bucket/check with two entries in jhelp.txt. Issue 15.
+- Removed POST_COMPLETE from the REQ bucket. Issue 18.
+- Changed the @aconnect. Issue 20.
+- Moved most of the installation instructions from the install file into the README files. 29.
+- Changed the install file name to remove version reference.
+- Formatted the install.
+- Fixed errors in CMD_JOB/DUE2. Issue 30.
+- Various @switch fixes. Isssues 45-47.
+- Fixed JOBS_NUM on install, was skipping job 2 until compressed. Issue 50.
+- Removed stray POST_COMPLETE on the REQ bucket hardcoded to +bboard 11. Issue 51.
+- Fixed arguments for TRIG_APPLY. Issue 52.
+- One-character bucket name bargraph fix. Issue 53.
+- Fixed a FIL_NEWCOMMENT1 bug.
+- Fixed a CHROME_JOBLIST bug.
+- IS_LOCKED references changed to accept a second parameter (Checkin support)
+- Conformed behavior of CHROME_BREAK
+- Various helpfile fixes.
