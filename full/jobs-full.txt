@@ -1894,6 +1894,16 @@ $+jobs/select *:
 	[ifelse(setr(8,strmatch(%q9,-*)),setq(9,mid(%q9,1,dec(strlen(%q9)))),)]
 	[setq(9,ifelse(strlen(%q9),%q9,jobnum))]
 	[u(%va/FN_HASATTRP,%va,SORTBY_%q9)]
+	[setq(1,filter(%va/FIL_GOING,lcon(%va)))]
+	[u(%va/FN_S-INIT)]
+	[map(%va/MAP_PARSESTACK,%q0)]
+	[setq(7,filter(
+		%va/FIL_JOBSELECT,
+		ifelse(%q8,
+			revwords(sortby(%va/SORTBY_%q9,u(%va/FN_S-PEEK))),
+			sortby(%va/SORTBY_%q9,u(%va/FN_S-PEEK))
+		)
+	))]
 	=
 	0*,@pemit %#=Permission denied.,
 	10*,@pemit %#=Mismatched parentheses.,
@@ -1901,24 +1911,7 @@ $+jobs/select *:
 	1110,@pemit %#=Invalid sort type.,
 	{
 		@pemit %#=[u(%va/FN_JOBSHEADER,%#)];
-		@dolist 
-		[setq(1,filter(%va/FIL_GOING,lcon(%va)))]
-		[u(%va/FN_S-INIT)]
-		[map(%va/MAP_PARSESTACK,%q0)]
-		[ifelse(%q8,
-			revwords(sortby(%va/SORTBY_%q9,u(%va/FN_S-PEEK))),
-			sortby(%va/SORTBY_%q9,u(%va/FN_S-PEEK))
-		)]
-		={
-			@pemit %#=
-				[ifelse(
-					or(
-						u(%va/FN_ACCESSCHECK,parent(##),%#,##),
-						u(%va/FIL_MINE,##)
-					),
-					u(%va/FN_JOBLIST,##,%#),
-				)];
-		};
+		@dolist %q7=@pemit %#=[u(%va/FN_JOBLIST,##,%#)];
 		@wait 0=@pemit %#=[u(%va/FN_FOOTER,* Denotes New Activity)]
 	}
 -
@@ -2523,6 +2516,13 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 			hastype(first(%0,:),player),
 			strmatch(%0,u(%va/FN_OBJID,first(%0,:)))
 		)
+	)
+-
+
+&FIL_JOBSELECT [v(JOB_VA)]=
+	cor(
+		u(%va/FN_ACCESSCHECK,parent(%0),%#,%0),
+		u(%va/FIL_MINE,%0)
 	)
 -
 
