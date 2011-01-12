@@ -1765,26 +1765,7 @@ $+jobs/credits:
 &CMD_JOBS/FROM [v(JOB_GO)]=$+jobs/from *:@fo %#=+jobs/select source=%0
 -
 
-&CMD_JOBS/LIST [v(JOB_GO)]=
-$+jobs/list *:
-	@switch 
-	[u(%va/HAS_ACCESS,%#)]
-	[setq(0,u(%va/FN_FIND-BUCKET,%0))]
-	[isdbref(%q0)]
-	[u(%va/FN_ACCESSCHECK,%q0,%#)]
-	=
-	0*,{@pemit %#=Permission denied.},
-	10*,{@pemit %#=That is not a valid bucket. Type '[ansi(h,+buckets)]' for a list of valid buckets.},
-	110*,{@pemit %#=You do not have access to that bucket.},
-	{
-		@pemit %#=[u(%va/FN_JOBSHEADER,%#)];
-		@dolist 
-			[sortby(%va/SORTBY_JOBNUM,remove(children(%q0),#-1))]
-		={
-			@pemit %#=[u(%va/FN_JOBLIST,##,%#)]
-		};
-		@wait 0=@pemit %#=[u(%va/FN_FOOTER,* Denotes New Activity)];
-	}
+&CMD_JOBS/LIST [v(JOB_GO)]=$+jobs/list *:@fo %#=+jobs/select bucket=%0
 -
 
 &CMD_JOBS/MINE [v(JOB_GO)]=$+jobs/mine:@fo %#=+jobs/select mine
@@ -1850,31 +1831,7 @@ $+jobs/reports:
 	}
 -
 
-&CMD_JOBS/SEARCH [v(JOB_GO)]=
-$+jobs/search *:
-	@switch [u(%va/HAS_ACCESS,%#)]=0*,{
-		@pemit %#=Permission denied.
-	},{
-		@pemit %#=[u(%va/FN_JOBSHEADER,%#)];
-		@dolist 
-			revwords(lcon(%va))
-		={
-			@pemit [setq(0,%b)]%#=
-				ifelse(
-					and(
-						u(%va/FN_ACCESSCHECK,parent(##),%#,##),
-						gt(
-							words(
-								grepi(##,*,%0)
-							),
-							0
-						)
-					),
-					[u(%va/FN_JOBLIST,##,%#)],
-				)
-		};
-		@wait 0=@pemit %#=[u(%va/FN_FOOTER,* Denotes New Activity)];
-	}
+&CMD_JOBS/SEARCH [v(JOB_GO)]=$+jobs/search *:@fo %#=+jobs/select search=%0
 -
 
 &CMD_JOBS/SELECT [v(JOB_GO)]=
@@ -1919,42 +1876,7 @@ $+jobs/select *:
 &CMD_JOBS/SORT [v(JOB_GO)]=$+jobs/sort:@fo %#=+jobs/select all sort=bucket
 -
 
-&CMD_JOBS/WHO [v(JOB_GO)]=
-$+jobs/who *:
-	@switch 
-	[u(%va/HAS_ACCESS,%#)]
-	[setq(0,pmatch(trim(%0)))]
-	[or(match(trim(%0),none),isdbref(%q0))]
-	=
-	0*,{@pemit %#=Permission denied.},
-	10*,{@pemit %#={There is no player by that name. Request must be by player or 'none'.}},
-	{
-		@pemit %#=[u(%va/FN_JOBSHEADER,%#)];
-		@dolist 
-			[setq(1,
-				switch(
-					match(%0,none),
-					0,
-						%q0,
-				)
-			)]
-			[u(%va/fn_trim,
-				squish(
-					iter(
-						revwords(lcon(%va)),
-						switch(
-							u(%va/FIL_WHO,##,%q1),
-							1,
-							##
-						)
-					)
-				)
-			)]
-		={
-			@pemit %#=[ifelse(u(%va/FN_ACCESSCHECK,parent(##),%#,##),[u(%va/FN_JOBLIST,##,%#)],)]
-		};
-		@wait 0=@pemit %#=[u(%va/FN_FOOTER,* Denotes New Activity)];
-	}
+&CMD_JOBS/WHO [v(JOB_GO)]=$+jobs/who *:@fo %#=+jobs/select who=%0
 -
 
 &CMD_JOBS/WHO2 [v(JOB_GO)]=
