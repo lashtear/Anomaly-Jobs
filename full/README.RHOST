@@ -21,3 +21,13 @@ the following notes/tweaks:
 1.5. @dest does not permanently delete objects in Rhost. Use @purge 
      periodically to remove old objects.
 
+1.6. Rhost has a hardcode limitation of 2000 sent @mails. On a large game,
+     job status updates may accumulate in staffers mailboxes.  To work around
+     this, the Job Tracker should force players to @mail themselves.  The
+     following code can accomplish this and should be put on the Job Tracker
+     (%VB) object in place of the existing &TRIG_MAIL attribute:
+     
+     @dolist [remove( %0, - )]={@force ##={ 
+       mail/send ##=[lit(%1)]/[ifelse( hastoggle( ##, PENN_MAIL ), , / )][lit(%2)]
+     } }
+
