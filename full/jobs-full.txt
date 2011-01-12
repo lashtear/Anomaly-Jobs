@@ -2141,17 +2141,14 @@ $+myjob/last *=*:
 &CMD_MYJOBS [v(JOB_GO)]=
 $+myjobs:
 	@switch 
-		[haspower(%#,guest)]
+		[haspower(%#,guest)][words(setr(0,filter(%va/FIL_MYJOBS,revwords(lcon(%va)))))]
 		=
-		1,@pemit %#={Sorry, this command is not available to guests.},
+		1*,@pemit %#={Sorry, this command is not available to guests.},
+		00,@pemit %#=You have no +myjobs.,
 		{
-			@switch [words(setr(0,filter(%va/FIL_MYJOBS,revwords(lcon(%va)))))]=
-				0,@pemit %#=You have no +myjobs.,
-				{
-					@pemit %#=[u(%va/FN_MYJOBSHEADER,%#)];
-					@dolist %q0=@pemit %#=[u(%va/FN_MYJOBLIST,##,%#)];
-					@wait 0=@pemit %#=[u(%va/FN_FOOTER,[ansi(hr,*)] [ansi(hy,Denotes New Activity)])]
-				}
+			@pemit %#=[u(%va/FN_MYJOBSHEADER,%#)];
+			@dolist %q0=@pemit %#=[u(%va/FN_MYJOBLIST,##,%#)];
+			@wait 0=@pemit %#=[u(%va/FN_FOOTER,[ansi(hr,*)] [ansi(hy,Denotes New Activity)])]
 		}
 -
 
