@@ -100,7 +100,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting up commands.
 $+bucket/access *=*:
 	@switch 
 		[u(%va/GIVE_ACCESS,%#)]
-		[setq(0,pmatch(trim(%0)))]
+		[setq(0,switch(trim(%0),me,%#,pmatch(trim(%0))))]
 		[setq(1,u(%va/FN_FIND-BUCKET,%1))]
 		[isdbref(%q0)]
 		[isdbref(%q1)]
@@ -142,7 +142,7 @@ $+bucket/access *=*:
 &CMD_BUCKET/CHECK [v(JOB_GO)]=
 $+bucket/check *:
 	@switch 
-		[isdbref(setr(0,pmatch(trim(%0))))]
+		[isdbref(setr(0,switch(trim(%0),me,%#,pmatch(trim(%0)))))]
 		=
 		0,{@pemit %#=There is no such player.},
 		{
@@ -432,7 +432,7 @@ $+jgroup/info *:
 $+jgroup/member *=*:
 	@switch 
 		[u(%va/FN_WIZONLY,%#)]
-		[setq(0,pmatch(%0))]
+		[setq(0,switch(trim(%0),me,%#,pmatch(trim(%0)))]
 		[setq(1,u(%va/FN_FIND-JGROUP,%1))]
 		[isdbref(%q0)]
 		[isdbref(%q1)]
@@ -460,7 +460,7 @@ $+jgroup/member *=*:
 $+job/access *=*:
 	@switch 
 		[u(%va/GIVE_ACCESS,%#)]
-		[setq(0,pmatch(trim(%0)))]
+		[setq(0,switch(trim(%0),me,%#,pmatch(trim(%0)))]
 		[setq(1,u(%va/FN_FIND-JOB,%1))]
 		[isdbref(%q0)]
 		[isdbref(%q1)]
@@ -611,6 +611,7 @@ $+job/assign *=*:
 		[u(%va/HAS_ACCESS,%#)]
 		[setq(1,switch(trim(%1),
 			+*,u(%va/FN_FIND-JGROUP,%1),
+			me,%#,
 			pmatch(trim(%1))
 		))]
 		[setq(2,switch(trim(%1),NONE,1,0))]
@@ -3409,6 +3410,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 		#-1 SYNTAX ERROR
 	)
 -
+## This is unused
 
 &MAP_ISPLAYER [v(JOB_VA)]=isdbref(pmatch(%0))
 -
@@ -3416,6 +3418,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 &MAP_JGROUP [v(JOB_VA)]=
 	switch(%0,
 		+*,u(%va/FN_JGROUPMEMBERS,u(%va/FN_FIND-JGROUP,%0)),
+		me,%#,
 		pmatch(%0)
 	)
 -
@@ -3423,6 +3426,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 &MAP_JGROUPERROR [v(JOB_VA)]=
 	ifelse(
 		or(
+			strmatch(%0,me),
 			isdbref(pmatch(%0)),
 			isdbref(u(%va/FN_FIND-JGROUP,%0))
 		),,
@@ -3469,6 +3473,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 &MAP_PIELEGEND [v(JOB_VA)]=
 	ljust(extract(%qn,%0,1,|),%qd) [ansi(before(mid(setr(q,extract(%qm,%0,1,|)),1,10),:),mid(%qq,0,1))] [switch(%qq,:*,extract(%qq,3,100,:),after(%qq,:))]
 -
+# This is unused
 
 &MAP_PMATCH [v(JOB_VA)]=pmatch(%0)
 -
@@ -3485,6 +3490,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 &MAP_SOURCE [v(JOB_VA)]=
 	switch(%0,
 		+*,u(FN_JGROUPMEMBERS,u(%va/FN_FIND-JGROUP,%0)),
+		me,%#,
 		pmatch(%0)
 	)
 -
@@ -3894,11 +3900,11 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 -
 
 &SEL_WHO [v(JOB_VA)]=
-	u(%va/FIL_WHO,%0,switch(%qa,none,,pmatch(%qa)))
+	u(%va/FIL_WHO,%0,switch(%qa,none,,me,%#,pmatch(%qa)))
 -
 
 &SEL_SOURCE [v(JOB_VA)]=
-	u(%va/FIL_SOURCE,%0,switch(%qa,none,,pmatch(%qa)))
+	u(%va/FIL_SOURCE,%0,switch(%qa,none,,me,%#,pmatch(%qa)))
 -
 
 &SEL_PRI [v(JOB_VA)]=u(%va/SEL_ESC,%0)
