@@ -2126,9 +2126,11 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 @switch [v(JOB_PATCH)]=
 	1,{
 		@dolist STARTUP 
-			DATA_CHARS2 DISPLAY_MYHEADERS DISPLAY_MYJOB MYJOBS_HEADER FIL_DELETE FN_ANSIFY 
-			FN_EASYPIE_PENN FN_EASYPIE_TINY PENN_PIE PENN10_PIE PENN12_PIE FN_NEW_JOBS FN_PACK 
-			IS_PLAYER JOBS_HEADER JOBS_HEADER2 MAP_ANSIFY MAP_ARTSGRAPH MAP_NAME2 MAP_NEW={
+			BUCKET_HEADER DATA_CHARS2 DISPLAY_MYHEADERS DISPLAY_MYJOB MYJOBS_HEADER 
+			FIL_DELETE FN_ANSIFY FN_COORD2ANG FN_EASYPIE_PENN FN_EASYPIE_TINY 
+			FN_GENDATA MAP_GENDATA MAP_GENDATA2 PENN_PIE PENN10_PIE PENN12_PIE 
+			FN_NEW_JOBS FN_PACK IS_PLAYER JOBS_HEADER JOBS_HEADER2 MAP_ANSIFY 
+			MAP_ARTSGRAPH MAP_NAME2 MAP_NEW MAP_ISPLAYER MAP_PMATCH MAP_READERS={
 			@switch [hasattr(v(JOB_VA),##)]=1,&## [v(JOB_VA)]
 		}
 	}
@@ -2747,16 +2749,6 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 	%qP
 -
 
-&FN_COORD2ANG [v(JOB_VA)]=
-	switch(
-		%0:%1,
-		-*:-*,add(180,atan(fdiv(%1,%0),deg))
-		,-*:*,add(180,atan(fdiv(%1,%0),deg))
-		,*:-*,add(360,atan(fdiv(%1,%0),deg))
-		,0:0,0,atan(fdiv(%1,%0),deg)
-	)
--
-
 &FN_COLUMNS [v(JOB_VA)]=
 	switch(
 		first(version()),
@@ -2886,14 +2878,6 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 -
 
 &FN_FOOTER [v(JOB_VA)]=u(%va/FN_SKIN,FOOTER,%0,%1,%2,%3)
--
-
-&FN_GENDATA [v(JOB_VA)]=
-	setq(0,%0)
-	[setq(z,fdiv(inc(shl(%1,1)),inc(shl(%0,1))))]
-	[setq(9,fdiv(dec(setr(m,strlen(setr(8,v(DATA_CHARS))))),360))]
-	[setq(s,%2)]
-	[map(map_gendata,lnum(-%1,%1))]
 -
 
 &FN_HASATTR [v(JOB_VA)]=
@@ -3373,14 +3357,6 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 	:)
 -
 
-&MAP_GENDATA [v(JOB_VA)]=
-	setq(1,%0)%[
-	[map(%va/map_gendata2,lnum(-%q0,%q0),,%[)]
--
-
-&MAP_GENDATA2 [v(JOB_VA)]=mid(%q8,mod(round(mul(add(u(%va/fn_coord2ang,%0,%q1),%qs),%q9),0),%qm),1)
--
-
 &MAP_GRAPH [v(JOB_VA)]=
 	[setq(9,
 		ifelse(
@@ -3410,10 +3386,6 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 		%B[u(%va/FN_S-POP-UNARY)],
 		#-1 SYNTAX ERROR
 	)
--
-## This is unused
-
-&MAP_ISPLAYER [v(JOB_VA)]=isdbref(pmatch(%0))
 -
 
 &MAP_JGROUP [v(JOB_VA)]=
@@ -3473,13 +3445,6 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 
 &MAP_PIELEGEND [v(JOB_VA)]=
 	ljust(extract(%qn,%0,1,|),%qd) [ansi(before(mid(setr(q,extract(%qm,%0,1,|)),1,10),:),mid(%qq,0,1))] [switch(%qq,:*,extract(%qq,3,100,:),after(%qq,:))]
--
-# This is unused
-
-&MAP_PMATCH [v(JOB_VA)]=pmatch(%0)
--
-
-&MAP_READERS [v(JOB_VA)]=first(%0,|)
 -
 
 &MAP_REPORTS [v(JOB_VA)]=after(lcstr(%0),_)
