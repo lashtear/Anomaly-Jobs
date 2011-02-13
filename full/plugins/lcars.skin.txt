@@ -1,5 +1,5 @@
 #
-# Anomaly Jobs LCARS skin v1.0 by Starfleet
+# Anomaly Jobs LCARS skin v1.1 by Starfleet
 # 
 # Contributor: Minion@Crossroads
 #
@@ -107,16 +107,7 @@
 		3,Red
 	)]%b
 	%(
-	[switch(get(%q0/STATUS),
-		0,On Hold,
-		1,New,
-		2,Underway,
-		3,25%%,
-		4,50%%,
-		5,75%%,
-		6,100%%,
-		?
-	)]
+	[last(get(%va/STATUS_[get(%q0/STATUS)]),|)]
 	%)
 	%r
 	[ljust(

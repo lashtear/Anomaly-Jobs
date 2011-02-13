@@ -2955,10 +2955,10 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 -
 
 &FN_LADD [v(JOB_VA)]=
-  switch([ladd(%0,%1)],
-  	#-1*,lmath(add,%0,%1),
-  	ladd(%0,%1)
-  )
+	switch([ladd(%0,%1)],
+		#-1*,lmath(add,%0,%1),
+		ladd(%0,%1)
+	)
 -
 
 &FN_LEFTOVER [v(JOB_VA)]=
@@ -3900,7 +3900,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 -
 
 &SEL_STATUS [v(JOB_VA)]=
-  u(%va/FIL_STATUS,STATUS_[get(%0/STATUS)])
+	u(%va/FIL_STATUS,STATUS_[get(%0/STATUS)])
 -
 
 &SEL_BUCKET [v(JOB_VA)]=
@@ -5206,7 +5206,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing skins.
 &LICENSE [v(JOB_VA)]=You may port this code to any game provided that these credits remain intact. Please report any and all bugs, feedback, etc. to the project's home: http://code.google.com/p/anomalyjobs/
 -
 
-&RELEASE [v(JOB_VA)]=February 1, 2011
+&RELEASE [v(JOB_VA)]=February 14, 2011
 -
 
 &VERSION [v(JOB_VA)]=v6.3
@@ -5767,7 +5767,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting up master parent.
 				0
 			)]
 		);
-  	&PROCESS_SYNOPSIS %q0=lit([setq(3,BRIEF)][setq(1,%0)]1);
+		&PROCESS_SYNOPSIS %q0=lit([setq(3,BRIEF)][setq(1,%0)]1);
 		&SUMMARY %q0=lit(
 			[rjust(ansi(hc,Approved:),10)]%b
 				[ifelse(
