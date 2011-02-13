@@ -432,7 +432,7 @@ $+jgroup/info *:
 $+jgroup/member *=*:
 	@switch 
 		[u(%va/FN_WIZONLY,%#)]
-		[setq(0,switch(trim(%0),me,%#,pmatch(trim(%0)))]
+		[setq(0,switch(trim(%0),me,%#,pmatch(trim(%0))))]
 		[setq(1,u(%va/FN_FIND-JGROUP,%1))]
 		[isdbref(%q0)]
 		[isdbref(%q1)]
@@ -572,7 +572,7 @@ $+job/all *:
 				={
 					@pemit %#=[u(%va/FN_READJOB,##,%q0)]
 				};
-			&TAGGED_FOR %q0=[remove(get(%q0/TAGGED_FOR),%#)];
+			&TAGGED_FOR %q0=[ifelse(default(%#/JOBS_UNTAGREAD,1),setdiff(get(%q0/TAGGED_FOR),%#),get(%q0/TAGGED_FOR))];
 			@wait 0={@pemit %#=[u(%va/FN_FOOTER,u(%va/FN_FLAGS,%q0))]};
 		}
 -
@@ -1647,7 +1647,7 @@ $+job *:
 		={
 			@pemit %#=[u(%va/FN_READJOB,##,%q0)]
 		};
-		&TAGGED_FOR %q0=[remove(get(%q0/TAGGED_FOR),%#)];
+		&TAGGED_FOR %q0=[ifelse(default(%#/JOBS_UNTAGREAD,1),setdiff(get(%q0/TAGGED_FOR),%#),get(%q0/TAGGED_FOR))];
 		@wait 0={
 			@pemit %#=[u(%va/FN_FOOTER,u(%va/FN_FLAGS,%q0))]
 		};
