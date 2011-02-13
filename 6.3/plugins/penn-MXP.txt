@@ -1,0 +1,74 @@
+#
+# Anomaly Jobs MXP (Pueblo) for PennMUSH enhancements by Minion@Crossroads
+#
+# ----------------------------------------------------------------
+# Makes Job #'s clickable (linking to "+job #") in PennMUSH with a
+# XCH_CMD compatible client (e.g.., MUSHclient).
+# ----------------------------------------------------------------
+
+@switch 
+	[strmatch(first(version()),PennMUSH)]
+	[ifelse(
+		isdbref(setr(0,
+			lsearch(all,eobjects,\[strmatch(name(##),Job Global Object <JGO>)\])
+		)),
+		setq(1,get(%q0/VA)),
+		[setq(1,
+			lsearch(all,eobjects,\[strmatch(name(##),Job Database <JD>)\])
+		)]
+		[setq(0,loc(%q1))]
+	)]
+	[isdbref(%q0)]
+	[and(
+		isdbref(%q1),
+		gte(edit(first(default(%q1/version,0),.),v,),6)
+	)]
+	[not(words(setunion(grep(%q1,*_JOBLIST,FN_LINKJOB),grep(%q1,BLETTER_*,FN_LINKJOB))))]
+	=
+	0*,{
+		think [ansi(hc,ANOMALY JOBS:)] [ansi(hr,This plugin only works on PennMUSH.)];
+		think [ansi(hc,ANOMALY JOBS:)] [ansi(hr,Aborting. Cancel this script in your client.)];
+		&JOB_VA %#=#-1;
+		&JOB_VC %#=#-1;
+	},
+	10*,{
+		think [ansi(hc,ANOMALY JOBS:)] [ansi(hr,No jobs installation found.)];
+		think [ansi(hc,ANOMALY JOBS:)] [ansi(hr,Aborting. Cancel this script in your client.)];
+		&JOB_VA %#=#-1;
+		&JOB_VC %#=#-1;
+	},
+	110*,{
+		think [ansi(hc,ANOMALY JOBS:)] [ansi(hr,Not a valid Jobs 6 or later installation.)];
+		think [ansi(hc,ANOMALY JOBS:)] [ansi(hr,Aborting. Cancel this script in your client.)];
+		&JOB_VA %#=#-1;
+		&JOB_VC %#=#-1;
+	},
+	1110*,{
+		think [ansi(hc,ANOMALY JOBS:)] [ansi(hr,You've already installed this plugin.)];
+		think [ansi(hc,ANOMALY JOBS:)] [ansi(hr,Reinstall Jobs before re-running this script.)];
+		think [ansi(hc,ANOMALY JOBS:)] [ansi(hr,Aborting. Cancel this script in your client.)];
+		&JOB_VA %#=#-1;
+		&JOB_VC %#=#-1;
+	},{
+		think [ansi(hc,ANOMALY JOBS:)] Jobs 6 installation found.  Installing MXP/Pueblo functions.;
+		&JOB_VA %#=%q1;
+		&JOB_VC %#=get(%q0/VC);
+	}
+-
+
+&FN_LINKJOB [v(JOB_VA)]=
+	[tag(A,XCH_CMD="[ifelse(t(strlen(%1)),%1,%0)]")]%0[endtag(A)]
+-
+
+@edit [v(JOB_VC)]/BLETTER_*={name(%0)},{u(%va/FN_LINKJOB,name(%0),+[name(%0)])}
+-
+
+@edit [v(JOB_VC)]/BLETTER_CLN={name(%2)},{u(%va/FN_LINKJOB,name(%2),+[name(%2)])}
+-
+
+@edit [v(JOB_VC)]/BLETTER_MRG={name(%2)},{u(%va/FN_LINKJOB,name(%2),+[name(%2)])}
+-
+
+@edit [v(JOB_VA)]/*_JOBLIST={last(name(%0))},{u(%va/FN_LINKJOB,last(name(%0)),+[name(%0)])}
+-
+

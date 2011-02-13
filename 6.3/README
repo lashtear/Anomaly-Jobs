@@ -1,0 +1,243 @@
+Anomaly Jobs
+-----------------------------------------------------------------------------
+Superior Task Tracking Technology
+Version 6.3 
+
+Written by:    Starfleet @ Anomaly 
+Maintained by: Minion @ Crossroads
+Contributors:  Firestorm @ Ephemera (+myjobs, /tags)
+               Halmar @ Gamma One (Past maintainer, Rhost Compat contribs)
+               Ian @ MUX (Pies) 
+               Javelin @ PennMUSH (Penn Compat contribs)
+               Minion @ Crossroads (+jobs/select, +jgroups, full compat fixes)
+Testers:       nails @ MUSHpark
+               Sunshine @ Ashes To Ashes
+               Centauri & Pyxis @ Rise From Chaos
+               Minion & Duke @ Outremer
+
+Platforms supported: MUX 2.x, TinyMUSH 3.1, PennMUSH 1.8.2, RhostMUSH
+
+Requirements: Myrddin's BBS, @mail system.
+                     
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+
+
+Anomaly Jobs 6.3
+-----------------------------------------------------------------------------
+1. Installing Anomaly Jobs 6.3
+2. Buckets
+3. Getting Help
+4. Integrating Applications with Jobs
+5. +job/log - Log File
+6. Automatic Logging
+7. Max Jobs
+8. Automatic Assignment
+9. Access Configuration
+10. Staff Checks
+
+
+
+1. Installing Anomaly Jobs 6.3
+-----------------------------------------------------------------------------
+Installing Jobs 6.3 is fairly straight forward. You quote the install file to
+your game and the install is automated. However, before you install it read
+the README and the README.<dist> file for your server for any notes, and 
+read the install file notes for behavioral changes you might wish to make.
+
+  IMPORTANT!
+  
+  * You should install this with a Wizard character, preferably in an
+    account that is not regularly logged into, as the code creates and
+    destroys objects dynamically. This can get spammy.
+    
+  * Do not rename your jobs objects. Patch and plugin scripts depend on 
+    these names in order to function.
+    
+  * You must install using a timed delay. Most clients have an upload-
+    with-delay option. A delay of at least one second is recommended.
+    
+  * Be patient. The install script will tell you when it is finished.
+    Don't try to do anything until install is complete.
+
+This code REQUIRES Myrddin's BBS to be installed, as it uses the BBS to post
+completed/approved/denied jobs to. So long as your BBS is unmodified it should
+work without problems. There is no need to configure the BBS or create any
+bboards, as it will work its magic automatically. It will automatically set up
+two BBS boards to use with the system - a public read-only BBS for game-wide
+progress tracking, and a private, staff-only board for privately tracking
+player requests and other issues.
+
+It also requires hardcoded @mail at this time. The jobs system owner is
+excluded from mailings in the default setup.
+
+This script requires no modification so long as used on the servers listed
+above and you want the behavior to be for staff-only.
+
+If upgrading from a 5.0 install and you have the HOOK_APPROVE, HOOK_DENY, 
+HOOK_COMPLETE, or HOOK_DELETE attributes set on your Job Parent Object or any
+buckets, move these hooks to HOOK_APR, HOOK_DNY, HOOK_COM, and HOOK_DEL,
+respectively. The previous versions were unintentionally redundant in 5.x and
+will no longer be triggered in Jobs 6. The script will notify you if it finds
+these outdated hooks.
+
+In addition to quoting the script, you will need to install the help file on
+your server.  Two similar files are provided: jhelp.txt is designed to be
+evaluated (e.g., using "helpfile" in MUX or the textentries() and textfile()
+functions in PennMUSH) while jhelp_ansi.txt is already preprocessed with ANSI
+sequences, suitable for "helpfile" in PennMUSH or "raw_helpfile" in MUX.
+
+2. Buckets
+-----------------------------------------------------------------------------
+Jobs are stored in buckets, which is a method of organization that keeps jobs
+sorted in their proper locations. Jobs are parented to its bucket, allowing 
+the bucket settings to cascade down to job level.
+
+The system has several buckets already installed, but you may wish to add more.
+You can add buckets with the +bucket/add command (see the +help files).
+
+ADMIN   General Administration issues.
+APPS    Player Applications
+BUILD   Building issues and typos (Required bucket).
+CGEN    Character Generation issues.
+CODE    For coding issues and bug reports (Required bucket).
+FEEP    A hidden bucket for creeping features aka feeping creatures.
+FORUM   A discussion forum.
+PITCH   Plot and game idea pitches (Required bucket).
+PUB     Public jobs (Jobs in bucket appear in everyone's +myjobs list).
+QUERY   Player queries (Required bucket).
+REQ     Player requests (Required bucket).
+RP      Hidden bucket for storing future plots.
+TECH    Technology issues, such as weapon object distribution, etc.
+THEME   Game thematic issues.
+TPS     Currently running plots.
+
+A bucket name is 1-5 letters long. WoD games might want to add VAMP, GAROU,
+MAGE, FAE, etc.
+
+The BUILD, CODE, PITCH, QUERY, and REQ buckets are associated with commands
+and should not be deleted; APPS is associated with TRIG_APPLY and should not
+be deleted if you use that trigger.  Other buckets may be removed if desired.
+
+
+
+3. Getting Help
+-----------------------------------------------------------------------------
+The primary location to get help and report bugs for Jobs 6 is the google 
+code site at http://code.google.com/p/anomalyjobs/ 
+
+
+
+4. Integrating Applications with Jobs
+-----------------------------------------------------------------------------
+As an optional feature, you can post character application information to the
++jobs board, and have your approval queue attached to the board. However,
+you must provide your own @trigger for TRIG_APPLY on the database object, run
+when a new player finished character generation. This trigger puts a character
+application into the Jobs system. To add this functionality to your game, you
+must add the following code to your 'please approve me' command:
+
+  @trigger <Job Database>/TRIG_APPLY=<player DB# to be approved>
+
+To change the information presented to player upon application submission,
+see the APPS bucket setup.  You can use the HOOK_APR on the APPS bucket to
+take action upon application approval.
+
+
+
+5. +job/log - Log File
+-----------------------------------------------------------------------------
+The LOGFILE attribute is the base name of the log file. On MUX and RhostMUSH,
+you can change the log file for each bucket (or the default on the Job
+Parent Object) with the LOGFILE attribute.  
+
+The two default <logfiles> are 'reqlog' (for all player +requests) and 
+'joblog' (for all other buckets).  Logs are directed to:
+
+MUX:       /game/logs/M-<logfile>.log (Note 1)
+RhostMUSH: /game/<logfile>_manual.log (Note 2)
+TinyMUSH:  /game/netmush.log
+PennMUSH:  /game/log/command.log
+
+Note 1: This file must exist, or logging will fail.  To create an empty file,
+navigate to the /game/logs directory on the server and "touch M-joblog.log".
+
+Note 2: RhostMUSH permits subdirectories defined as part of the logfilename.
+
+
+
+6. Automatic Logging
+-----------------------------------------------------------------------------
+Add the following to your system if you wish automatic logging:
+
+&HOOK_APR Job Parent Object <JPO>=@trigger [v(VA)]/TRIG_LOG=%0,[v(VA)]
+&HOOK_DEL Job Parent Object <JPO>=@trigger [v(VA)]/TRIG_LOG=%0,[v(VA)]
+&HOOK_DNY Job Parent Object <JPO>=@trigger [v(VA)]/TRIG_LOG=%0,[v(VA)]
+&HOOK_COM Job Parent Object <JPO>=@trigger [v(VA)]/TRIG_LOG=%0,[v(VA)]
+
+
+
+7. Max Jobs
+-----------------------------------------------------------------------------
+This attribute controls how many jobs are allowed in the system
+before it halts new job creation. Try to keep this number
+reasonable based on your game's size. A small game can stick with
+200. Larger games may have to boost the number. However, keep in
+mind that boosting it also decreases security, as twinks can
+potentially spam the system through spurious job creation.
+
+Setting this to 0 or a very large number will cause jobs to be limited
+by the system based on buffer size.
+
+&MAX_JOBS Job Database <JD>=200
+
+
+
+8. Automatic Assignment
+-----------------------------------------------------------------------------
+If you would like jobs to automatically assign a job to the
+person who invoked +job/create, then set the following:
+
+&HOOK_CRE Job Parent Object <JPO>=&ASSIGNED_TO %0=%1
+
+For automatic assignment of jobs created other than with +job/create, use:
+
+&HOOK_OTH <JPO or bucket>=&ASSIGNED_TO %0=<player or jgroup dbref>
+
+
+
+9. Access Configuration
+-----------------------------------------------------------------------------
+The following attributes are located on the Jobs Database object and may be
+modified to configure access to the system.
+
+HAS_ACCESS      : Return 1 if player can access the +jobs code.
+ADD_ACCESS      : Return 1 if player can /add to jobs.
+APPROVE_ACCESS  : Return 1 if player can /approve jobs.
+COMPLETE_ACCESS : Return 1 if player can /complete jobs.
+CREATE_ACCESS   : Return 1 if player can /create jobs.
+DENY_ACCESS     : Return 1 if player can /deny jobs.
+EDIT_ACCESS     : Return 1 if player can edit a job.
+GIVE_ACCESS     : Return 1 if player can +bucket/access.
+LOG_ACCESS      : Return 1 if player can /log a job.
+MAIL_ACCESS     : Return 1 if player can /mail regarding a job.
+STATS_ACCESS    : Return 1 if player can get reports.
+CONFIG_ACCESS   : Return 1 if player can use /sumset.
+
+
+10. Staff Checks
+-----------------------------------------------------------------------------
+The following ufuncs on the Jobs Database are used to check if a player is
+staff. They are tailored to each codebase.
+
+FN_WIZONLY      : Return 1 if the player is a wizard or equivalent.
+FN_STAFFALL     : Return 1 if the player is a wizard or royalty, or equivalent.
+
