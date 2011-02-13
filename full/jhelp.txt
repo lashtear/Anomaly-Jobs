@@ -549,6 +549,11 @@
     100        The job is complete.
   
   Job status should be periodically updated with the progression of the work.
+  
+  A game's code staff may add additional statuses by adding &STATUS_<value> 
+  attributes to the Job Database <JD> object.  These are |-delimited attributes
+  where the first element is displayed in +jobs, the last is used for text
+  output, and all elements are used for matching +job/set input.
 & job/source
 
   [ansi(h,+job/source <#>=<player list>)]

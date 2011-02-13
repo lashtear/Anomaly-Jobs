@@ -460,7 +460,7 @@ $+jgroup/member *=*:
 $+job/access *=*:
 	@switch 
 		[u(%va/GIVE_ACCESS,%#)]
-		[setq(0,switch(trim(%0),me,%#,pmatch(trim(%0)))]
+		[setq(0,switch(trim(%0),me,%#,pmatch(trim(%0))))]
 		[setq(1,u(%va/FN_FIND-JOB,%1))]
 		[isdbref(%q0)]
 		[isdbref(%q1)]
@@ -1345,10 +1345,11 @@ $+job/set *=*:
 	@switch 
 		[u(%va/HAS_ACCESS,%#)]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
-		[setq(2,dec(member(setr(a,HOLD NEW UNDERWAY 25 50 75 100),ucstr(trim(%1)))))]
 		[isdbref(%q0)]
 		[u(%va/FN_ACCESSCHECK,parent(%q0),%#,%q0)]
-		[and(isnum(%q2),gt(%q2,-1),lt(%q2,7))]
+		[setq(a,trim(%1))]
+		[setq(2,after(first(filter(%va/FIL_STATUS,lattr(%va/STATUS_*))),STATUS_))]
+		[gt(strlen(%q2),0)]
 		[not(u(%va/IS_LOCKED,%q0,%#))]
 		[udefault(%q0/STA_ACCESS,1,%#)]
 		=
@@ -1359,7 +1360,7 @@ $+job/set *=*:
 		11110*,{@pemit %#=That job is presently [ifelse(u(%va/FN_HASATTRP,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		111110*,{@pemit %#=That action is not available for that job.},
 		{
-			@pemit %#=You set [name(%q0)] to [setr(1,switch(%q2,0,ON HOLD,1,NEW,2,UNDERWAY,3,1/4 COMPLETE,4,1/2 COMPLETE,5,3/4 COMPLETE,COMPLETE))] status.;
+			@pemit %#=You set [name(%q0)] to [setr(1,last(get(%va/STATUS_%q2),|))] status.;
 			&STATUS %q0=%q2;
 			@trigger %va/TRIG_ADD=%q0,Set to %q1.,%#,STA;
 			@trigger %va/TRIG_BROADCAST=%q0,%#,STA,%q1
@@ -2260,17 +2261,10 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 &DISPLAY_S [v(JOB_VA)]=
 	[u(%va/FN_STRTRUNC,center(
 		switch(
-			[u(%va/FN_HASATTRP,%0,LOCKED)][u(%va/FN_HASATTRP,%0,CHECKOUT)][get(%0/STATUS)],
+			[u(%va/FN_HASATTRP,%0,LOCKED)][u(%va/FN_HASATTRP,%0,CHECKOUT)],
 			1*,LOCKED,
 			01*,CHECKED,
-			000,ON HOLD,
-			001,NEW,
-			002,UNDERWAY,
-			003,1/4 DONE,
-			004,1/2 DONE,
-			005,3/4 DONE,
-			006,COMPLETE,
-			NEW
+			first(get(%va/STATUS_[get(%0/STATUS)]),|)
 		),
 		default(%#/JOBSWIDTH_S,8)
 	),default(%#/JOBSWIDTH_S,8))]
@@ -2527,7 +2521,14 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 &FIL_SOURCE [v(JOB_VA)]=t(member(get(%0/OPENED_BY),%1))
 -
 
-&FIL_STATUS [v(JOB_VA)]=eq(get(%0/STATUS),%1)
+&FIL_STAT_STATUS [v(JOB_VA)]=
+	and(
+		strmatch(get(%0/STATUS),%qa),
+		not(u(%va/FIL_OVERDUE,%0))
+	)
+-
+
+&FIL_STATUS [v(JOB_VA)]=t(match(get(%va/%0),%qa*,|))
 -
 
 &FIL_SEARCH [v(JOB_VA)]=t(words(grepi(%0,*,%1)))
@@ -3513,19 +3514,13 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 -
 
 &MAP_STAT_STATUS [v(JOB_VA)]=
-	ifelse(
-		u(%va/FIL_OVERDUE,%0),
-		setq(7,inc(%q7)),
-		switch(
-			default(%0/STATUS,1),
-			1,setq(1,inc(%q1)),
-			2,setq(2,inc(%q2)),
-			3,setq(3,inc(%q3)),
-			4,setq(4,inc(%q4)),
-			5,setq(5,inc(%q5)),
-			6,setq(6,inc(%q6)),
-			setq(0,inc(%q0))
-		)
+	switch(%0,
+		OVERDUE,@Rr:[words(filter(%va/FIL_OVERDUE,lcon(%va)))]:Overdue,
+		[mid(get(%va/CHARGRAPH),dec(%1),1)]
+		[get(%va/COLORGRAPH_[switch(%1,3,1,1,3,%1)])]:
+		[setq(a,after(%0,STATUS_))]
+		[words(filter(%va/FIL_STAT_STATUS,lcon(%va)))]:
+		[last(get(%va/%0),|)]
 	)
 -
 
@@ -3821,20 +3816,10 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 -
 
 &REPORT_STATUS [v(JOB_VA)]=
-	[setq(x,
-		[iter(
-			lnum(10),
-			setq(##,0)
-		)]
-		[map(
-			%va/MAP_STAT_STATUS,
-			lcon(%va)
-		)]
-	)]
 	[u(
 		FN_EASYPIE,
 		12,
-		XRr:%q7:Overdue|-Bb:%q0:Hold|xGg:%q1:New|+Cc:%q2:Begun|*Ww:%q3:1/4|oYy:%q4:1/2|@Mm:%q5:3/4|/Xh:%q6:Done,
+		iter(OVERDUE [lattr(%va/STATUS_*)],u(%va/MAP_STAT_STATUS,itext(0),inum(0)),%B,|),
 		|,
 		10,
 		45
@@ -3915,7 +3900,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 -
 
 &SEL_STATUS [v(JOB_VA)]=
-	u(%va/FIL_STATUS,%0,dec(match(HOLD NEW UNDERWAY 25 50 75 100,%qa*)))
+  u(%va/FIL_STATUS,STATUS_[get(%0/STATUS)])
 -
 
 &SEL_BUCKET [v(JOB_VA)]=
@@ -3987,6 +3972,36 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 -
 
 &SORTBY_PRI [v(JOB_VA)]=sub(get(%0/PRIORITY),get(%1/PRIORITY))
+-
+#
+# Job Status.  |-delimited attributes
+# STATUS_0 must be Hold, STATUS_1 must be New (or equivalent) 
+# 
+# First field is +Jobs DISPLAY_S listing (max 8 characters)
+# All fields are used to match player input (in lattr() order)
+# Last field is used for other text display.
+# Only the first 16 status attributes show on pie chart report
+# 
+
+&STATUS_0 [v(JOB_VA)]=--HOLD--|HOLD|On Hold
+-
+
+&STATUS_1 [v(JOB_VA)]=NEW|New
+-
+
+&STATUS_2 [v(JOB_VA)]=UNDERWAY|Underway
+-
+
+&STATUS_3 [v(JOB_VA)]=1/4 DONE|25% Complete
+-
+
+&STATUS_4 [v(JOB_VA)]=1/2 DONE|50% Complete
+-
+
+&STATUS_5 [v(JOB_VA)]=3/4 DONE|75% Complete
+-
+
+&STATUS_6 [v(JOB_VA)]=COMPLETE|Complete
 -
 
 &TRIG_ADD [v(JOB_VA)]=
@@ -4187,17 +4202,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 						2,Yellow,
 						3,Red
 					)]%b%(
-					[switch(
-						get(%q0/STATUS),
-						0,On Hold,
-						1,New,
-						2,Underway,
-						3,25%%,
-						4,50%%,
-						5,75%%,
-						6,100%%,
-						?
-					)]%);
+					[last(get(%va/STATUS_[get(%q0/STATUS)]),|)]%);
 			@trigger %va/TRIG_LOG_WRITE=
 				[u(%q1/LOGFILE)],
 				[rjust(ansi(hc,Opened By:),10)] %qx;
@@ -4347,17 +4352,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing skins.
 		2,Yellow,
 		3,Red
 	)]%b%(
-	[switch(
-		get(%q0/STATUS),
-		0,On Hold,
-		1,New,
-		2,Underway,
-		3,25%%,
-		4,50%%,
-		5,75%%,
-		6,100%%,
-		?
-	)]%)%r
+	[last(get(%va/STATUS_[get(%q0/STATUS)]),|)]%)%r
 	[ljust(
 		[rjust(ansi(hc,Opened On:),10)] [convsecs(get(%q0/OPENED_ON))],
 		div(u(FN_FLEXWIDTH,80),2)
@@ -4749,16 +4744,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing skins.
 		2,Yellow,
 		3,Red
 	)]%b
-	%([switch(
-		get(%q0/STATUS),
-		0,On Hold,
-		1,New,
-		2,Underway,
-		3,25%%,
-		4,50%%,
-		5,75%%,
-		6,100%%,?
-	)]%)%r
+	%([last(get(%va/STATUS_[get(%q0/STATUS)]),|)]%)%r
 	[ljust(
 		[rjust(ansi(hc,Opened On:),10)]%b
 		[convsecs(get(%q0/OPENED_ON))]
@@ -5195,17 +5181,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing skins.
 		1,Green,
 		2,Yellow,
 		3,Red
-	)] %([switch(
-		get(%q0/STATUS),
-		0,On Hold,
-		1,New,
-		2,Underway,
-		3,25%%,
-		4,50%%,
-		5,75%%,
-		6,100%%,
-		?
-	)]%)%r
+	)] %([last(get(%va/STATUS_[get(%q0/STATUS)]),|)]%)%r
 	[ljust([rjust(ansi(c,Opened On:),10)] [convsecs(get(%q0/OPENED_ON))],div(u(FN_FLEXWIDTH,80),2))]
 	[rjust(ansi(c,Assigned To:),12)] [ifelse(
 		isdbref(get(%q0/ASSIGNED_TO)),
