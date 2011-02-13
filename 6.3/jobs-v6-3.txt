@@ -103,7 +103,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting up commands.
 &CMD_TYPO [v(JOB_GO)]=$+typo *:@switch [not(haspower(%#,guest))]=0*,{@pemit %#=Permission denied.},{@pemit %#=You have notified production staff of the typo, with the details '[u(%va/FN_STRTRUNC,trim(%0),get(%va/BUFFER))]';@trigger %va/TRIG_CREATE=%#,u(%va/FN_FIND-BUCKET,BUILD),2,Typo Reported at %L,[u(%va/FN_STRTRUNC,trim(%0),get(%va/BUFFER))],,,4}
 @dolist VA VB VC={@cpattr %#/JOB_##=[v(JOB_GO)]/##}
 think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
-@switch [v(JOB_PATCH)]=1,{@dolist STARTUP DATA_CHARS2 DISPLAY_MYHEADERS DISPLAY_MYJOB MYJOBS_HEADER FIL_DELETE FN_ANSIFY FN_EASYPIE_PENN FN_EASYPIE_TINY PENN_PIE PENN10_PIE PENN12_PIE FN_NEW_JOBS FN_PACK IS_PLAYER JOBS_HEADER JOBS_HEADER2 MAP_ANSIFY MAP_ARTSGRAPH MAP_NAME2 MAP_NEW={@switch [hasattr(v(JOB_VA),##)]=1,&## [v(JOB_VA)]}}
+@switch [v(JOB_PATCH)]=1,{@dolist STARTUP BUCKET_HEADER DATA_CHARS2 DISPLAY_MYHEADERS DISPLAY_MYJOB MYJOBS_HEADER FIL_DELETE FN_ANSIFY FN_COORD2ANG FN_EASYPIE_PENN FN_EASYPIE_TINY FN_GENDATA MAP_GENDATA MAP_GENDATA2 PENN_PIE PENN10_PIE PENN12_PIE FN_NEW_JOBS FN_PACK IS_PLAYER JOBS_HEADER JOBS_HEADER2 MAP_ANSIFY MAP_ARTSGRAPH MAP_NAME2 MAP_NEW MAP_ISPLAYER MAP_PMATCH MAP_READERS={@switch [hasattr(v(JOB_VA),##)]=1,&## [v(JOB_VA)]}}
 &CHARGRAPH [v(JOB_VA)]=@+-/!*ox#.X$^`~O>
 &COLORGRAPH_1 [v(JOB_VA)]=gG
 &COLORGRAPH_2 [v(JOB_VA)]=yY
@@ -178,7 +178,6 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 &FN_CLEANFIND [v(JOB_VA)]=t(words(filter(%va/FIL_NOTPLAYER,get(%0/%1))))
 &FN_CLEANFIX [v(JOB_VA)]=[setq(0,filter(%va/FIL_ISPLAYER,get(%0/%1)))][ifelse(words(%q0),%q0,owner(me))]
 &FN_COLORPIE [v(JOB_VA)]=setq(0,u(fn_equalizepie,%1,%2))[setq(p,%0)][setq(1,u(%va/fn_rotatestr,setr(1,v(data_chars)),mod(round(fdiv(mul(%3,strlen(%q1)),360),0),360)))][setq(a,%]%])][setq(b,%qa%qa)][setq(c,%qb%qb)][null(map(map_colorpie,%q0,%2))][setq(p,edit(%qp,|,ansi(n,|)))]%qP
-&FN_COORD2ANG [v(JOB_VA)]=switch(%0:%1,-*:-*,add(180,atan(fdiv(%1,%0),deg)),-*:*,add(180,atan(fdiv(%1,%0),deg)),*:-*,add(360,atan(fdiv(%1,%0),deg)),0:0,0,atan(fdiv(%1,%0),deg))
 &FN_COLUMNS [v(JOB_VA)]=switch(first(version()),RhostMUSH,[columns(%0,min(sub(79,ifelse(gt(%3,78),1,%3)),%1),div(sub(79,ifelse(gt(%3,78),1,%3)),%1),l,,,ifelse(gt(words(%3),0),space(%3)),,,1,%2)],PennMUSH,[align([ifelse(%3,dec(%3),0)] [sub(78,ifelse(%3,dec(%3),0))],%B,[table(%0,%1,sub(78,ifelse(%3,dec(%3),0)),%2)])],columns(%0,%1,%2,%3))
 &FN_CUTPIE [v(JOB_VA)]=setq(0,inc(%2))[setq(1,fdiv(%1,%2))][setq(2,power(%3,2))][setq(5,iter(lnum(0,dec(%3)),round(mul(sqrt(sub(%q2,power(add(##,.7),2))),%q1),0)))][setq(5,revwords(%q5) [setr(8,inc(ceil(mul(%3,2))))] %q5)][iter(lnum(-%3,%3),space(sub(%q8,setr(9,extract(%q5,#@,1))))[mid(extract(%0,add(##,%q0),1),shl(sub(%1,%q9),1),shl(%q9,2))],,|)]
 &FN_DATECONV [v(JOB_VA)]=switch(words(%0,/),3,convtime(XXX [switch([rjust(first(%0,/),2,0)],01,Jan,02,Feb,03,Mar,04,Apr,05,May,06,Jun,07,Jul,08,Aug,09,Sep,10,Oct,11,Nov,12,Dec)] [rjust(extract(%0,2,1,/),2,0)] 23:59:00 [switch(strlen(setr(0,last(%0,/))),2,20[rjust(%q0,2,0)],%q0)]),switch(convtime(%0),*-*,fold(FOLD_DATECONV,%0,secs()),convtime(%0)))
@@ -194,7 +193,6 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 &FN_FLAGS [v(JOB_VA)]=u(%va/FN_SKIN,FLAGS,%0,%1,%2,%3)
 &FN_FLEXWIDTH [v(JOB_VA)]=add(%0,switch(default(%#/JOBSWIDTH,[width(%#)]),#-1*,0,sub(default(%#/JOBSWIDTH,width(%#)),80)))
 &FN_FOOTER [v(JOB_VA)]=u(%va/FN_SKIN,FOOTER,%0,%1,%2,%3)
-&FN_GENDATA [v(JOB_VA)]=setq(0,%0)[setq(z,fdiv(inc(shl(%1,1)),inc(shl(%0,1))))][setq(9,fdiv(dec(setr(m,strlen(setr(8,v(DATA_CHARS))))),360))][setq(s,%2)][map(map_gendata,lnum(-%1,%1))]
 &FN_HASATTR [v(JOB_VA)]=switch(first(version()),PennMUSH,hasattrval(%0,%1),hasattr(%0,%1))
 &FN_HASATTRP [v(JOB_VA)]=switch(first(version()),PennMUSH,hasattrpval(%0,%1),hasattrp(%0,%1))
 &FN_HEADER [v(JOB_VA)]=u(%va/FN_SKIN,HEADER,%0,%1,%2,%3)
@@ -271,12 +269,9 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 &MAP_ETIME [v(JOB_VA)]=switch(%0,*d,mul(86400,before(%0,d)),*h,mul(3600,before(%0,h)),*m,mul(60,before(%0,m)),*s,before(%0,s),0)
 &MAP_EQUALIZEPIE [v(JOB_VA)]=last(%0,:)
 &MAP_EQUALIZEPIE2 [v(JOB_VA)]=revwords(setr(8,round(fdiv(mul(%q1,setr(7,last(%0,:))),%q0),0))[setq(1,sub(%q1,%q8))][setq(0,sub(%q0,%q7))]:[rest(revwords(%0,:),:)],:)
-&MAP_GENDATA [v(JOB_VA)]=setq(1,%0)%[[map(%va/map_gendata2,lnum(-%q0,%q0),,%[)]
-&MAP_GENDATA2 [v(JOB_VA)]=mid(%q8,mod(round(mul(add(u(%va/fn_coord2ang,%0,%q1),%qs),%q9),0),%qm),1)
 &MAP_GRAPH [v(JOB_VA)]=[setq(9,ifelse(gt(inc(%q9),%q6),1,inc(%q9)))][ifelse(lte(%q2,add(fdiv(%0,%q3),0.5)),ansi(v(COLORGRAPH_%q9),repeat(%q7,%q5)),repeat(%b,%q5))]
 &MAP_INDENT2 [v(JOB_VA)]=%b%b%0
 &MAP_INFIX2POSTFIX [v(JOB_VA)]=switch(1,t(match(%qv,first(%0,=))),[%0]%B[u(%va/FN_S-POP-UNARY)],t(match(OR AND,%0)),[u(%va/FN_S-POP-BINARY)][u(%va/FN_S-PUSH,%0)],strmatch(NOT,%0),[u(%va/FN_S-PUSH,%0)],strmatch(%(,%0),[u(%va/FN_S-PUSH,%0)],strmatch(%),%0),[u(%va/FN_S-POP-BINARY)][switch(u(%va/FN_S-PEEK),%(,null(u(%va/FN_S-POP)),#-1 MISMATCHED PARENS)]%B[u(%va/FN_S-POP-UNARY)],#-1 SYNTAX ERROR)
-&MAP_ISPLAYER [v(JOB_VA)]=isdbref(pmatch(%0))
 &MAP_JGROUP [v(JOB_VA)]=switch(%0,+*,u(%va/FN_JGROUPMEMBERS,u(%va/FN_FIND-JGROUP,%0)),me,%#,pmatch(%0))
 &MAP_JGROUPERROR [v(JOB_VA)]=ifelse(or(strmatch(%0,me),isdbref(pmatch(%0)),isdbref(u(%va/FN_FIND-JGROUP,%0))),,I don't recognize '%0' as a player or jgroup.)
 &MAP_JOBSELECT [v(JOB_VA)]=switch(1,t(match(and or not %( %) | & !,%0)),%0,u(%va/FN_HASATTR,%#,JOBSELECT_%0),get(%#/JOBSELECT_%0),%0)
@@ -286,8 +281,6 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 &MAP_PARSESTACK [v(JOB_VA)]=switch([setr(2,first(%0,=))][setq(a,edit(rest(%0,=),~,%B))],OR,u(%va/FN_S-PUSH,setunion(u(%va/FN_S-POP),u(%va/FN_S-POP))),AND,u(%va/FN_S-PUSH,setinter(u(%va/FN_S-POP),u(%va/FN_S-POP))),NOT,u(%va/FN_S-PUSH,setdiff(%q1,u(%va/FN_S-POP))),u(%va/FN_S-PUSH,filter(%va/SEL_%q2,%q1)))
 &MAP_PIEDATA [v(JOB_VA)]=[mid(get(%va/CHARGRAPH),%q0,1)][setq(0,inc(%q0))][get(me/COLORGRAPH_%q0)]:%0:[extract(%q1,%q0,1)]
 &MAP_PIELEGEND [v(JOB_VA)]=ljust(extract(%qn,%0,1,|),%qd) [ansi(before(mid(setr(q,extract(%qm,%0,1,|)),1,10),:),mid(%qq,0,1))] [switch(%qq,:*,extract(%qq,3,100,:),after(%qq,:))]
-&MAP_PMATCH [v(JOB_VA)]=pmatch(%0)
-&MAP_READERS [v(JOB_VA)]=first(%0,|)
 &MAP_REPORTS [v(JOB_VA)]=after(lcstr(%0),_)
 &MAP_SETTINGS [v(JOB_VA)]=rest(%0,_)
 &MAP_SOURCE [v(JOB_VA)]=switch(%0,+*,u(FN_JGROUPMEMBERS,u(%va/FN_FIND-JGROUP,%0)),me,%#,pmatch(%0))
