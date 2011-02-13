@@ -6252,7 +6252,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting locks.
 	>0,{
 		think [ansi(hc,ANOMALY JOBS:)] Updating new job indicators.;
 		@dolist lcon(v(JOB_VA))={
-			&LIST_JOBSN ##=[get(##/LIST_READERS)];
+			&LIST_JOBSN ##=[default(##/LIST_JOBSN,get(##/LIST_READERS))];
 		}
 	}
 -
