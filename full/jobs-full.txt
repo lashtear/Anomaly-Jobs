@@ -93,7 +93,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting up commands.
 -
 
 @aconnect [v(JOB_GO)]=
-	@switch [u(%va/HAS_ACCESS,%#)]=1,{@fo %#=+jobs/new},{@fo %#=+myjobs}
+	@switch [default(%#/JOBS_LOGIN,1)][u(%va/HAS_ACCESS,%#)]=11,{@force %#=+jobs/new},10,{@force %#=+myjobs}
 -
 
 &CMD_BUCKET/ACCESS [v(JOB_GO)]=
@@ -713,7 +713,7 @@ $+job/checkin *:
 
 &CMD_JOB/CLAIM [v(JOB_GO)]=
 $+job/claim *:
-	@fo %#=+job/assign %0=%#
+	@force %#=+job/assign %0=%#
 -
 
 &CMD_JOB/CLONE [v(JOB_GO)]=
@@ -1655,7 +1655,7 @@ $+job *:
 -
 
 &CMD_JOBS [v(JOB_GO)]=
-$+jobs:@fo %#=
+$+jobs:@force %#=
 	+jobs/select [switch(
 		u(%va/FN_HASATTR,%#,JOBSELECT),
 		1,get(%#/JOBSELECT),
@@ -1663,7 +1663,7 @@ $+jobs:@fo %#=
 	)]
 -
 
-&CMD_JOBS/ALL [v(JOB_GO)]=$+jobs/all:@fo %#=+jobs/select all
+&CMD_JOBS/ALL [v(JOB_GO)]=$+jobs/all:@force %#=+jobs/select all
 -
 
 &CMD_JOBS/CATCHUP [v(JOB_GO)]=$+jobs/catchup:
@@ -1757,28 +1757,28 @@ $+jobs/credits:
 		[u(%va/FN_FOOTER)]
 -
 
-&CMD_JOBS/DATE [v(JOB_GO)]=$+jobs/date:@fo %#=+jobs/select all sort=date
+&CMD_JOBS/DATE [v(JOB_GO)]=$+jobs/date:@force %#=+jobs/select all sort=date
 -
 
-&CMD_JOBS/DUE [v(JOB_GO)]=$+jobs/due:@fo %#=+jobs/select all sort=due
+&CMD_JOBS/DUE [v(JOB_GO)]=$+jobs/due:@force %#=+jobs/select all sort=due
 -
 
-&CMD_JOBS/FROM [v(JOB_GO)]=$+jobs/from *:@fo %#=+jobs/select source=%0
+&CMD_JOBS/FROM [v(JOB_GO)]=$+jobs/from *:@force %#=+jobs/select source=%0
 -
 
-&CMD_JOBS/LIST [v(JOB_GO)]=$+jobs/list *:@fo %#=+jobs/select bucket=%0
+&CMD_JOBS/LIST [v(JOB_GO)]=$+jobs/list *:@force %#=+jobs/select bucket=%0
 -
 
-&CMD_JOBS/MINE [v(JOB_GO)]=$+jobs/mine:@fo %#=+jobs/select mine
+&CMD_JOBS/MINE [v(JOB_GO)]=$+jobs/mine:@force %#=+jobs/select mine
 -
 
-&CMD_JOBS/NEW [v(JOB_GO)]=$+jobs/new:@fo %#=+jobs/select new
+&CMD_JOBS/NEW [v(JOB_GO)]=$+jobs/new:@force %#=+jobs/select new
 -
 
-&CMD_JOBS/OVERDUE [v(JOB_GO)]=$+jobs/overdue:@fo %#=+jobs/select overdue
+&CMD_JOBS/OVERDUE [v(JOB_GO)]=$+jobs/overdue:@force %#=+jobs/select overdue
 -
 
-&CMD_JOBS/PRI [v(JOB_GO)]=$+jobs/pri:@fo %#=+jobs/select all sort=pri
+&CMD_JOBS/PRI [v(JOB_GO)]=$+jobs/pri:@force %#=+jobs/select all sort=pri
 -
 
 &CMD_JOBS/REPORTS [v(JOB_GO)]=
@@ -1832,7 +1832,7 @@ $+jobs/reports:
 	}
 -
 
-&CMD_JOBS/SEARCH [v(JOB_GO)]=$+jobs/search *:@fo %#=+jobs/select search=%0
+&CMD_JOBS/SEARCH [v(JOB_GO)]=$+jobs/search *:@force %#=+jobs/select search=%0
 -
 
 &CMD_JOBS/SELECT [v(JOB_GO)]=
@@ -1874,10 +1874,10 @@ $+jobs/select *:
 	}
 -
 
-&CMD_JOBS/SORT [v(JOB_GO)]=$+jobs/sort:@fo %#=+jobs/select all sort=bucket
+&CMD_JOBS/SORT [v(JOB_GO)]=$+jobs/sort:@force %#=+jobs/select all sort=bucket
 -
 
-&CMD_JOBS/WHO [v(JOB_GO)]=$+jobs/who *:@fo %#=+jobs/select who=%0
+&CMD_JOBS/WHO [v(JOB_GO)]=$+jobs/who *:@force %#=+jobs/select who=%0
 -
 
 &CMD_JOBS/WHO2 [v(JOB_GO)]=

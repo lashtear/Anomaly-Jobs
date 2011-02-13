@@ -3,6 +3,7 @@ CHANGELOG for Anomaly Jobs
 
 Version 6.3
 New Features:
+- Players can suppress the system's @aconnect jobs listing. Issue 135.
 - The +typo command now includes the dbref where it was used. Issue 139.
 - Players can configure whether to auto-untag jobs when read. Issue 143.
 - Commands now accept "me" as a valid player name. Issue 144.
