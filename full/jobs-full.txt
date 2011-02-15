@@ -1841,12 +1841,12 @@ $+jobs/select *:
 	@switch 
 	[u(%va/HAS_ACCESS,%#)]
 	[setq(0,before(lcstr(%0),sort=))]
-	[pemit(%#,setr(0,
+	[setq(0,
 		u(%va/FN_INFIX2POSTFIX,map(
 			%va/MAP_JOBSELECT,
 			u(%va/FN_TOKENLIST,%q0)
 		))
-	))]
+	)]
 	[not(strmatch(%q0,*#-1 MISMATCHED PARENS*))]
 	[not(strmatch(%q0,*#-1 SYNTAX ERROR*))]
 	[setq(9,u(%va/FN_TRIM,after(lcstr(%0),sort=)))]
