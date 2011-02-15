@@ -1,9 +1,9 @@
 #
-# Anomaly Jobs 6.3 Installer
+# Anomaly Jobs 6.4 Installer
 # For new installations or upgrades from 5.0+
 #
 
-think [repeat(=,77)]%r%r[center(ansi(hc,Setting up Anomaly Jobs v6.3),77)]%r%r[repeat(=,77)]
+think [repeat(=,77)]%r%r[center(ansi(hc,Setting up Anomaly Jobs v6.4),77)]%r%r[repeat(=,77)]
 -
 
 @set me=quiet
@@ -1841,12 +1841,12 @@ $+jobs/select *:
 	@switch 
 	[u(%va/HAS_ACCESS,%#)]
 	[setq(0,before(lcstr(%0),sort=))]
-	[setq(0,
+	[pemit(%#,setr(0,
 		u(%va/FN_INFIX2POSTFIX,map(
 			%va/MAP_JOBSELECT,
 			u(%va/FN_TOKENLIST,%q0)
 		))
-	)]
+	))]
 	[not(strmatch(%q0,*#-1 MISMATCHED PARENS*))]
 	[not(strmatch(%q0,*#-1 SYNTAX ERROR*))]
 	[setq(9,u(%va/FN_TRIM,after(lcstr(%0),sort=)))]
@@ -3412,7 +3412,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 		t(match(and or not %( %) | & !,%0)),
 		%0,
 		u(%va/FN_HASATTR,%#,JOBSELECT_%0),
-		get(%#/JOBSELECT_%0),
+		u(%va/FN_TOKENLIST,get(%#/JOBSELECT_%0)),
 		%0
 	)
 -
@@ -5174,10 +5174,10 @@ think [ansi(hc,ANOMALY JOBS:)] Installing skins.
 &RELEASE [v(JOB_VA)]=February 14, 2011
 -
 
-&VERSION [v(JOB_VA)]=v6.3
+&VERSION [v(JOB_VA)]=v6.4
 -
 
-&VERSION [v(JOB_VC)]=v6.3
+&VERSION [v(JOB_VC)]=v6.4
 -
 
 # Job Tracker Setup
