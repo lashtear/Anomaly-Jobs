@@ -1833,7 +1833,7 @@ $+jobs/reports:
 	}
 -
 
-&CMD_JOBS/SEARCH [v(JOB_GO)]=$+jobs/search *:@force %#=+jobs/select search=%0
+&CMD_JOBS/SEARCH [v(JOB_GO)]=$+jobs/search *:@force %#=+jobs/select search="%0"
 -
 
 &CMD_JOBS/SELECT [v(JOB_GO)]=

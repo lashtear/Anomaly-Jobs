@@ -6,6 +6,7 @@ New Features:
 
 Bugfixes:
 - JOBSELECT attributes weren't parsing &, |, and !. Issue 149.
+- +job/search wasn't handling multi-word arguments well. Issue 152.
 
 
 Version 6.3
