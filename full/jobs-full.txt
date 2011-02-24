@@ -460,18 +460,16 @@ $+jgroup/member *=*:
 $+job/access *=*:
 	@switch 
 		[u(%va/GIVE_ACCESS,%#)]
-		[setq(0,switch(trim(%0),me,%#,pmatch(trim(%0))))]
-		[setq(1,u(%va/FN_FIND-JOB,%1))]
+		[setq(0,switch(trim(%0),me,%#,pmatch(trim(%1))))]
+		[setq(1,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
 		[isdbref(%q1)]
-		[u(%va/HAS_ACCESS,%q0)]
 		[u(%va/FN_WIZONLY,%q0)]
 		[u(%va/FN_ACCESSCHECK,parent(%q1),%q0,%q1)]
 		=
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=There is no player by that name.},
 		110*,{@pemit %#=There is no job by that name. Please type '[ansi(h,+jobs/all)]' for all jobs or '[ansi(h,+jobs/list <bucket>)]' to list by bucket.},
-		1110*,{@pemit %#=That player does not have +jobs access.},
 		11111*,{@pemit %#=That player can always access all jobs.},
 		111100*,
 		{

@@ -316,7 +316,7 @@
   means the comment is published, a minus means the comment is not published).
 & job/access
 
-  [ansi(h,+job/access <player>=<#>)]
+  [ansi(h,+job/access <#>=<player>)]
   
   This command toggles access to Job <#> for <player>.  If <player> has access
   to the +jobs system this behaves similarly to the +bucket/access command,
@@ -705,7 +705,7 @@
   [ansi(h,+jobs/<sort|date|pri|due>)]                : Sorts jobs by bucket/mod/pri/due.
   [ansi(h,+jobs/who <player>)]                       : Lists jobs assigned to player.
   [ansi(h,+job <#>)]                                 : View a job.
-  [ansi(h,+job/access <#>)]                          : Toggle access to a job.
+  [ansi(h,+job/access <#>=<player>)]                 : Toggle access to a job.
   [ansi(h,+job/act <#>)]                             : Display actions on a job.
   [ansi(h,+job/add <#>=<comments>)]                  : Add comments to a job.
   
