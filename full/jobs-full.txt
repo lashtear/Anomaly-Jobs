@@ -1354,7 +1354,9 @@ $+job/set *=*:
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=That is not a valid job.},
 		110*,{@pemit %#=You do not have access to that job.},
-		1110*,{@pemit %#=That is an invalid setting. Valid job settings are:%r[u(%va/FN_ITEMIZE,lcstr(%qa))].},
+		1110*,{@pemit %#=That is an invalid setting. Valid job settings are:%r[u(%va/FN_ITEMIZE,
+			iter(lattr(%va/STATUS_*),last(get(%va/[itext(0)]),|),%b,|)
+		,|)].},
 		11110*,{@pemit %#=That job is presently [ifelse(u(%va/FN_HASATTRP,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 		111110*,{@pemit %#=That action is not available for that job.},
 		{

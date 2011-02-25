@@ -8,6 +8,7 @@ Bugfixes:
 - JOBSELECT attributes weren't parsing &, |, and !. Issue 149.
 - +job/access wasn't giving access to those without jobs access. Issue 150.
 - +job/search wasn't handling multi-word arguments well. Issue 152.
+- Fixed incorrect +job/set error message. Issue 153.
 
 Version 6.3
 New Features:
