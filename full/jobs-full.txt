@@ -93,7 +93,7 @@ think [ansi(hc,ANOMALY JOBS:)] Setting up commands.
 -
 
 @aconnect [v(JOB_GO)]=
-	@switch [default(%#/JOBS_LOGIN,1)][u(%va/HAS_ACCESS,%#)]=11,{@force %#=+jobs/new},10,{@force %#=+myjobs}
+	@switch [default(%#/JOBS_LOGIN,1)][u(%va/HAS_ACCESS,%#)][u(%va/FN_GUEST,%#)]=110,{@force %#=+jobs/new},100,{@force %#=+myjobs}
 -
 
 &CMD_BUCKET/ACCESS [v(JOB_GO)]=
@@ -331,9 +331,9 @@ $+buckets:
 &CMD_BUG [v(JOB_GO)]=
 $+bug *=*:
 	@switch 
-		[not(haspower(%#,guest))]
+		[u(%va/FN_GUEST,%#)]
 		=
-		0*,{@pemit %#=Permission Denied.},
+		1,{@pemit %#=This command is not available to guests.},
 		{
 			@pemit %#=You have notified production staff of the [secure(u(%va/FN_STRTRUNC,trim(%0),30))] bug, with the details '[secure(u(%va/FN_STRTRUNC,trim(%1),get(%va/BUFFER)))]';
 			@trigger %va/TRIG_CREATE=%#,u(%va/FN_FIND-BUCKET,CODE),3,BUG: [u(%va/FN_STRTRUNC,trim(%0),30)],[u(%va/FN_STRTRUNC,trim(%1),get(%va/BUFFER))],,,5
@@ -1893,7 +1893,7 @@ $+jobs/who:
 &CMD_MYJOB/ADD [v(JOB_GO)]=
 $+myjob/add *=*:
 	@switch 
-		[not(haspower(%#,guest))]
+		[not(u(%va/FN_GUEST,%#))]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
 		[or(
@@ -1933,14 +1933,14 @@ $+myjob/help *:
 &CMD_MYJOB/SUMSET [v(JOB_GO)]=
 $+myjob/sumset */*=*:
 	@switch 
-		[not(haspower(%#,guest))]
+		[not(u(%va/FN_GUEST,%#))]
 		[isdbref(setr(0,u(%va/FN_FIND-JOB,%0)))]
 		[u(%va/FN_HASATTRP,parent(%q0),MYACCESS_[trim(%1)])]
 		[and(u(%va/CONFIG_ACCESS,%#),u(parent(%q0)/MYACCESS_[trim(%1)],%#))]
 		[not(u(%va/IS_LOCKED,%q0,%#))]
 		[u(parent(%q0)/MYPROCESS_[trim(%1)],trim(%2),%q0,%#)]
 		=
-		0*,{@pemit %#=Permission denied.},
+		0*,{@pemit %#=This command is not available to guests.},
 		10*,{@pemit %#=There is no such job. See '[ansi(h,+jobs)]' for a list of valid jobs.},
 		110*,
 			{
@@ -1968,7 +1968,7 @@ $+myjob/sumset */*=*:
 &CMD_MYJOB/VIEW [v(JOB_GO)]=
 $+myjob *:
 	@switch 
-		[not(haspower(%#,guest))]
+		[not(u(%va/FN_GUEST,%#))]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
 		[or(
@@ -1980,7 +1980,7 @@ $+myjob *:
 			)
 		)]
 		=
-		0*,{@pemit %#=Permission denied.},
+		0*,{@pemit %#=This command is not available to guests.},
 		10*,{@pemit %#=That is not a valid job number.},
 		110*,{@pemit %#=[name(%q0)] is not yours. You can only view your own jobs.},
 		{
@@ -2008,7 +2008,7 @@ $+myjob *:
 &CMD_MYJOB/LAST [v(JOB_GO)]=
 $+myjob/last *=*:
 	@switch 
-		[not(haspower(%#,guest))]
+		[not(u(%va/FN_GUEST,%#))]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
 		[or(
@@ -2020,7 +2020,7 @@ $+myjob/last *=*:
 			)
 		)]
 		=
-		0*,{@pemit %#=Permission denied.},
+		0*,{@pemit %#=This command is not available to guests.},
 		10*,{@pemit %#=That is not a valid job number.},
 		110*,{@pemit %#=[name(%q0)] is not yours. You can only view your own jobs.},
 		{
@@ -2058,9 +2058,9 @@ $+myjob/last *=*:
 &CMD_MYJOBS [v(JOB_GO)]=
 $+myjobs:
 	@switch 
-		[haspower(%#,guest)][words(setr(0,filter(%va/FIL_MYJOBS,revwords(lcon(%va)))))]
+		[u(%va/FN_GUEST,%#)][words(setr(0,filter(%va/FIL_MYJOBS,revwords(lcon(%va)))))]
 		=
-		1*,@pemit %#={Sorry, this command is not available to guests.},
+		1*,@pemit %#=This command is not available to guests.,
 		00,@pemit %#=You have no +myjobs.,
 		{
 			@pemit %#=[u(%va/FN_MYJOBSHEADER,%#)];
@@ -2080,8 +2080,8 @@ $+myjobs:
 
 &CMD_PITCH [v(JOB_GO)]=
 $+pitch *=*:
-	@switch [not(haspower(%#,guest))]=0*,{
-		@pemit %#=Permission Denied.
+	@switch [u(%va/FN_GUEST,%#)]=1,{
+		@pemit %#=This command is not available to guests.
 	},{
 		@pemit %#=
 			You have pitched your idea to staff about '[trim(secure(%0))]'. 
@@ -2093,8 +2093,8 @@ $+pitch *=*:
 
 &CMD_REQUEST [v(JOB_GO)]=
 $+request *=*:
-	@switch [not(haspower(%#,guest))]=0*,{
-		@pemit %#=Permission denied.
+	@switch [u(%va/FN_GUEST,%#)]=1,{
+		@pemit %#=This command is not available to guests.
 	},{
 		@pemit %#=
 			You have requested [secure(u(%va/FN_STRTRUNC,trim(%0),30))] from staff. 
@@ -2105,8 +2105,8 @@ $+request *=*:
 
 &CMD_TYPO [v(JOB_GO)]=
 $+typo *:
-	@switch [not(haspower(%#,guest))]=0*,{
-		@pemit %#=Permission denied.
+	@switch [u(%va/FN_GUEST,%#)]=1,{
+		@pemit %#=This command is not available to guests.
 	},{
 		@pemit %#=
 			You have notified production staff of the typo, with the details '[u(%va/FN_STRTRUNC,trim(%0),get(%va/BUFFER))]';
@@ -5969,6 +5969,13 @@ think [ansi(hc,ANOMALY JOBS:)] Setting up master parent.
 	RhostMUSH,{&FN_STAFFALL [v(JOB_VA)]=lit([gte(bittype(%0),2)])},
 	PennMUSH,{&FN_STAFFALL [v(JOB_VA)]=lit([orflags(%0,Wr)])},
 	{&FN_STAFFALL [v(JOB_VA)]=lit([orflags(%0,WZ)])}
+-
+
+@switch 
+	first(version())
+	=
+	RhostMUSH,{&FN_GUEST [v(JOB_VA)]=lit([eq(bittype(%0),0)])},
+	{&FN_GUEST [v(JOB_VA)]=lit([haspower(%0,Guest)])}
 -
 
 @switch [v(JOB_PATCH)]=
