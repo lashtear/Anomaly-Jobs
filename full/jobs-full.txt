@@ -1430,10 +1430,10 @@ $+job/sumset */*=*:
 		[u(%va/HAS_ACCESS,%#)]
 		[setq(0,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
-		[u(%va/FN_HASATTRP,%q0,ACCESS_[trim(%1)])]
-		[and(u(%va/CONFIG_ACCESS,%#),u(%q0/ACCESS_[trim(%1)],%#))]
+		[u(%va/FN_HASATTRP,parent(%q0),ACCESS_[trim(%1)])]
+		[and(u(%va/CONFIG_ACCESS,%#),u(parent(%q0)/ACCESS_[trim(%1)],%#))]
 		[not(u(%va/IS_LOCKED,%q0,%#))]
-		[u(%q0/PROCESS_[trim(%1)],trim(%2),%q0,%#)]
+		[u(parent(%q0)/PROCESS_[trim(%1)],trim(%2),%q0,%#)]
 		[udefault(%q0/SUM_ACCESS,1,%#)]
 		=
 		0*,{@pemit %#=Permission denied.},
@@ -1935,10 +1935,10 @@ $+myjob/sumset */*=*:
 	@switch 
 		[not(haspower(%#,guest))]
 		[isdbref(setr(0,u(%va/FN_FIND-JOB,%0)))]
-		[u(%va/FN_HASATTRP,%q0,MYACCESS_[trim(%1)])]
-		[and(u(%va/CONFIG_ACCESS,%#),u(%q0/MYACCESS_[trim(%1)],%#))]
+		[u(%va/FN_HASATTRP,parent(%q0),MYACCESS_[trim(%1)])]
+		[and(u(%va/CONFIG_ACCESS,%#),u(parent(%q0)/MYACCESS_[trim(%1)],%#))]
 		[not(u(%va/IS_LOCKED,%q0,%#))]
-		[u(%q0/MYPROCESS_[trim(%1)],trim(%2),%q0,%#)]
+		[u(parent(%q0)/MYPROCESS_[trim(%1)],trim(%2),%q0,%#)]
 		=
 		0*,{@pemit %#=Permission denied.},
 		10*,{@pemit %#=There is no such job. See '[ansi(h,+jobs)]' for a list of valid jobs.},
