@@ -5171,7 +5171,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing skins.
 &LICENSE [v(JOB_VA)]=You may port this code to any game provided that these credits remain intact. Please report any and all bugs, feedback, etc. to the project's home: http://code.google.com/p/anomalyjobs/
 -
 
-&RELEASE [v(JOB_VA)]=February 14, 2011
+&RELEASE [v(JOB_VA)]=March 18, 2011
 -
 
 &VERSION [v(JOB_VA)]=v6.4
