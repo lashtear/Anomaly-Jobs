@@ -436,7 +436,7 @@ $+jgroup/member *=*:
 		[setq(1,u(%va/FN_FIND-JGROUP,%1))]
 		[isdbref(%q0)]
 		[isdbref(%q1)]
-		[u(%va/HAS_ACCESS,%q0)]
+		[or(u(%va/HAS_ACCESS,%q0),u(%q1/ISMEMBER,%q0))]
 		[strmatch(get(%q1/ISMEMBER),*MEMBERLIST*)]
 		[u(%q1/ISMEMBER,%q0)]
 		=
