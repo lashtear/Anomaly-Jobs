@@ -132,6 +132,37 @@
   [ansi(h,+jobs/list <bucket>)]
   
   This command will list all jobs in <bucket>.
+& jobs/silence
+& job/silence
+
+  [ansi(h,+jobs/silence)]
+  [ansi(h,+jobs/silence <bucket>)]
+  [ansi(h,+job/silence <job #>)]
+
+  These commands will toggle appropriate attributes to suppress broadcasts
+  sent to those monitoring buckets. Without an argument, the commands
+  toggle the player's &JOBS_SILENCE attribute which (globally) suppresses
+  these broadcasts.  Suppression can be applied at the bucket level and at
+  the job level.
+& jobs/nospam
+& job/nospam
+& myjobs/nospam
+& myjob/nospam
+
+Staff:
+  [ansi(h,+jobs/nospam)]
+  [ansi(h,+jobs/nospam <bucket>)]
+  [ansi(h,+job/nospam <job #>)]
+
+Players:
+  [ansi(h,+myjobs/nospam)]
+  [ansi(h,+myjob/nospam <job #>)]
+  
+  These commands will toggle appropriate attributes to suppress the automatic
+  @mails sent to the originator of a job. Without an argument, the commands
+  toggle the player's &JOBS_NOSPAM attribute which (globally) suppresses
+  these @mails.  Suppression can be applied at the bucket level for staff,
+  and at the job level for everyone.
 & jobs/overdue
 
   [ansi(h,+jobs/overdue)]
