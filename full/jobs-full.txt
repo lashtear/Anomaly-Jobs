@@ -1523,7 +1523,6 @@ $+job/trans *=*:
 	1111110*,{@pemit %#=That job is presently [ifelse(u(%va/FN_HASATTRP,%q0,CHECKOUT),checked out to [name(first(get(%q0/CHECKOUT)))],locked)]},
 	{
 		@pemit %#=You have transferred the job from [u(%va/FN_BUCKETNAME,%q0)] to [name(%q1)].;
-		@set %q0=!going;
 		&going %q0;
 		@parent %q0=%q1;
 		@trigger %va/TRIG_ADD=%q0,Transferred to [name(%q1)].,%#,TRN;
@@ -1548,7 +1547,6 @@ $+job/undelete *:
 	11110*,{@pemit %#=That action is not available for that job.},
 	{
 		@pemit %#=You have restored [name(%q0)].;
-		@set %q0=!going;
 		&going %q0;
 		@trigger %va/TRIG_ADD=%q0,Undeleted job.,%#,UND;
 		@trigger %va/TRIG_BROADCAST=%q0,%#,UND,%q1
