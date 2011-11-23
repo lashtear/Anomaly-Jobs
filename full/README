@@ -1,7 +1,7 @@
 Anomaly Jobs
 -----------------------------------------------------------------------------
 Superior Task Tracking Technology
-Version 6.4 
+Version 6.5 
 
 Written by:    Starfleet @ Anomaly 
 Maintained by: Minion @ Crossroads
@@ -31,9 +31,9 @@ GNU General Public License for more details.
 
 
 
-Anomaly Jobs 6.4
+Anomaly Jobs 6.5
 -----------------------------------------------------------------------------
-1. Installing Anomaly Jobs 6.4
+1. Installing Anomaly Jobs 6.5
 2. Buckets
 3. Getting Help
 4. Integrating Applications with Jobs
@@ -46,9 +46,9 @@ Anomaly Jobs 6.4
 
 
 
-1. Installing Anomaly Jobs 6.4
+1. Installing Anomaly Jobs 6.5
 -----------------------------------------------------------------------------
-Installing Jobs 6.4 is fairly straight forward. You quote the install file to
+Installing Jobs 6.5 is fairly straight forward. You quote the install file to
 your game and the install is automated. However, before you install it read
 the README and the README.<dist> file for your server for any notes, and 
 read the install file notes for behavioral changes you might wish to make.

@@ -4,6 +4,10 @@ CHANGELOG for Anomaly Jobs
 Version 6.5
 Bugfixes:
 - +jgroup/member wouldn't remove a member that lost access. Issue 160.
+- +jobs/select stack implementation was lowering max job capacity. Issue 158.
+
+New Features:
+
 
 Version 6.4
 Bugfixes:
