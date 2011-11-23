@@ -5,12 +5,13 @@ Anomaly Jobs 6.5 HOWTO
 3. Enforcing workflow with hooks
 4. New command aliases
 5. New +job/select options - Red jobs
-
+6. Recycle bin for deleted jobs
 
 
 1. Introduction
 -----------------------------------------------------------------------------
-This file gives more in-depth examples of integrating Jobs with your game.
+This file gives more in-depth examples of integrating Jobs with your game,
+including more complex custom code you might use to customize behavior.
 It is assumed you have already read the README file and appropriate sections
 of the help files.
 
@@ -144,3 +145,29 @@ The A register is used if a job selection parameter uses an = sign, such as
       match(#123 #234 #-1,default(%0/zone,#-1)),
       match(housing apartments,%qa*)
     )
+
+6. Recycle bin for deleted jobs
+-----------------------------------------------------------------------------
+It is an unfortunately common occurrence that a staffer will approve/complete
+the wrong job.  While the default behavior keeps jobs from being permanently
+deleted for 60 seconds (hopefully long enough to type +job/undelete) it is
+possible to instead send jobs to a recycle "bucket" on completion, removing
+the time pressure and permitting a certain number of jobs to sit in that bin.
+
+The below hook for job approval clears the GOING attribute, preventing it
+from destruction, re-parents the job effectively /trans-ing it to the 
+Rescue and Review <RAR> bucket. The count of 5 children keeps the 5 last 
+deleted jobs, permanently deleting older ones.
+
+Substitute <RAR> in the below code with the RAR bucket dbref.
+
+&HOOK_APR <Bucket Parent>=
+	&GOING %0;
+	@parent %0=<RAR>;
+	@switch gt(words(children(<RAR>)),5)=1,{
+		@nuke [first(children(<RAR>))];
+		&GOING [first(children(<RAR>))]=1
+	}
+
+Make an identical one for HOOK_COM, HOOK_DNY, and HOOK_DEL.  You may want
+to also set up separate hooks or other permissions for the RAR bucket.
