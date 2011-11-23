@@ -7,7 +7,7 @@ Bugfixes:
 - +jobs/select stack implementation was lowering max job capacity. Issue 158.
 
 New Features:
-
+- +job/nospam and +job/silence at global, bucket, and job level. Issue 155.
 
 Version 6.4
 Bugfixes:

@@ -460,7 +460,7 @@ $+jgroup/member *=*:
 $+job/access *=*:
 	@switch 
 		[u(%va/GIVE_ACCESS,%#)]
-		[setq(0,switch(trim(%0),me,%#,pmatch(trim(%1))))]
+		[setq(0,switch(trim(%1),me,%#,pmatch(trim(%1))))]
 		[setq(1,u(%va/FN_FIND-JOB,%0))]
 		[isdbref(%q0)]
 		[isdbref(%q1)]
@@ -1239,6 +1239,29 @@ $+job/new *:
 			}
 -
 
+&CMD_JOB/NOSPAM [v(JOB_GO)]=
+$+job/nospam *:
+	@switch 
+		[u(%va/HAS_ACCESS,%#)]
+		[setq(1,u(%va/FN_FIND-JOB,%0))]
+		[isdbref(%q1)]
+		[u(%va/FN_ACCESSCHECK,parent(%q1),%#,%q1)]
+		[gt(member(get(%q1/NOSPAM),u(%va/FN_OBJID,%#)),0)]
+		=
+		0*,{@pemit %#=Permission denied.},
+		10*,{@pemit %#=There is no job by that name.},
+		110*,{@pemit %#=You don't have access to that job.},
+		1110*,
+		{
+			@pemit %#=You will not be mailed about [name(%q1)].;
+			&NOSPAM %q1=[setunion(get(%q1/NOSPAM),u(%va/FN_OBJID,%#))];
+		},
+		{
+			@pemit %#=You will be mailed about [name(%q1)].;
+			&NOSPAM %q1=[remove(get(%q1/NOSPAM),u(%va/FN_OBJID,%#))];
+		}
+-
+
 &CMD_JOB/PUBLISH [v(JOB_GO)]=
 $+job/publish *:
 	@switch 
@@ -1364,6 +1387,29 @@ $+job/set *=*:
 			&STATUS %q0=%q2;
 			@trigger %va/TRIG_ADD=%q0,Set to %q1.,%#,STA;
 			@trigger %va/TRIG_BROADCAST=%q0,%#,STA,%q1
+		}
+-
+
+&CMD_JOB/SILENCE [v(JOB_GO)]=
+$+job/silence *:
+	@switch 
+		[u(%va/HAS_ACCESS,%#)]
+		[setq(1,u(%va/FN_FIND-JOB,%0))]
+		[isdbref(%q1)]
+		[u(%va/FN_ACCESSCHECK,parent(%q1),%#,%q1)]
+		[gt(member(get(%q1/SILENCE),u(%va/FN_OBJID,%#)),0)]
+		=
+		0*,{@pemit %#=Permission denied.},
+		10*,{@pemit %#=There is no job by that name.},
+		110*,{@pemit %#=You don't have access to that job.},
+		1110*,
+		{
+			@pemit %#=You will not hear broadcasts about [name(%q1)].;
+			&SILENCE %q1=[setunion(get(%q1/SILENCE),u(%va/FN_OBJID,%#))];
+		},
+		{
+			@pemit %#=You will hear broadcasts about [name(%q1)].;
+			&SILENCE %q1=[remove(get(%q1/SILENCE),u(%va/FN_OBJID,%#))];
 		}
 -
 
@@ -1776,6 +1822,33 @@ $+jobs/credits:
 &CMD_JOBS/NEW [v(JOB_GO)]=$+jobs/new:@force %#=+jobs/select new
 -
 
+&CMD_JOBS/NOSPAM [v(JOB_GO)]=
+$+jobs/nospam *:
+	@switch 
+		[u(%va/HAS_ACCESS,%#)]
+		[setq(0,u(%va/FN_FIND-BUCKET,%0))]
+		[isdbref(%q0)]
+		[u(%va/FN_ACCESSCHECK,%q0,%#)]
+		[gt(member(get(%#/JOBS_NOSPAM_B),u(%va/FN_OBJID,%q0)),0)]
+		=
+		0*,{@pemit %#=Permission denied.},
+		10*,{@pemit %#=There is no bucket by that name.},
+		110*,{@pemit %#=You don't have access to that bucket.},
+		1110*,
+		{
+			@pemit %#=You will not be mailed about jobs in the [name(%q0)] bucket.;
+			&JOBS_NOSPAM_B %#=[setunion(get(%#/JOBS_NOSPAM_B),u(%va/FN_OBJID,%q0))];
+		},
+		{
+			@pemit %#=You will be mailed about jobs in the [name(%q0)] bucket.;
+			&JOBS_NOSPAM_B %#=[remove(get(%#/JOBS_NOSPAM_B),u(%va/FN_OBJID,%q0))];
+		}
+-
+
+&CMD_JOBS/NOSPAM2 [v(JOB_GO)]=
+$+jobs/nospam:@force %#=+myjobs/nospam
+-
+
 &CMD_JOBS/OVERDUE [v(JOB_GO)]=$+jobs/overdue:@force %#=+jobs/select overdue
 -
 
@@ -1877,6 +1950,47 @@ $+jobs/select *:
 	}
 -
 
+&CMD_JOBS/SILENCE [v(JOB_GO)]=
+$+jobs/silence *:
+	@switch 
+		[u(%va/HAS_ACCESS,%#)]
+		[setq(0,u(%va/FN_FIND-BUCKET,%0))]
+		[isdbref(%q0)]
+		[u(%va/FN_ACCESSCHECK,%q0,%#)]
+		[gt(member(get(%#/JOBS_SILENCE_B),u(%va/FN_OBJID,%q0)),0)]
+		=
+		0*,{@pemit %#=Permission denied.},
+		10*,{@pemit %#=There is no bucket by that name.},
+		110*,{@pemit %#=You don't have access to that bucket.},
+		1110*,
+		{
+			@pemit %#=You will not hear broadcasts about jobs in the [name(%q0)] bucket.;
+			&JOBS_SILENCE_B %#=[setunion(get(%#/JOBS_SILENCE_B),u(%va/FN_OBJID,%q0))];
+		},
+		{
+			@pemit %#=You will hear broadcasts about jobs in the [name(%q0)] bucket.;
+			&JOBS_SILENCE_B %#=[remove(get(%#/JOBS_SILENCE_B),u(%va/FN_OBJID,%q0))];
+		}
+-
+
+&CMD_JOBS/SILENCE2 [v(JOB_GO)]=
+$+jobs/silence:
+	@switch 
+		[u(%va/HAS_ACCESS,%#)]
+		[default(%#/JOBS_SILENCE,0)]
+		=
+		0*,{@pemit %#=Permission denied.},
+		10,
+		{
+			@pemit %#=You will not hear broadcasts about jobs.;
+			&JOBS_SILENCE %#=1;
+		},
+		{
+			@pemit %#=You will hear broadcasts about jobs.;
+			&JOBS_SILENCE %#;
+		}
+-
+
 &CMD_JOBS/SORT [v(JOB_GO)]=$+jobs/sort:@force %#=+jobs/select all sort=bucket
 -
 
@@ -1929,6 +2043,52 @@ $+myjob/help *:
 				No +myjob help has been defined for that bucket.
 			)];
 			@pemit %#=[u(%va/FN_FOOTER)]
+		}
+-
+
+&CMD_MYJOB/NOSPAM [v(JOB_GO)]=
+$+myjob/nospam *:
+	@switch 
+		[not(u(%va/FN_GUEST,%#))]
+		[setq(0,u(%va/FN_FIND-JOB,%0))]
+		[isdbref(%q0)]
+		[or(
+			u(%va/FN_MYACCESSCHECK,parent(%q0),%#,%q0),
+			u(%va/IS_TRANSPARENT,%q0),
+			and(
+				get(%q0/PUBLIC),
+				match(get(%q0/OPENED_BY),%#)
+			)
+		)]
+		[gt(member(get(%q1/NOSPAM),u(%va/FN_OBJID,%#)),0)]
+		=
+		0*,{@pemit %#=This command is not available to guests.},
+		10*,{@pemit %#=That is not a valid job number.},
+		110*,{@pemit %#=[name(%q0)] is not yours.},
+		1110*,
+		{
+			@pemit %#=You will not be mailed about [name(%q1)].;
+			&NOSPAM %q1=[setunion(get(%q1/NOSPAM),u(%va/FN_OBJID,%#))];
+		},
+		{
+			@pemit %#=You will be mailed about [name(%q1)].;
+			&NOSPAM %q1=[remove(get(%q1/NOSPAM),u(%va/FN_OBJID,%#))];
+		}
+-
+
+&CMD_MYJOBS/NOSPAM [v(JOB_GO)]=
+$+myjobs/nospam:
+	@switch 
+		[default(%#/JOBS_NOSPAM,0)]
+		=
+		0,
+		{
+			@pemit %#=You will not be mailed about jobs.;
+			&JOBS_NOSPAM %#=1;
+		},
+		{
+			@pemit %#=You will be mailed about jobs.;
+			&JOBS_NOSPAM %#;
 		}
 -
 
@@ -2405,7 +2565,18 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 &FIL_ACCESS [v(JOB_VA)]=u(%va/FN_ACCESSCHECK,%0,%#)
 -
 
-&FIL_BROADCAST [v(JOB_VA)]=ifelse(u(%va/FN_HASATTRP,%0,JOBS_SILENCE),0,u(%va/FN_ACCESSCHECK,%q0,%0))
+#
+# %q0 passed as bucket, %qJ possibly passed as job
+# Don't broadcast if silence, or bucket silence, or job silence
+#
+
+&FIL_BROADCAST [v(JOB_VA)]=ifelse(
+	cor(
+		default(%0/JOBS_SILENCE,0),
+		member(get(%0/JOBS_SILENCE_B),u(%va/FN_OBJID,%q0)),
+		member(get(%qJ/SILENCE),u(%va/FN_OBJID,%0))
+	),0,
+	u(%va/FN_ACCESSCHECK,%q0,%0))
 -
 
 &FIL_BUCKET [v(JOB_VA)]=t(member(children(%1),%0))
@@ -2503,7 +2674,16 @@ think [ansi(hc,ANOMALY JOBS:)] Setting controlling attributes.
 &FIL_NEWCOMMENTS1 [v(JOB_VA)]=gt(last(%0,_),last(grab(get(%q0/LIST_JOBSN),%#|*),|))
 -
 
-&FIL_NOSPAM [v(JOB_VA)]=not(u(%va/FN_HASATTR,%0,JOBS_NOSPAM))
+#
+# %qJ passed as job dbref. 
+# Don't mail if nospam player, nospam job, or nospam bucket
+#
+
+&FIL_NOSPAM [v(JOB_VA)]=not(cor(
+	default(%0/JOBS_NOSPAM,0),
+	member(get(%qJ/NOSPAM),u(%va/FN_OBJID,%0)),
+	member(get(%0/JOBS_NOSPAM_B),u(%va/FN_OBJID,%qJ))
+))
 -
 
 &FIL_NOTPLAYER [v(JOB_VA)]=
@@ -4029,7 +4209,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 	@switch isdbref(%1)=
 		1,{
 			@pemit/list 
-				[setq(0,parent(%0))]
+				[setq(0,parent(%0))][setq(J,%0)]
 				[setq(0,ifelse(isdbref(%q0),%q0,%vc))]
 				[filter(%va/FIL_BROADCAST,setunion(lwho(),))]
 				=
@@ -4201,6 +4381,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing reports.
 &TRIG_MAIL [v(JOB_VA)]=
 	@switch 
 		[u(%va/FN_HASATTRP,%0,MLETTER_%1)]
+		[setq(J,%0)]
 		=
 		1,
 		{

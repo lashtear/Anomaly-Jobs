@@ -699,15 +699,13 @@
   [ansi(h,+jobs/credits)]                            : Display credit information.
   [ansi(h,+jobs/from <player>)]                      : Lists jobs opened by a player.
   [ansi(h,+jobs/list <bucket>)]                      : List all jobs in <bucket>.
+  [ansi(h,+jobs/nospam %[<bucket>%])]                  : Suppress job @mail.
   [ansi(h,+jobs/reports %[<report>%])]                 : Get a report.
   [ansi(h,+jobs/search <pattern>)]                   : Search jobs for <pattern>.
   [ansi(h,+jobs/select <expression>)]                : List jobs matching <expression>.
+  [ansi(h,+jobs/silence %[<bucket>%])]                 : Suppress job broadcasts.
   [ansi(h,+jobs/<sort|date|pri|due>)]                : Sorts jobs by bucket/mod/pri/due.
   [ansi(h,+jobs/who <player>)]                       : Lists jobs assigned to player.
-  [ansi(h,+job <#>)]                                 : View a job.
-  [ansi(h,+job/access <#>=<player>)]                 : Toggle access to a job.
-  [ansi(h,+job/act <#>)]                             : Display actions on a job.
-  [ansi(h,+job/add <#>=<comments>)]                  : Add comments to a job.
   
   You can get details on each command with '+jhelp <command>/<switch>' without
   the + symbol. i.e., '+jhelp jobs/all'.
@@ -715,6 +713,10 @@
   Continued in: commands2
 & commands2
 
+  [ansi(h,+job <#>)]                                 : View a job.
+  [ansi(h,+job/access <#>=<player>)]                 : Toggle access to a job.
+  [ansi(h,+job/act <#>)]                             : Display actions on a job.
+  [ansi(h,+job/add <#>=<comments>)]                  : Add comments to a job.
   [ansi(h,+job/all <#>)]                             : Displays all comments in a job.
   [ansi(h,+job/approve <#>=<comment>)]               : Approve a player request.
   [ansi(h,+job/assign <#>=<<player>|none>)]          : Assign a job to player.
@@ -730,10 +732,6 @@
   [ansi(h,+job/edit <#>/<entry#>=<old>/<new>)]       : Edits a job.
   [ansi(h,+job/esc <#>=<green|yellow|red>)]          : Escalate a job's priority.
   [ansi(h,+job/help <#>)]                            : Display help for a job's bucket.
-  [ansi(h,+job/last <#>=<X>)]                        : List last <X> entries in <#>.
-  [ansi(h,+job/lock <#>)]                            : Locks a job and prevents changes.
-  [ansi(h,+job/log <#>)]                             : Logs a job.
-  [ansi(h,+job/mail <#>=<message>)]                  : Mails opener with <message>.
 
   You can get details on each command with '+jhelp <command>/<switch>' without
   the + symbol. i.e., '+jhelp jobs/all'.
@@ -741,21 +739,25 @@
   Continued in: commands3
 & commands3
 
+  [ansi(h,+job/last <#>=<X>)]                        : List last <X> entries in <#>.
+  [ansi(h,+job/lock <#>)]                            : Locks a job and prevents changes.
+  [ansi(h,+job/log <#>)]                             : Logs a job.
+  [ansi(h,+job/mail <#>=<message>)]                  : Mails opener with <message>.
   [ansi(h,+job/merge <source>=<destination>)]        : Merge <source> into <destination>.
   [ansi(h,+job/name <#>=<name>)]                     : Rename a job.
+  [ansi(h,+job/nospam <#>)]                          : Suppress job @mail.
   [ansi(h,+job/publish <#>%[=<comment>%])]             : Publishes a job or <comment>.
   [ansi(h,+job/query <players>/<title>=<query>)]     : Sends a query to <players>.
   [ansi(h,+job/set <#>=<status>)]                    : Set progress status on a job.
+  [ansi(h,+job/silence <#>)]                         : Suppress job broadcasts.
   [ansi(h,+job/source <#>=<player list>)]            : Changes opened-by to <player list>.
   [ansi(h,+job/summary <#>)]                         : Views a job's header & SUMMARY.
   [ansi(h,+job/sumset <#>/<set>=<value>)]            : Changes a job SUMMARY setting.
-  [ansi(h,+job/tag <#>)]                             : Tags a job for you.
-  [ansi(h,+job/tag <#>=<player list>)]               : Tags a job for <player list>.
+  [ansi(h,+job/tag <#>%[=<player list>%])]             : Tags a job for you or <player list>.
   [ansi(h,+job/trans <#>=<bucket>)]                  : Transfer (or undelete) a job.
   [ansi(h,+job/undelete <#>)]                        : Restores a deleted job.
   [ansi(h,+job/unlock <#>)]                          : Unlocks a job.
-  [ansi(h,+job/untag <#>)]                           : Untags a job.
-  [ansi(h,+job/untag <#>=<player list>)]             : Untags a job for <player list>.
+  [ansi(h,+job/untag <#>%[=<player list>%])]           : Untags a job for you or <player list>.
 
   You can get details on each command with '+jhelp <command>/<switch>' without
   the + symbol. i.e., '+jhelp jobs/all'.
@@ -826,13 +828,15 @@
   [ansi(h,+myjob/last <#>=<number of comments>)]
   [ansi(h,+myjob/add <#>=<comment>)]
   [ansi(h,+myjobs/catchup)]
+  [ansi(h,+myjobs/nospam)]
+  [ansi(h,+myjob/nospam <#>)]
   
   This suite of commands allows the submitter to view and modify jobs that they 
   have submitted to the system. When viewing a job that you own, you can only 
   see the comments that you have added, not comments added by others.  +myjobs
   lists your jobs; you can read an individual job or the last comment(s).  You
   can also add additional comments to the job.  Catching up jobs clears the new
-  job indicator.
+  job indicator. Nospam suppresses @mails for all jobs, or a single job.
   
   Staff can give you access to jobs you could not otherwise see. In those 
   instances, you can see all comments added, not just those you have added.
@@ -1231,9 +1235,9 @@
     
   You can filter out some mail generated by the system (such as +request
   receipts) by setting:  
-    > &JOBS_NOSPAM me=1
+    > &JOBS_NOSPAM me=1 (or just type +myjobs/nospam)
   You can also turn off jobs broadcasts by:
-    > &JOBS_SILENCE me=1
+    > &JOBS_SILENCE me=1 (or just type +jobs/silence)
   You can suppress the automatic jobs list on login with:
     > &JOBS_LOGIN me=0
 
