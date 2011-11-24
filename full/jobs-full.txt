@@ -2024,6 +2024,7 @@ $+myjob/add *=*:
 		1110*,@pemit %#=That job is locked and cannot be changed at this time.,
 		{
 			@pemit %#=Comments to [name(%q0)] added.;
+			&TAGGED_FOR %q0=[remove(get(%q0/TAGGED_FOR),%#)];
 			@trigger %va/TRIG_ADD=%q0,trim(%1),%#,ADD;
 			@trigger %va/TRIG_BROADCAST=%q0,%#,ADD
 		}
