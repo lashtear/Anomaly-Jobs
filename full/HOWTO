@@ -6,6 +6,7 @@ Anomaly Jobs 6.5 HOWTO
 4. New command aliases
 5. New +job/select options - Red jobs
 6. Recycle bin for deleted jobs
+7. Working around buffer limits and max jobs.
 
 
 1. Introduction
@@ -171,3 +172,55 @@ Substitute <RAR> in the below code with the RAR bucket dbref.
 
 Make an identical one for HOOK_COM, HOOK_DNY, and HOOK_DEL.  You may want
 to also set up separate hooks or other permissions for the RAR bucket.
+
+7. Working around buffer limits and max jobs.
+-----------------------------------------------------------------------------
+While the Job Database Object's MAX_JOBS attributes provides a softcode limit
+to jobs in the system, the actual maximum number of jobs is limited by buffer
+size, particularly for the many calls to lcon(%va).  On a large RhostMUSH game
+with 5-digit DBREFs (taking 7 bytes per job in a list) and a 4000-byte byffer,
+the lcon() can fill up with as few as 571 jobs.  There are a few strategies to
+attempt to work around this issue.
+
+a. Parallel +jobs install
+
+It is possible to clone all the jobs objects and change the commands in order
+to maintain a separate pile of jobs.  For example, player +requests could go
+to the usual +jobs system, and code/build projects could be managed in a
++wizjobs system.  Hooks could be used to move jobs between systems if needed.
+
+b. Multiple job database objects
+
+Similar to (a) but using only one set of jobs commands, jobs could be stored
+in the usual job database object, or selected jobs could be stored in another
+object.  All the job listing commands could operate on each lcon() list
+sequentially, with the final list combined for output.
+
+c. Compressing the lcon()
+
+By removing the # and using pack() to convert dbrefs to base 64, dbrefs below
+#262144 would use only 3 digits and permit at least 1000 jobs to be listed. 
+The below function would generate a "compressed" lcon() of up to MAX_JOBS 
+items:
+
+&FUN_PACKLCON JDO=
+	if(isdbref(setr(a,con(%va))),
+		strcat(
+			setq(b,pack(after(%qa,#))),
+			null(iter(repeat(.%B,get(%va/MAX_JOBS)),
+				switch(setr(a,next(%qa)),
+					#-1,ibreak(),
+					setq(b,cat(%qb,pack(after(%qa,#))))
+				)
+			)),
+			%qb
+		)
+	)
+
+The packed dbref would be passed to the various filters and sorting functions,
+which would then use strcat(#,unpack(%0)) to restore the full dbref.  Required
+functions to unpack include all the &SORTBY_* and &SEL_* functions, except 
+those which call &FIL_* attributes to do the real work (put the unpack in the 
+&FIL).  It's a little more work up-front than the other approaches, and causes
+a few more function invocations, but allows the existing jobs functions to
+work transparently to users.
