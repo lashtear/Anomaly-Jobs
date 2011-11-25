@@ -1,0 +1,440 @@
+#
+# Color Substitutions Patch For Jobs 6.0/6.1
+# NOTE: This code may be superceded by planned changes to skin structure.
+# 
+# Author: Minion@Crossroads
+#
+# Permits substituting colors in the DEFAULT skin
+# 
+# To use, set attributes on yourself:
+# &JOBCOLORS me=<from color> <to color>|<from color3> <to color3>|<from color3> <to color3>
+#
+# Example:
+#   &JOBCOLORS me=hr m|hc c
+# substitutes magenta for highlight red and cyan for highlight cyan 
+
+@switch 
+	[ifelse(
+		isdbref(setr(0,
+			switch(
+				first(version()),
+				PennMUSH,lsearch(all,eobjects,\[strmatch(name(##),Job Global Object <JGO>)\]),
+				RhostMUSH,searchng(object=Job Global Object <JGO>),
+				search(object=Job Global Object <JGO>)
+			)
+		)),
+		setq(1,get(%q0/VA)),
+		[setq(1,
+			switch(
+				first(version()),
+				PennMUSH,lsearch(all,eobjects,\[strmatch(name(##),Job Database <JD>)\]),
+				RhostMUSH,searchng(object=Job Database <JD>),
+				search(object=Job Database <JD>)
+			)
+		)]
+		[setq(0,loc(%q1))]
+	)]
+	[isdbref(%q0)]
+	[and(
+		isdbref(%q1),
+		gte(edit(first(default(%q1/version,0),.),v,),6)
+	)]
+	=
+	0*,{
+		think [ansi(hc,ANOMALY JOBS:)] [ansi(hr,No jobs installation found.)];
+		think [ansi(hc,ANOMALY JOBS:)] [ansi(hr,Aborting. Cancel this script in your client.)];
+		&JOB_VA %#=#-1;
+	},
+	10*,{
+		think [ansi(hc,ANOMALY JOBS:)] [ansi(hr,Not a valid Jobs 6 or later installation.)];
+		think [ansi(hc,ANOMALY JOBS:)] [ansi(hr,Aborting. Cancel this script in your client.)];
+		&JOB_VA %#=#-1;
+	},{
+		think [ansi(hc,ANOMALY JOBS:)] Jobs 6 installation found.  Installing patch.;
+		&JOB_VA %#=%q1;
+	}
+-
+
+&FN_COLORSUB [v(JOB_VA)]=
+	rest(grab([get(%#/JOBCOLORS)]|%0 %0,%0 *,|))
+-
+
+&DEFAULT_BANNER [v(JOB_VA)]=
+	[setq(0,%0)]
+	[setq(x,
+		u(%va/FN_ITEMIZE,
+			map(MAP_NAME,get(%q0/OPENED_BY),%b,|),
+		|)
+	)]
+	[setq(y,
+		u(%va/FN_ITEMIZE,
+			map(MAP_NAME,get(%q0/TAGGED_FOR),%b,|),
+			|
+		)
+	)]
+	[ljust(
+		[rjust(
+			ansi(u(%va/FN_COLORSUB,hc),Bucket:),
+			10
+		)]%b
+		[u(%va/FN_BUCKETNAME,%q0)],
+		div(u(FN_FLEXWIDTH,80),2)
+	)]
+	[rjust(ansi(u(%va/FN_COLORSUB,hc),Due On:),12)]%b
+	[ifelse(
+		get(%q0/DUE_ON),
+		ifelse(
+			gt(secs(),get(%q0/DUE_ON)),
+			OVERDUE!,
+			convsecs(get(%q0/DUE_ON))
+		),
+		-
+	)]%r
+	[ljust(
+		[rjust(ansi(u(%va/FN_COLORSUB,hc),Title:),10)]%b
+		[get(%q0/TITLE)]
+		,div(u(FN_FLEXWIDTH,80),2)
+	)]
+	[rjust(ansi(u(%va/FN_COLORSUB,hc),Status:),12)]%b
+	[switch(
+		get(%q0/PRIORITY),
+		1,Green,
+		2,Yellow,
+		3,Red
+	)]%b%(
+	[switch(
+		get(%q0/STATUS),
+		0,On Hold,
+		1,New,
+		2,Underway,
+		3,25%%,
+		4,50%%,
+		5,75%%,
+		6,100%%,
+		?
+	)]%)%r
+	[ljust(
+		[rjust(ansi(u(%va/FN_COLORSUB,hc),Opened On:),10)] [convsecs(get(%q0/OPENED_ON))],
+		div(u(FN_FLEXWIDTH,80),2)
+	)]
+	[rjust(ansi(u(%va/FN_COLORSUB,hc),Assigned To:),12)]%b
+	[ifelse(
+		isdbref(get(%q0/ASSIGNED_TO)),
+		name(get(%q0/ASSIGNED_TO)),
+		Nobody
+	)]%r
+	[rjust(ansi(u(%va/FN_COLORSUB,hc),Opened By:),10)]%b%qx
+	[ifelse(words(%qy),%r[rjust(ansi(u(%va/FN_COLORSUB,hc),Tagged:),10)]%b%qy,)]
+-
+
+&DEFAULT_BUCKETHEADER [v(JOB_VA)]=
+	[u(FN_HEADER,Bucket List)]%r
+	[ifelse(
+		u(%va/FN_WIZONLY,%#),
+		[ansi(u(%va/FN_COLORSUB,hc),
+			[ljust(Name,9)]
+			[ljust(Flags,6)]%b%b
+			[ljust(Description,u(FN_FLEXWIDTH,30))]
+			[rjust(#Jobs,5)]
+			[rjust(Pct,5)]
+			[space(3)]C%b%bA%b%bD%b%bDue
+			[space(3)]
+			ARTS
+		)],
+		[ansi(u(%va/FN_COLORSUB,hc),
+			[ljust(NAME,8)]
+			[ljust(Description,u(FN_FLEXWIDTH,50))]%b
+			[rjust(Viewing,20)]
+		)]
+	)]%r
+	[u(FN_BREAK)]
+-
+
+&DEFAULT_BUCKETLIST [v(JOB_VA)]=
+	[ifelse(
+		u(%va/FN_WIZONLY,%#),
+		[ljust(name(%0),6)]%b%b
+			[ifelse(u(%va/FN_MONITORCHECK,%0,%#),V,-)]
+			[ifelse(u(%va/IS_HIDDEN,%0),H,-)]
+			[ifelse(u(%va/IS_LOCKED,%0),ifelse(u(%va/FN_HASATTRP,%0,CHECKOUT),C,L),-)]
+			[ifelse(u(%va/IS_TAGGED,%0),T,-)]
+			[ifelse(u(%va/IS_PUBLIC,%0),M,-)]
+			[ifelse(u(%va/IS_PUBLISHED,%0),P,-)]
+			[ifelse(u(%va/IS_SUMMARY,%0),S,-)]%b%b
+			[u(%va/FN_STREXACT,get(%0/DESC),u(FN_FLEXWIDTH,30))]
+			[rjust(words(remove(children(%0),#-1)),5)]
+			[rjust(
+				mul(
+					round(
+						fdiv(
+							words(remove(children(%0),#-1)),
+							max(1,words(lcon(%va)))
+						),
+						2
+					),
+					100
+				)%%,
+				5
+			)]%b%b
+			[rjust(u(%va/FN_FIND-BBNUM,get(%0/POST_COMPLETE)),2)]%b
+			[rjust(u(%va/FN_FIND-BBNUM,get(%0/POST_APPROVE)),2)]%b
+			[rjust(u(%va/FN_FIND-BBNUM,get(%0/POST_DENY)),2)]
+			[rjust(default(%0/TURNAROUND,0),5)]
+			[rjust(
+				[ifelse(
+					u(%va/FN_HASATTR,%0,STAT_ART),
+					[round(
+						fdiv(
+							fdiv(
+								first(get(%0/STAT_ART)),
+								rest(get(%0/STAT_ART))
+							),
+							86400
+						),
+						0
+					)]d,
+					-
+				)],
+				7
+			)],
+		[ljust(name(%0),6)]%b%b
+			[u(%va/FN_STREXACT,get(%0/DESC),u(FN_FLEXWIDTH,50))]%b
+			[rjust(
+				ifelse(
+					u(%va/FN_MONITORCHECK,%0,%#),
+					Yes,
+					-
+				),
+				20
+			)]
+	)]
+-
+
+&DEFAULT_FLAGS [v(JOB_VA)]=
+	[ifelse(
+		u(me/IS_LOCKED,%0),
+		u(me/FN_FLAG,ifelse(u(%va/FN_HASATTRP,%0,CHECKOUT),CHECKED OUT,LOCKED),u(%va/FN_COLORSUB,hr)),
+	)]
+	[ifelse(
+		u(me/IS_PUBLIC,%0),
+		u(me/FN_FLAG,Myjobs),
+	)]
+	[ifelse(
+		u(me/IS_PUBLISHED,%0),
+		u(me/FN_FLAG,Published),
+	)]
+-
+
+&DEFAULT_HEADER [v(JOB_VA)]=
+	[switch(
+		%0,
+		,[repeat(=,u(FN_FLEXWIDTH,79))],
+		[center(| [ansi(u(%va/FN_COLORSUB,hy),%0)] |,u(FN_FLEXWIDTH,79),=)]
+	)]
+-
+
+&DEFAULT_JOBLIST [v(JOB_VA)]=
+	[setq(j,
+		secure(
+			ifelse(
+				u(%va/FN_HASATTRP,%1,JOBS),
+				lcstr(mid(get(%1/JOBS),0,20)),
+				get(%va/JOBS_DEFAULT)
+			)
+		)
+	)]
+	[setq(1,
+		ifelse(
+			get(%0/DUE_ON),
+			ifelse(
+				gt(secs(),get(%0/DUE_ON)),
+				r,switch(
+					get(%0/PRIORITY),
+					1,g,
+					2,y,
+					3,r,
+					g
+				)
+			),
+			switch(
+				get(%0/PRIORITY),
+				1,g,
+				2,y,
+				3,r
+			)
+		)
+	)]
+	[ifelse(
+		u(%va/FN_ISNEW,%0,%1),
+		[ansi(u(%va/FN_COLORSUB,hr),*)]%b,
+		%b%b
+	)]
+	[ansi(u(%va/FN_COLORSUB,h%q1),
+		[rjust(
+			[last(name(%0))],
+			5
+		)]%b
+		[iter(
+			lnum(strlen(%qj)),
+			[u(%va/DISPLAY_[mid(%qj,##,1)],%0,%1)]
+		)]
+	)]
+-
+
+&DEFAULT_JOBSHEADER [v(JOB_VA)]=
+	[u(FN_HEADER,Anomaly Jobs [u(VERSION)])]%r
+	[setq(j,
+		[secure(
+			switch(
+				u(%va/FN_HASATTRP,%0,JOBS),
+				1,lcstr(mid(get(%0/JOBS),0,20)),
+				u(JOBS_DEFAULT)
+			)
+		)]
+	)]
+	[ansi(u(%va/FN_COLORSUB,hc),*%b%b
+		[ljust(Job#,5)]
+		[iter(
+			lnum(strlen(%qj)),
+			u(HEADER_[mid(%qj,##,1)])
+		)]
+	)]%r
+	[u(FN_BREAK)]
+-
+
+&DEFAULT_MYJOBLIST [v(JOB_VA)]=
+	[ifelse(u(FN_ISNEW,%0,%1),[ansi(u(%va/FN_COLORSUB,hr),*)],%b)]
+		%b
+		[setq(j,TDAS)]
+		[ansi(u(%va/FN_COLORSUB,n),[rjust([last(name(%0))],5)]
+		%b
+		[iter(lnum(strlen(%qj)),u(DISPLAY_[mid(%qj,##,1)],%0,%1))]
+	)]
+-
+
+&DEFAULT_MYJOBSHEADER [v(JOB_VA)]=
+	[u(FN_HEADER,
+		Anomaly Jobs [u(VERSION)]
+	)]
+	%r
+	[setq(j,TDAS)]
+	[ansi(u(%va/FN_COLORSUB,hc),ljust(
+			*
+			%b
+			%b
+			[ljust(Job#,5)]
+			[iter(lnum(strlen(%qj)),u(HEADER_[mid(%qj,##,1)]))],
+		[u(FN_FLEXWIDTH,79)])
+	)]
+	%r
+	[u(FN_BREAK)]
+-
+
+&DEFAULT_MYBANNER [v(JOB_VA)]=
+	[setq(0,%0)]
+	[setq(x,u(%va/FN_ITEMIZE,map(MAP_NAME,get(%q0/OPENED_BY),%b,|),|))]
+	[ljust(
+		[rjust(ansi(u(%va/FN_COLORSUB,hc),Bucket:),10)]%b
+		[u(%va/FN_BUCKETNAME,%q0)],div(u(FN_FLEXWIDTH,80),2))]
+		[rjust(ansi(u(%va/FN_COLORSUB,hc),Due On:),12)]%b
+		[ifelse(get(%q0/DUE_ON),
+			ifelse(gt(secs(),get(%q0/DUE_ON)),
+				OVERDUE!,
+				convsecs(get(%q0/DUE_ON))),
+			-
+		)]
+		%r
+		[ljust(
+			[rjust(ansi(u(%va/FN_COLORSUB,hc),Title:),10)]%b
+			[get(%q0/TITLE)],
+			div(u(FN_FLEXWIDTH,80),2)
+		)]
+		[rjust(ansi(u(%va/FN_COLORSUB,hc),Assigned To:),12)]%b
+		[ifelse(isdbref(get(%q0/ASSIGNED_TO)),name(get(%q0/ASSIGNED_TO)),Nobody)]
+		%r
+		[ljust(
+			[rjust(ansi(u(%va/FN_COLORSUB,hc),Opened On:),10)]%b
+			[convsecs(get(%q0/OPENED_ON))],
+			div(u(FN_FLEXWIDTH,80),2)
+		)]
+		[rjust(ansi(u(%va/FN_COLORSUB,hc),Status:),12)]%b
+		[switch(get(%q0/PRIORITY),1,Green,2,Yellow,3,Red)]%b
+		%r
+		[rjust(ansi(u(%va/FN_COLORSUB,hc),Opened By:),10)]%b
+		%qx
+-
+
+&DEFAULT_READ [v(JOB_VA)]=
+	[repeat(-,u(FN_FLEXWIDTH,79))]%r
+	[ifelse(
+		u(%va/EDIT_ACCESS,%#),
+		[ansi(u(%va/FN_COLORSUB,h),%[)]
+			[ifelse(
+				and(
+					or(
+						u(%va/IS_PUBLISHED,%1),
+						switch(
+							extract(get(%1/%0),3,1,|),
+							u(%1/OPENED_BY),1,
+							0),
+						hasflag(%1/%0,no_inherit)
+					),
+					u(%va/IS_PUBLIC,%1)
+				),
+				ansi(u(%va/FN_COLORSUB,hc),[rest(%0,_)]+),
+				ansi(u(%va/FN_COLORSUB,hc),[rest(%0,_)]-)
+			)]
+			[ansi(u(%va/FN_COLORSUB,h),%])]%b,
+	)]
+	[ansi(u(%va/FN_COLORSUB,h),[extract(get(%1/%0),4,1,|)]%b
+		added on%b
+		[convsecs(
+			extract(
+				get(%1/%0),2,1,|)
+		)]:%b 
+	)]
+	[edit(last(get(%1/%0),|),@@PIPE@@,|)]
+-
+
+&DEFAULT_STAFFSUM [v(JOB_VA)]=
+	%r
+	[repeat(-,u(FN_FLEXWIDTH,79))]%r
+	[rjust(ansi(u(%va/FN_COLORSUB,hc),DB#:),10)] %0[space(10)]
+		[rjust(ansi(u(%va/FN_COLORSUB,hc),Comments:),10)] [setr(z,words(lattr(%0/COMMENT_*)))]%r%r
+	[rjust(ansi(u(%va/FN_COLORSUB,hc),Players:),10)] %(Players contributing to this job%)%r
+	[setq(y,
+		setunion(
+			iter(
+				lattr(%0/COMMENT_*),
+				extract(get(%0/##),4,1,|),%b,|
+			),,|
+		)
+	)]
+	[u(%va/fn_columns,%qy,20,|,11)]
+	[ifelse(
+		u(%va/FN_HASATTR,%0,LIST_READERS),
+		%r[rjust(ansi(u(%va/FN_COLORSUB,hc),Readers:),10)]%b
+			%(Players who have read this job in the past%)%r
+		[setq(z,
+			iter(
+				get(%0/LIST_READERS),
+				first(##,|)
+			)
+		)]
+		[u(%va/fn_columns,map(%va/MAP_NAME,%qz,%b,|),20,|,11)],
+	)]
+	%r
+	[rjust(ansi(u(%va/FN_COLORSUB,hc),Stats:),10)]%r
+	[u(%va/fn_columns,
+		iter(
+			ifelse(
+				u(%va/FN_HASATTR,%0,LIST_STATS),
+				sort(get(%0/LIST_STATS)),
+			),
+			[first(##,|)]%b[last(##,|)],%b,|
+		),20,|,11
+	)]%r
+-
+
+&DEFAULT_SUMMARY [v(JOB_VA)]=%r[repeat(-,u(FN_FLEXWIDTH,79))]%r[u(parent(%0)/SUMMARY,%0)]
+-
