@@ -17,8 +17,8 @@ Testers:       nails @ MUSHpark
 
 Platforms supported: MUX 2.x, TinyMUSH 3.1, PennMUSH 1.8.2, RhostMUSH
 
-Requirements: Myrddin's BBS, @mail system.
-                     
+Requirements: Myrddin's BBS, @mail system (See paragraph 1 for details.)
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
@@ -68,19 +68,23 @@ read the install file notes for behavioral changes you might wish to make.
   * Be patient. The install script will tell you when it is finished.
     Don't try to do anything until install is complete.
 
-This code REQUIRES Myrddin's BBS to be installed, as it uses the BBS to post
+This code requires Myrddin's BBS to be installed, as it uses the BBS to post
 completed/approved/denied jobs to. So long as your BBS is unmodified it should
-work without problems. There is no need to configure the BBS or create any
-bboards, as it will work its magic automatically. It will automatically set up
-two BBS boards to use with the system - a public read-only BBS for game-wide
-progress tracking, and a private, staff-only board for privately tracking
-player requests and other issues.
+work without problems. It is possible to integrate Jobs with other bboard
+systems by changing the TRIG_POST attribute on the Job Tracker object.
 
-It also requires hardcoded @mail at this time. The jobs system owner is
-excluded from mailings in the default setup.
+There is no need to configure the BBS or create any bboards, as the installer
+will work its magic automatically. It will set up two BBS boards to use with
+the system - a public read-only BBS for game-wide progress tracking, and a
+private, staff-only board for privately tracking player requests and other
+issues.
 
-This script requires no modification so long as used on the servers listed
-above and you want the behavior to be for staff-only.
+Jobs also requires an @mail system. The Job Tracker's TRIG_MAIL attribute can
+be modified for non-standard mailer syntax if needed. The jobs system owner
+is excluded from mailings in the default setup.
+
+The installation script requires no modification so long as used on the
+servers listed above and you want the behavior to be for staff-only.
 
 If upgrading from a 5.0 install and you have the HOOK_APPROVE, HOOK_DENY, 
 HOOK_COMPLETE, or HOOK_DELETE attributes set on your Job Parent Object or any
@@ -195,7 +199,8 @@ mind that boosting it also decreases security, as twinks can
 potentially spam the system through spurious job creation.
 
 Setting this to 0 or a very large number will cause jobs to be limited
-by the system based on buffer size.
+by the system based on buffer size.  See the HOWTO file for a discussion
+of buffer limits and ways to work around them.
 
 &MAX_JOBS Job Database <JD>=200
 
