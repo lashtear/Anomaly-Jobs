@@ -784,11 +784,11 @@ Players:
   [1m+job/source <#>=<player list>[0m            : Changes opened-by to <player list>.
   [1m+job/summary <#>[0m                         : Views a job's header & SUMMARY.
   [1m+job/sumset <#>/<set>=<value>[0m            : Changes a job SUMMARY setting.
-  [1m+job/tag <#>[=<player list>][0m             : Tags a job for you or <player list>.
+  [1m+job/tag <#>[=<player list>][0m             : Tags job for you or <player list>.
   [1m+job/trans <#>=<bucket>[0m                  : Transfer (or undelete) a job.
   [1m+job/undelete <#>[0m                        : Restores a deleted job.
   [1m+job/unlock <#>[0m                          : Unlocks a job.
-  [1m+job/untag <#>[=<player list>][0m           : Untags a job for you or <player list>.
+  [1m+job/untag <#>[=<player list>][0m           : Untags job for you/<player list>.
 
   You can get details on each command with '+jhelp <command>/<switch>' without
   the + symbol. i.e., '+jhelp jobs/all'.

@@ -784,11 +784,11 @@ Players:
   [ansi(h,+job/source <#>=<player list>)]            : Changes opened-by to <player list>.
   [ansi(h,+job/summary <#>)]                         : Views a job's header & SUMMARY.
   [ansi(h,+job/sumset <#>/<set>=<value>)]            : Changes a job SUMMARY setting.
-  [ansi(h,+job/tag <#>%[=<player list>%])]             : Tags a job for you or <player list>.
+  [ansi(h,+job/tag <#>%[=<player list>%])]             : Tags job for you or <player list>.
   [ansi(h,+job/trans <#>=<bucket>)]                  : Transfer (or undelete) a job.
   [ansi(h,+job/undelete <#>)]                        : Restores a deleted job.
   [ansi(h,+job/unlock <#>)]                          : Unlocks a job.
-  [ansi(h,+job/untag <#>%[=<player list>%])]           : Untags a job for you or <player list>.
+  [ansi(h,+job/untag <#>%[=<player list>%])]           : Untags job for you/<player list>.
 
   You can get details on each command with '+jhelp <command>/<switch>' without
   the + symbol. i.e., '+jhelp jobs/all'.
