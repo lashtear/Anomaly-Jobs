@@ -412,7 +412,7 @@ think [ansi(hc,ANOMALY JOBS:)] Installing skins.
 &MAINTAINER [v(JOB_VA)]=Minion@Crossroads
 &CONTRIBUTORS [v(JOB_VA)]=Firestorm@Ephemera, Grey@Anomaly, Ian@MUX, Minion@Crossroads
 &LICENSE [v(JOB_VA)]=You may port this code to any game provided that these credits remain intact. Please report any and all bugs, feedback, etc. to the project's home: http://code.google.com/p/anomalyjobs/
-&RELEASE [v(JOB_VA)]=TBD, 2011
+&RELEASE [v(JOB_VA)]=November 25, 2011
 &VERSION [v(JOB_VA)]=v6.5
 &VERSION [v(JOB_VC)]=v6.5
 @switch first(version())=RhostMUSH,{&TRIG_MAIL [v(JOB_VB)]=lit(mail [remove(%0,owner(me))]=%1//%2)},PennMUSH,{&TRIG_MAIL [v(JOB_VB)]=lit(@mail [remove(%0,owner(me))]=%1/%2)},{&TRIG_MAIL [v(JOB_VB)]=lit(@mail/quick [remove(%0,owner(me))]/%1=%2)}
